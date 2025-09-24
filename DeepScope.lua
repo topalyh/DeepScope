@@ -1025,7 +1025,7 @@ UserInputService.InputEnded:Connect(function(processed)
 	end
 end)
 spawn(function()
-	while wait() do
+	while task.wait() do
 		modules.other.fly.Loop()
 	end
 end)
@@ -4312,5 +4312,6 @@ while true do
 		newgui.spawndistance.Text = 'distance from spawn: unknown | unknown'
 	end
 end
+
 
 
