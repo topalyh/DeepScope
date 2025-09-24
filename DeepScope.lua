@@ -4086,6 +4086,20 @@ end)
 registerCommand("discord", function()
 	toClipboard("https://discord.gg/J7WWbFWR")
 end)
+registerCommand("speed", function(args)
+	local speed = tonumber(args[1]) or 16
+	local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.WalkSpeed = speed
+	end
+end)
+registerCommand("jumppower", function(args)
+	local jump = tonumber(args[1]) or 50
+	local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.JumpPower = jump
+	end
+end)
 while true do
 	task.wait()
 	modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
