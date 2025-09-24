@@ -11,12 +11,14 @@ function missing(t, f, fallback)
 	if type(f) == t then return f end
 	return fallback
 end
-cloneref = missing("function", cloneref, function(...) return ... end)
-everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
 local UserInputService = game:GetService('UserInputService')
 local RunService = game:GetService('RunService')
 local LocalPlayer = game:GetService('Players').LocalPlayer
 local GuiService = game:GetService('GuiService')
+if not RunService:IsStudio() then
+	cloneref = missing("function", cloneref, function(...) return ... end)
+	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
+end
 repeat wait() until LocalPlayer.Character
 local suffixes = {
 	'',
@@ -528,7 +530,7 @@ local add_objects = {
 		},
 		['Parts'] = {
 			CornerWedgePart = {
-				Name = 'CornerWedgePart',
+				Name = 'Sky',
 				Order = 134
 			},
 			Part = {
@@ -540,7 +542,7 @@ local add_objects = {
 				Order = 137
 			},
 			WedgePart = {
-				Name = 'WedgePart',
+				Name = 'Sky',
 				Order = 138
 			}
 		}
@@ -1023,11 +1025,9 @@ UserInputService.InputEnded:Connect(function(processed)
 	end
 end)
 spawn(function()
-	while task.wait() do
-		if not isDied then
-			modules.other.fly.Loop()
-		end
-	end
+	repeat wait()
+		modules.other.fly.Loop()
+	until not Enabled
 end)
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
@@ -2453,9 +2453,6 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local commandGui8 = createInstance("UIScale", {
-		Parent = commandGui1
-	})
 	commandGui1:SetAttribute("Hovering", false)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -3776,17 +3773,17 @@ newgui.startbutton.MouseButton1Down:Connect(function()
 end)
 newgui.Parent.commandbar:GetAttributeChangedSignal("Hovering"):Connect(function()
 	if newgui.Parent.commandbar:GetAttribute("Hovering") then
-		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 138), "InOut", "Sine", 0.3, true)
+		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 138), "InOut", "Quad", 0.3, true)
 	else
-		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 18), "InOut", "Sine", 0.3, true)
+		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 18), "InOut", "Quad", 0.3, true)
 	end
 end)
 local textBox: TextBox = newgui.Parent.commandbar.input
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if input.KeyCode == commandKey then
+		RunService.RenderStepped:Wait()
 		textBox:CaptureFocus()
-		textBox.Text = ""
 		textBox.Parent:SetAttribute("Hovering", true)
 	end
 end)
@@ -3799,6 +3796,16 @@ end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
 end)
+local function generateRandomString()
+	local length = 10
+	local characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	local result = ""
+	for i = 1, length do
+		local index = math.random(1, #characters)
+		result = result .. characters:sub(index, index)
+	end
+	return result
+end
 notify('rbxthumb://type=AvatarHeadShot&id='..LocalPlayer.UserId..'&w=420&h=420', initMessages[math.random(1, #initMessages)]:gsub('{player}', LocalPlayer.DisplayName), 10)
 warn('aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=')
 newgui.mode.MouseButton1Down:Connect(function()
@@ -3877,7 +3884,7 @@ end)
 textBox.Changed:Connect(function()
 	local text = textBox.Text:lower()
 	local list = newgui.Parent.commandbar.commandlist:GetChildren()
-	text = text:gsub(";", "")
+
 	for _, v in list do
 		if v:IsA('TextButton') then
 			if text == '' then
@@ -4039,7 +4046,7 @@ registerCommand("jerk", function()
 	end
 end)
 registerCommand("info", function()
-	notify(nil, `Welcome! This command is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY's <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
+	notify(nil, `Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY's <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
 end)
 local Noclipping = nil
 registerCommand("noclip", function()
@@ -4069,6 +4076,26 @@ registerCommand("rejoin", function()
 		game["Teleport Service"]:Teleport(game.PlaceId, LocalPlayer)
 	else
 		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+	end
+end)
+registerCommand("serverhop", function(args, speaker)
+	-- thanks to Amity for fixing
+	local servers = {}
+	local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
+	local body = game.HttpService:JSONDecode(req)
+
+	if body and body.data then
+		for i, v in next, body.data do
+			if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+				table.insert(servers, 1, v.id)
+			end
+		end
+	end
+
+	if #servers > 0 then
+		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+	else
+		return notify(nil, "Couldn't find a server.")
 	end
 end)
 registerCommand("exit", function()
@@ -4103,9 +4130,91 @@ registerCommand("jumppower", function(args)
 		humanoid.JumpPower = jump
 	end
 end)
-registerCommand("guiscale", function(args)
-	local scale = tonumber(args[1]) or 1
-	newgui.Parent.commandbar.UIScale.Scale = math.clamp(scale, 0.5, 3)
+registerCommand("spin", function(args)
+	local speed = tonumber(args[1]) or 20
+	local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if root then
+		for i,v in pairs(root:GetChildren()) do
+			if v.Name == "spin" then
+				v:Destroy()
+			end
+		end
+		local BAV = Instance.new("BodyAngularVelocity", root)
+		BAV.Name = "spin"
+		BAV.MaxTorque = Vector3.new(0, math.huge, 0)
+		BAV.AngularVelocity = Vector3.new(0, speed, 0)
+	end
+end)
+registerCommand("unspin", function()
+	local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if root then
+		for i,v in pairs(root:GetChildren()) do
+			if v.Name == "spin" then
+				v:Destroy()
+			end
+		end
+	end
+end)
+registerCommand("notifyping", function()
+	notify(nil, "Ping: "..math.round(LocalPlayer:GetNetworkPing() * 1000).."ms", 4)
+end)
+local flinging = false
+registerCommand("fling", function()
+	flinging = false
+	for _, child in LocalPlayer.Character:GetDescendants() do
+		if child:IsA("BasePart") then
+			child.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.5)
+		end
+	end
+	local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if root then
+		wait(0.1)
+		runCommand("noclip")
+		local spiny = Instance.new("BodyAngularVelocity", root)
+		spiny.Name = generateRandomString()
+		spiny.AngularVelocity = Vector3.new(0, 1000000, 0)
+		spiny.MaxTorque = Vector3.new(0, math.huge, 0)
+		spiny.P = math.huge
+		local char = LocalPlayer.Character
+		for i, v in next, char do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+				v.Massless = true
+				v.Velocity = Vector3.new(0, 0, 0)
+			end
+		end
+		flinging = true
+		local function flingDiedF()
+			runCommand('unfling')
+		end
+		flingDied = LocalPlayer.Character:FindFirstChildOfClass('Humanoid').Died:Connect(flingDiedF)
+		repeat
+			spiny.AngularVelocity = Vector3.new(0,99999,0)
+			wait(.2)
+			spiny.AngularVelocity = Vector3.new(0,0,0)
+			wait(.1)
+		until flinging == false
+	end
+end)
+registerCommand("unfling", function()
+	runCommand("unnoclip")
+	if flingDied then
+		flingDied:Disconnect()
+	end
+	flinging = false
+	wait(0.1)
+	local char = LocalPlayer.Character
+	if not char and char:FindFirstChild("HumanoidRootPart") then return end
+	for i,v in pairs(char:FindFirstChild("HumanoidRootPart"):GetChildren()) do
+		if v.ClassName == 'BodyAngularVelocity' then
+			v:Destroy()
+		end
+	end
+	for _, child in pairs(char:GetDescendants()) do
+		if child.ClassName == "Part" or child.ClassName == "MeshPart" then
+			child.CustomPhysicalProperties = PhysicalProperties.new(0.7, 0.3, 0.5)
+		end
+	end
 end)
 while true do
 	task.wait()
@@ -4203,4 +4312,3 @@ while true do
 		newgui.spawndistance.Text = 'distance from spawn: unknown | unknown'
 	end
 end
-
