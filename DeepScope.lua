@@ -1,3 +1,5 @@
+if DS_LOADED then return end
+pcall(function() getgenv().DS_LOADED = true end)
 local function createInstance(name, tbl)
 	local any = Instance.new(name)
 	for i, v in tbl do
@@ -2436,6 +2438,15 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
+	local commandGui7 = createInstance("TextButton", {
+		Parent = commandGui1,
+		Name = "hoverregion",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Text = "",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
 	commandGui1:SetAttribute("Hovering", false)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -3757,9 +3768,16 @@ local textBox: TextBox = newgui.Parent.commandbar.input
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if input.KeyCode == commandKey then
+		textBox.Text = ""
 		textBox:CaptureFocus()
 		textBox.Parent:SetAttribute("Hovering", true)
 	end
+end)
+newgui.Parent.commandbar.hoverregion.MouseEnter:Connect(function()
+	textBox.Parent:SetAttribute("Hovering", true)
+end)
+newgui.Parent.commandbar.hoverregion.MouseLeave:Connect(function()
+	textBox.Parent:SetAttribute("Hovering", false)
 end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
@@ -4002,6 +4020,39 @@ registerCommand("jerk", function()
 end)
 registerCommand("info", function()
 	notify(nil, `Welcome! This command is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY's <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
+end)
+local Noclipping = nil
+registerCommand("noclip", function()
+	wait(0.1)
+	local function NoclipLoop()
+		if LocalPlayer.Character ~= nil then
+			for _, child in pairs(LocalPlayer.Character:GetDescendants()) do
+				if child:IsA("BasePart") and child.CanCollide == true then
+					child.CanCollide = false
+				end
+			end
+		end
+	end
+	Noclipping = RunService.Stepped:Connect(NoclipLoop)
+	notify(nil, "Noclip enabled")
+end)
+registerCommand("unnoclip", function()
+	if Noclipping then
+		Noclipping:Disconnect()
+		notify(nil, "Noclip disabled")
+	end
+end)
+registerCommand("rejoin", function()
+	if #game.Players:GetPlayers() <= 1 then
+		LocalPlayer:Kick("\nRejoining...")
+		wait()
+		game.TeleportService:Teleport(game.PlaceId, LocalPlayer)
+	else
+		game.TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+	end
+end)
+registerCommand("exit", function()
+	game:Shutdown()
 end)
 while true do
 	task.wait()
