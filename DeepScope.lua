@@ -3888,7 +3888,7 @@ registerCommand("unfly", function()
 end)
 registerCommand("flyspeed", function(args)
 	local speed = tonumber(args[1]) or 1
-	modules.other.fly.UpdateFlying(Enabled, speed)
+	flySpeed = speed
 end)
 registerCommand("goto", function(args)
 	local targetName = args[1]
@@ -4046,13 +4046,23 @@ registerCommand("rejoin", function()
 	if #game.Players:GetPlayers() <= 1 then
 		LocalPlayer:Kick("\nRejoining...")
 		wait()
-		game.TeleportService:Teleport(game.PlaceId, LocalPlayer)
+		game["Teleport Service"]:Teleport(game.PlaceId, LocalPlayer)
 	else
-		game.TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
 	end
 end)
 registerCommand("exit", function()
 	game:Shutdown()
+end)
+registerCommand("align", function(args)
+	local unit = tostring(args[1]) or "right"
+	for _, v in newgui.Parent.commandbar:GetDescendants() do
+		if v:IsA("TextButton") or v:IsA("TextLabel") then
+			v.TextXAlignment = unit == "left" and Enum.TextXAlignment.Left or unit == "center" and Enum.TextXAlignment.Center or Enum.TextXAlignment.Right or v.TextXAlignment
+		end
+	end
+	newgui.Parent.commandbar.AnchorPoint = unit == "left" and Vector2.new(0, 1) or unit == "center" and Vector2.new(0.5, 1) or Vector2.new(1, 1) or newgui.Parent.commandbar.AnchorPoint
+	newgui.Parent.commandbar.Position = unit == "left" and UDim2.fromScale(0, 1) or unit == "center" and UDim2.fromScale(0.5, 1) or UDim2.fromScale(1, 1) or newgui.Parent.commandbar.Position
 end)
 while true do
 	task.wait()
