@@ -1025,9 +1025,9 @@ UserInputService.InputEnded:Connect(function(processed)
 	end
 end)
 spawn(function()
-	repeat wait()
+	while wait() do
 		modules.other.fly.Loop()
-	until not Enabled
+	end
 end)
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
@@ -4312,4 +4312,5 @@ while true do
 		newgui.spawndistance.Text = 'distance from spawn: unknown | unknown'
 	end
 end
+
 
