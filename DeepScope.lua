@@ -528,7 +528,7 @@ local add_objects = {
 		},
 		['Parts'] = {
 			CornerWedgePart = {
-				Name = 'Sky',
+				Name = 'CornerWedgePart',
 				Order = 134
 			},
 			Part = {
@@ -540,7 +540,7 @@ local add_objects = {
 				Order = 137
 			},
 			WedgePart = {
-				Name = 'Sky',
+				Name = 'WedgePart',
 				Order = 138
 			}
 		}
@@ -2453,6 +2453,9 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
+	local commandGui8 = createInstance("UIScale", {
+		Parent = commandGui1
+	})
 	commandGui1:SetAttribute("Hovering", false)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -3874,7 +3877,7 @@ end)
 textBox.Changed:Connect(function()
 	local text = textBox.Text:lower()
 	local list = newgui.Parent.commandbar.commandlist:GetChildren()
-
+	text = text:gsub(";", "")
 	for _, v in list do
 		if v:IsA('TextButton') then
 			if text == '' then
@@ -4100,6 +4103,10 @@ registerCommand("jumppower", function(args)
 		humanoid.JumpPower = jump
 	end
 end)
+registerCommand("guiscale", function(args)
+	local scale = tonumber(args[1]) or 1
+	newgui.Parent.commandbar.UIScale.Scale = math.clamp(scale, 0.5, 3)
+end)
 while true do
 	task.wait()
 	modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
@@ -4196,3 +4203,4 @@ while true do
 		newgui.spawndistance.Text = 'distance from spawn: unknown | unknown'
 	end
 end
+
