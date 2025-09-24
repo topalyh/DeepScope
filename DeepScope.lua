@@ -7,6 +7,12 @@ local function createInstance(name, tbl)
 	end
 	return any
 end
+function missing(t, f, fallback)
+	if type(f) == t then return f end
+	return fallback
+end
+cloneref = missing("function", cloneref, function(...) return ... end)
+everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
 local UserInputService = game:GetService('UserInputService')
 local RunService = game:GetService('RunService')
 local LocalPlayer = game:GetService('Players').LocalPlayer
@@ -1063,7 +1069,7 @@ local function createGui()
 	local gui1 = createInstance('ScreenGui', {
 		DisplayOrder = 2147483647,
 		Name = 'cheatGui',
-		Parent = LocalPlayer.PlayerGui,
+		Parent = cloneref(game:GetService("CoreGui")),
 		IgnoreGuiInset = true,
 		ResetOnSpawn = false
 	})
@@ -3441,6 +3447,14 @@ local function setLogMenu()
 		}):Play()
 	end)
 end
+function toClipboard(txt)
+	if everyClipboard then
+		everyClipboard(tostring(txt))
+		notify(nil, "Copied to clipboard", 5)
+	else
+		notify(nil, "Your executor doesn't have the ability to use the clipboard", 5)
+	end
+end
 
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
@@ -3768,8 +3782,8 @@ local textBox: TextBox = newgui.Parent.commandbar.input
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if input.KeyCode == commandKey then
-		textBox.Text = ""
 		textBox:CaptureFocus()
+		textBox.Text = ""
 		textBox.Parent:SetAttribute("Hovering", true)
 	end
 end)
@@ -3826,6 +3840,9 @@ local function registerCommand(name, callback)
 	commands[name] = callback
 end
 local function runCommand(input)
+	if input == "" then
+		return
+	end
 	if input:sub(1, 1) == commandPrefix then
 		input = input:sub(2)
 	end
@@ -4057,12 +4074,17 @@ end)
 registerCommand("align", function(args)
 	local unit = tostring(args[1]) or "right"
 	for _, v in newgui.Parent.commandbar:GetDescendants() do
-		if v:IsA("TextButton") or v:IsA("TextLabel") then
-			v.TextXAlignment = unit == "left" and Enum.TextXAlignment.Left or unit == "center" and Enum.TextXAlignment.Center or Enum.TextXAlignment.Right or v.TextXAlignment
+		if v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
+			if v.Name ~= "title" then
+				v.TextXAlignment = unit == "left" and Enum.TextXAlignment.Left or unit == "center" and Enum.TextXAlignment.Center or Enum.TextXAlignment.Right or v.TextXAlignment
+			end
 		end
 	end
 	newgui.Parent.commandbar.AnchorPoint = unit == "left" and Vector2.new(0, 1) or unit == "center" and Vector2.new(0.5, 1) or Vector2.new(1, 1) or newgui.Parent.commandbar.AnchorPoint
 	newgui.Parent.commandbar.Position = unit == "left" and UDim2.fromScale(0, 1) or unit == "center" and UDim2.fromScale(0.5, 1) or UDim2.fromScale(1, 1) or newgui.Parent.commandbar.Position
+end)
+registerCommand("discord", function()
+	toClipboard("https://discord.gg/J7WWbFWR")
 end)
 while true do
 	task.wait()
