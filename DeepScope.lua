@@ -4172,7 +4172,7 @@ registerCommand("fling", function()
 		runCommand("noclip")
 		local spiny = Instance.new("BodyAngularVelocity", root)
 		spiny.Name = generateRandomString()
-		spiny.AngularVelocity = Vector3.new(0, 1000000, 0)
+		spiny.AngularVelocity = Vector3.new(0, 100000, 0)
 		spiny.MaxTorque = Vector3.new(0, math.huge, 0)
 		spiny.P = math.huge
 		local char = LocalPlayer.Character
@@ -4312,3 +4312,4 @@ while true do
 		newgui.spawndistance.Text = 'distance from spawn: unknown | unknown'
 	end
 end
+
