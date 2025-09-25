@@ -11,57 +11,57 @@ function missing(t, f, fallback)
 	if type(f) == t then return f end
 	return fallback
 end
-local UserInputService = game:GetService('UserInputService')
-local RunService = game:GetService('RunService')
-local LocalPlayer = game:GetService('Players').LocalPlayer
-local GuiService = game:GetService('GuiService')
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local GuiService = game:GetService("GuiService")
 if not RunService:IsStudio() then
 	cloneref = missing("function", cloneref, function(...) return ... end)
 	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
 end
 repeat wait() until LocalPlayer.Character
 local suffixes = {
-	'',
-	'k',
-	'm',
-	'b',
-	't',
-	'qa',
-	'qi',
-	'sx',
-	'sp',
-	'oc',
-	'no',
-	'dc',
-	'und'
+	"",
+	"k",
+	"m",
+	"b",
+	"t",
+	"qa",
+	"qi",
+	"sx",
+	"sp",
+	"oc",
+	"no",
+	"dc",
+	"und"
 }
 local units = {
-	['k'] = 1e3,
-	['m'] = 1e6,
-	['b'] = 1e9,
-	['t'] = 1e12,
-	['qa'] = 1e15,
-	['qi'] = 1e18,
-	['sx'] = 1e21,
-	['sp'] = 1e24,
-	['oc'] = 1e27,
-	['no'] = 1e30,
-	['dc'] = 1e33,
-	['und'] = 1e36
+	["k"] = 1e3,
+	["m"] = 1e6,
+	["b"] = 1e9,
+	["t"] = 1e12,
+	["qa"] = 1e15,
+	["qi"] = 1e18,
+	["sx"] = 1e21,
+	["sp"] = 1e24,
+	["oc"] = 1e27,
+	["no"] = 1e30,
+	["dc"] = 1e33,
+	["und"] = 1e36
 }
 local fullUnits = {
-	['k'] = 'Thousand',
-	['m'] = 'Million',
-	['b'] = 'Billion',
-	['t'] = 'Trillion',
-	['qa'] = 'Quadrillion',
-	['qi'] = 'Quintillion',
-	['sx'] = 'Sextillion',
-	['sp'] = 'Septillion',
-	['oc'] = 'Octillion',
-	['no'] = 'Nonillion',
-	['dc'] = 'Decillion',
-	['und'] = 'Undecillion'
+	["k"] = "Thousand",
+	["m"] = "Million",
+	["b"] = "Billion",
+	["t"] = "Trillion",
+	["qa"] = "Quadrillion",
+	["qi"] = "Quintillion",
+	["sx"] = "Sextillion",
+	["sp"] = "Septillion",
+	["oc"] = "Octillion",
+	["no"] = "Nonillion",
+	["dc"] = "Decillion",
+	["und"] = "Undecillion"
 }
 local icons = {
 	size = {19, 19},
@@ -128,7 +128,7 @@ local icons = {
 		ArcHandles = {1.5, 73.5},
 		BillboardGui = {146.5, 73.5},
 		BindableFunction = {182, 73.5},
-		['Run Service'] = {182, 73.5},
+		["Run Service"] = {182, 73.5},
 		BindableEvent = {200, 73.5},
 		ParticleEmitter = {235.5, 73.5},
 		ReplicatedFirst = {37.5, 91.5},
@@ -158,7 +158,7 @@ local icons = {
 		PlayerGui = {73.5, 55.5},
 		StarterGui = {73.5, 55.5},
 		CoreGui = {73.5, 55.5},
-		['Script Context'] = {217.5, 91.5},
+		["Script Context"] = {217.5, 91.5},
 		CoreScript = {127.5, 109.5},
 		ScriptService = {127.5, 109.5},
 		Animation = {73.5, 73.5},
@@ -185,7 +185,7 @@ local icons = {
 		LogService = {55.5, 109.5},
 		MarketplaceService = {73.5, 55.5},
 		PointsService = {235.5, 91.5},
-		['Teleport Service'] = {199.5, 91.5},
+		["Teleport Service"] = {199.5, 91.5},
 		UserInputService = {1.5, 109.5},
 		ClickDetector = {91.5, 127.5},
 		DragDetector = {91.5, 127.5},
@@ -208,352 +208,352 @@ local icons = {
 local add_objects = {
 	size = {19, 19},
 	objects = {
-		['3D Interfaces'] = {
+		["3D Interfaces"] = {
 			ClickDetector = {
-				Name = 'ClickDetector',
+				Name = "ClickDetector",
 				Order = 1
 			},
 			Decal = {
-				Name = 'Decal',
+				Name = "Decal",
 				Order = 2
 			},
 			Dialog = {
-				Name = 'Dialog',
+				Name = "Dialog",
 				Order = 3
 			},
 			DialogChoise = {
-				Name = 'DialogChoise',
+				Name = "DialogChoise",
 				Order = 4
 			},
 			DragDetector = {
-				Name = 'DragDetector',
+				Name = "DragDetector",
 				Order = 5
 			},
 			MaterialVariant = {
-				Name = 'MaterialVariant',
+				Name = "MaterialVariant",
 				Order = 6
 			},
 			ProximityPrompt = {
-				Name = 'ProximityPropmpt',
+				Name = "ProximityPropmpt",
 				Order = 7
 			},
 			SurfaceAppearance = {
-				Name = 'SurfaceAppearance',
+				Name = "SurfaceAppearance",
 				Order = 8
 			},
 			TerrainDetail = {
-				Name = 'TerrainDetail',
+				Name = "TerrainDetail",
 				Order = 9
 			},
 			Texture = {
-				Name = 'Texture',
+				Name = "Texture",
 				Order = 10
 			}
 		},
-		['Adornments'] = {
+		["Adornments"] = {
 			ArcHandles = {
-				Name = 'ArcHandles',
+				Name = "ArcHandles",
 				Order = 12
 			},
 			BoxHandleAdornment = {
-				Name = 'BoxHandleAdornment',
+				Name = "BoxHandleAdornment",
 				Order = 13
 			},
 			ConeHandleAdornment = {
-				Name = 'ConeHandleAdornment',
+				Name = "ConeHandleAdornment",
 				Order = 14
 			},
 			CylinderHandleAdornment = {
-				Name = 'CylinderHandleAdornment',
+				Name = "CylinderHandleAdornment",
 				Order = 15
 			},
 			Handles = {
-				Name = 'Handles',
+				Name = "Handles",
 				Order = 16
 			},
 			ImageHandleAdornment = {
-				Name = 'ImageHandleAdornment',
+				Name = "ImageHandleAdornment",
 				Order = 17
 			},
 			LineHandleAdornment = {
-				Name = 'LineHandleAdornment',
+				Name = "LineHandleAdornment",
 				Order = 18
 			},
 			PathFindingLink = {
-				Name = 'PathFindingLink',
+				Name = "PathFindingLink",
 				Order = 19
 			},
 			PathFindingModifier = {
-				Name = 'PathFindingModifier',
+				Name = "PathFindingModifier",
 				Order = 20
 			},
 			SelectionBox = {
-				Name = 'SelectionBox',
+				Name = "SelectionBox",
 				Order = 21
 			},
 			SelectionSphere = {
-				Name = 'SelectionSphere',
+				Name = "SelectionSphere",
 				Order = 22
 			},
 			SphereHandleAdornment = {
-				Name = 'SphereHandleAdornment',
+				Name = "SphereHandleAdornment",
 				Order = 23
 			},
 			SurfaceSelection = {
-				Name = 'SurfaceSelection',
+				Name = "SurfaceSelection",
 				Order = 24
 			},
 			WireframeHandleAdornment = {
-				Name = 'WireframeHandleAdornment',
+				Name = "WireframeHandleAdornment",
 				Order = 25
 			}
 		},
-		['Ads'] = {
+		["Ads"] = {
 			AdGui = {
-				Name = 'AdGui',
+				Name = "AdGui",
 				Order = 27
 			}
 		},
-		['Animations'] = {
+		["Animations"] = {
 			Animation = {
-				Name = 'Animation',
+				Name = "Animation",
 				Order = 29
 			},
 			AnimationController = {
-				Name = 'AnimationController',
+				Name = "AnimationController",
 				Order = 30
 			},
 			Animator = {
-				Name = 'Animator',
+				Name = "Animator",
 				Order = 31
 			},
 			Bone = {
-				Name = 'Bone',
+				Name = "Bone",
 				Order = 32
 			},
 			FaceControls = {
-				Name = 'FaceControls',
+				Name = "FaceControls",
 				Order = 33
 			},
 			IKControl = {
-				Name = 'IKControl',
+				Name = "IKControl",
 				Order = 34
 			},
 			Motor6D = {
-				Name = 'Motor6D',
+				Name = "Motor6D",
 				Order = 35
 			}
 		},
-		['Avatar'] = {
+		["Avatar"] = {
 			Accessory = {
-				Name = 'Accessory',
+				Name = "Accessory",
 				Order = 37
 			},
 			BodyColors = {
-				Name = 'BodyColors',
+				Name = "BodyColors",
 				Order = 39
 			},
 			ForceField = {
-				Name = 'ForceField',
+				Name = "ForceField",
 				Order = 44
 			},
 			Humanoid = {
-				Name = 'Humanoid',
+				Name = "Humanoid",
 				Order = 46
 			},
 			Pants = {
-				Name = 'Pants',
+				Name = "Pants",
 				Order = 47
 			},
 			Shirt = {
-				Name = 'Shirt',
+				Name = "Shirt",
 				Order = 48
 			},
 			ShirtGraphic = {
-				Name = 'ShirtGraphic',
+				Name = "ShirtGraphic",
 				Order = 49
 			}
 		},
-		['Constraints'] = {
+		["Constraints"] = {
 			AlignOrientation = {
-				Name = 'AlignOrientation',
+				Name = "AlignOrientation",
 				Order = 51
 			},
 			AlignPosition = {
-				Name = 'AlignPosition',
+				Name = "AlignPosition",
 				Order = 52
 			},
 			AngularVelocity = {
-				Name = 'AngularVelocity',
+				Name = "AngularVelocity",
 				Order = 53
 			},
 			Attachment = {
-				Name = 'Attachment',
+				Name = "Attachment",
 				Order = 55
 			},
 			BallSocketConstraint = {
-				Name = 'BallSocketConstraint',
+				Name = "BallSocketConstraint",
 				Order = 56
 			},
 			CylindricalConstraint = {
-				Name = 'CylindricalConstraint',
+				Name = "CylindricalConstraint",
 				Order = 57
 			},
 			HingeConstraint = {
-				Name = 'HingeConstraint',
+				Name = "HingeConstraint",
 				Order = 58
 			},
 			LinearVelocity = {
-				Name = 'LinearVelocity',
+				Name = "LinearVelocity",
 				Order = 59
 			},
 			LineForce = {
-				Name = 'LineForce',
+				Name = "LineForce",
 				Order = 60
 			},
 			NoCollisionConstraint = {
-				Name = 'NoCollisionConstraint',
+				Name = "NoCollisionConstraint",
 				Order = 61
 			},
 			PrismaticConstraint = {
-				Name = 'PrismaticConstraint',
+				Name = "PrismaticConstraint",
 				Order = 63
 			},
 			RigidConstraint = {
-				Name = 'RigitConstraint',
+				Name = "RigitConstraint",
 				Order = 64
 			},
 			RodConstraint = {
-				Name = 'RodConstraint',
+				Name = "RodConstraint",
 				Order = 65
 			},
 			RopeConstraint = {
-				Name = 'RopeConstraint',
+				Name = "RopeConstraint",
 				Order = 66
 			},
 			SpringConstraint = {
-				Name = 'SpringConstraint',
+				Name = "SpringConstraint",
 				Order = 67
 			},
 			Torque = {
-				Name = 'Torque',
+				Name = "Torque",
 				Order = 68
 			},
 			VectorForce = {
-				Name = 'VectorForce',
+				Name = "VectorForce",
 				Order = 71
 			},
 			WeldConstraint = {
-				Name = 'WeldConstraint',
+				Name = "WeldConstraint",
 				Order = 72
 			}
 		},
-		['Effects'] = {
+		["Effects"] = {
 			Beam = {
-				Name = 'Beam',
+				Name = "Beam",
 				Order = 74
 			},
 			Explosion = {
-				Name = 'Explosion',
+				Name = "Explosion",
 				Order = 75
 			},
 			Fire = {
-				Name = 'Fire',
+				Name = "Fire",
 				Order = 76
 			},
 			Highlight = {
-				Name = 'Highlight',
+				Name = "Highlight",
 				Order = 77
 			},
 			ParticleEmitter = {
-				Name = 'ParticleEmitter',
+				Name = "ParticleEmitter",
 				Order = 78
 			},
 			Smoke = {
-				Name = 'Smoke',
+				Name = "Smoke",
 				Order = 79
 			},
 			Sparkles = {
-				Name = 'Sparkles',
+				Name = "Sparkles",
 				Order = 80
 			},
 			Trail = {
-				Name = 'Trail',
+				Name = "Trail",
 				Order = 81
 			}
 		},
-		['Environment'] = {
+		["Environment"] = {
 			Atmosphere = {
-				Name = 'Atmosphere',
+				Name = "Atmosphere",
 				Order = 85
 			},
 			Clouds = {
-				Name = 'Clouds',
+				Name = "Clouds",
 				Order = 86
 			},
 			Sky = {
-				Name = 'Sky',
+				Name = "Sky",
 				Order = 87
 			}
 		},
-		['Interaction'] = {
+		["Interaction"] = {
 			Seat = {
-				Name = 'Seat',
+				Name = "Seat",
 				Order = 121
 			},
 			SpawnLocation = {
-				Name = 'SpawnLocation',
+				Name = "SpawnLocation",
 				Order = 122
 			},
 			Tool = {
-				Name = 'Tool',
+				Name = "Tool",
 				Order = 124
 			},
 			VehicleSeat = {
-				Name = 'VehicleSeat',
+				Name = "VehicleSeat",
 				Order = 125
 			}
 		},
-		['Lights'] = {
+		["Lights"] = {
 			PointLight = {
-				Name = 'PointLight',
+				Name = "PointLight",
 				Order = 127
 			},
 			SpotLight = {
-				Name = 'SpotLight',
+				Name = "SpotLight",
 				Order = 128
 			},
 			SurfaceLight = {
-				Name = 'SurfaceLight',
+				Name = "SurfaceLight",
 				Order = 129
 			}
 		},
-		['Parts'] = {
+		["Parts"] = {
 			CornerWedgePart = {
-				Name = 'Sky',
+				Name = "Sky",
 				Order = 134
 			},
 			Part = {
-				Name = 'Part',
+				Name = "Part",
 				Order = 136
 			},
 			TrussPart = {
-				Name = 'TrussPart',
+				Name = "TrussPart",
 				Order = 137
 			},
 			WedgePart = {
-				Name = 'Sky',
+				Name = "Sky",
 				Order = 138
 			}
 		}
 	}
 }
-local explorerBlacklistInstances = {'cheatGui', 'ServerScriptService'}
-local currentUnit = 'K'
-local selectedplr = 'nobody'
+local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
+local currentUnit = "K"
+local selectedplr = "nobody"
 local cheatEnabled = false
 local lastcf = CFrame.new(0, 0, 0)
-local mode = 'follow'
+local mode = "follow"
 local guiHiden = false
 local explorerOpened = true
 local explorerData = {}
@@ -573,7 +573,7 @@ local explorerUsing = false
 local countdowns = {}
 local selectedObject = nil
 local hoveringObject = nil
-local pickerMode = 'circle'
+local pickerMode = "circle"
 local currentScale = 1
 local pickerOpened = false
 local pickingColor = false
@@ -587,7 +587,7 @@ local FreecamEnabled = false
 local BodyPos = nil
 local BodyGyro = nil
 local moveDirection = Vector3.new()
-local notificationSoundId = 'rbxassetid://17208372272'
+local notificationSoundId = "rbxassetid://17208372272"
 local isDied = false
 local commandPrefix = ";"
 local commandKey = Enum.KeyCode.Semicolon
@@ -600,9 +600,9 @@ local logList = nil
 local placeInfoOpened = false
 local logsOpened = false
 local initMessages = {
-	'Nice to see you {player}!',
-	'Having a good day, {player}?',
-	'Have a nice day {player}!'
+	"Nice to see you {player}!",
+	"Having a good day, {player}?",
+	"Have a nice day {player}!"
 }
 local currentUIColor = Color3.fromRGB(163, 162, 165)
 local usingSlider = {
@@ -643,14 +643,14 @@ local function toPolar(v)
 	return math.atan2(v.Y,v.X),v.Magnitude
 end
 _createForces = function(hrp)
-	local bp = Instance.new('BodyPosition')
+	local bp = Instance.new("BodyPosition")
 	bp.MaxForce = Vector3.new(1e7, 1e7, 1e7)
 	bp.D = 500
 	bp.P = 1e7
 	bp.Position = hrp.Position
 	bp.Parent = hrp
 
-	local bg = Instance.new('BodyGyro')
+	local bg = Instance.new("BodyGyro")
 	bg.MaxTorque = Vector3.new(1e4, 1e4, 1e4)
 	bg.D = 500
 	bg.P = 1e4
@@ -731,13 +731,13 @@ local modules = {
 			end
 			if slider then
 				local name = slider.Name:sub(1, 1):lower()
-				if name == 's' or name == 'v' then
+				if name == "s" or name == "v" then
 					slider.value.Text = math.round(value * 100)
 				end
-				if name == 'h' then
+				if name == "h" then
 					slider.value.Text = math.round(value * 360)
 				end
-				if name == 'r' or name == 'g' or name == 'b' then
+				if name == "r" or name == "g" or name == "b" then
 					slider.value.Text = math.round(value * 255)
 				end
 			end
@@ -803,8 +803,8 @@ local modules = {
 			end,
 
 			Respawn = function(char)
-				local hrp = char:WaitForChild('HumanoidRootPart')
-				humanoid = char:WaitForChild('Humanoid')
+				local hrp = char:WaitForChild("HumanoidRootPart")
+				humanoid = char:WaitForChild("Humanoid")
 				humanoidRootPart = hrp
 
 				if Enabled then
@@ -815,22 +815,22 @@ local modules = {
 		},
 		placeinfo = {
 			CreateText = function(infoTxt, copyableTxt)
-				local template = createInstance('Frame', {
+				local template = createInstance("Frame", {
 					Parent = infoList,
-					Name = 'template',
+					Name = "template",
 					Size = UDim2.new(1, -15, 0, 20),
 					Visible = false,
 					BorderColor3 = Color3.new(0, 0, 0),
 					BorderSizePixel = 0
 				})
-				local placeInfoFrame1 = createInstance('UIPadding', {
+				local placeInfoFrame1 = createInstance("UIPadding", {
 					Parent = template,
 					PaddingLeft = UDim.new(0, 5),
 					PaddingRight = UDim.new(0, 5)
 				})
-				local placeInfoFrame2 = createInstance('TextBox', {
+				local placeInfoFrame2 = createInstance("TextBox", {
 					Parent = template,
-					Name = 'copyableinfo',
+					Name = "copyableinfo",
 					BackgroundTransparency = 1,
 					AnchorPoint = Vector2.new(1, 0),
 					AutomaticSize = Enum.AutomaticSize.X,
@@ -838,22 +838,22 @@ local modules = {
 					Position = UDim2.fromScale(1, 0),
 					Size = UDim2.fromScale(0, 1),
 					TextEditable = false,
-					FontFace = Font.new('rbxassetid://12187374954'),
-					Text = 'aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=',
+					FontFace = Font.new("rbxassetid://12187374954"),
+					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
 					TextXAlignment = Enum.TextXAlignment.Right,
 					BorderColor3 = Color3.new(0, 0, 0),
 					BorderSizePixel = 0
 				})
-				local placeInfoFrame3 = createInstance('TextLabel', {
+				local placeInfoFrame3 = createInstance("TextLabel", {
 					Parent = template,
-					Name = 'info',
+					Name = "info",
 					BackgroundTransparency = 1,
 					AutomaticSize = Enum.AutomaticSize.X,
 					Size = UDim2.fromScale(0, 1),
-					FontFace = Font.new('rbxassetid://12187374954'),
-					Text = 'aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=',
+					FontFace = Font.new("rbxassetid://12187374954"),
+					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
 					TextXAlignment = Enum.TextXAlignment.Left,
@@ -868,16 +868,16 @@ local modules = {
 				newTemplate.info.Text = infoTxt
 			end,
 			CreateSeparator = function(text)
-				local separatorTemplate = createInstance('Frame', {
+				local separatorTemplate = createInstance("Frame", {
 					Parent = infoList,
-					Name = 'separator',
+					Name = "separator",
 					BackgroundTransparency = 1,
 					Size = UDim2.new(1, -15, 0, 40),
 					Visible = false
 				})
-				local separatorGui1 = createInstance('Frame', {
+				local separatorGui1 = createInstance("Frame", {
 					Parent = separatorTemplate,
-					Name = 'divider',
+					Name = "divider",
 					BackgroundColor3 = Color3.new(1, 1, 1),
 					AnchorPoint = Vector2.new(0.5, 1),
 					Position = UDim2.fromScale(0.5, 1),
@@ -885,15 +885,15 @@ local modules = {
 					BorderColor3 = Color3.new(1, 1, 1),
 					BorderSizePixel = 0
 				})
-				local separatorGui2 = createInstance('TextLabel', {
+				local separatorGui2 = createInstance("TextLabel", {
 					Parent = separatorTemplate,
 					BackgroundTransparency = 1,
 					AnchorPoint = Vector2.new(0, 0.5),
 					AutomaticSize = Enum.AutomaticSize.X,
 					Position = UDim2.fromScale(0, 0.5),
 					Size = UDim2.fromScale(0, 0.7),
-					FontFace = Font.new('rbxasset://fonts/families/Oswald.json', Enum.FontWeight.Bold),
-					Text = 'aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=',
+					FontFace = Font.new("rbxasset://fonts/families/Oswald.json", Enum.FontWeight.Bold),
+					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 28,
 					TextXAlignment = Enum.TextXAlignment.Left
@@ -1025,9 +1025,9 @@ UserInputService.InputEnded:Connect(function(processed)
 	end
 end)
 spawn(function()
-	while task.wait() do
+	repeat wait()
 		modules.other.fly.Loop()
-	end
+	until not Enabled
 end)
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
@@ -1036,7 +1036,7 @@ local function AddLog(text, sourse, type)
 		Name = "log",
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -15, 0, 20),
-		FontFace = Font.new('rbxassetid://12187374954', Enum.FontWeight.Medium),
+		FontFace = Font.new("rbxassetid://12187374954", Enum.FontWeight.Medium),
 		Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 19,
@@ -1051,7 +1051,7 @@ local function AddLog(text, sourse, type)
 	})
 	local timeNow = os.date("%X", tick())
 	local ok, textResult = pcall(function()
-		return logConfig.stringFormat:format(timeNow, ("<font color='rgb(%d,%d,%d)'>%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
+		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
 	logConfig.messages += 1
 	local newTemplate = gui:Clone()
@@ -1066,16 +1066,16 @@ local function AddLog(text, sourse, type)
 	end
 end
 local function createGui()
-	local gui1 = createInstance('ScreenGui', {
+	local gui1 = createInstance("ScreenGui", {
 		DisplayOrder = 2147483647,
-		Name = 'cheatGui',
+		Name = "cheatGui",
 		Parent = cloneref(game:GetService("CoreGui")),
 		IgnoreGuiInset = true,
 		ResetOnSpawn = false
 	})
-	local gui2 = createInstance('Frame', {
+	local gui2 = createInstance("Frame", {
 		Parent = gui1,
-		Name = 'main',
+		Name = "main",
 		AnchorPoint = Vector2.new(0.2, 0),
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0.5, 0, 0.1, 0),
@@ -1083,29 +1083,29 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0
 	})
-	local gui3 = createInstance('TextButton', {
+	local gui3 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'mode',
+		Name = "mode",
 		Position = UDim2.new(0.479, 0, -0.35, 0),
 		Size = UDim2.new(0.206, 0, 0.572, 0),
-		Text = 'mode: follow',
+		Text = "mode: follow",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui4 = createInstance('TextButton', {
+	local gui4 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'startbutton',
+		Name = "startbutton",
 		Position = UDim2.new(0.364, 0, -0.332, 0),
 		Size = UDim2.new(0.101, 0, 0.572, 0),
-		Text = 'start',
+		Text = "start",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui5 = createInstance('ScrollingFrame', {
+	local gui5 = createInstance("ScrollingFrame", {
 		Parent = gui2,
-		Name = 'list',
+		Name = "list",
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 1, 0),
 		SizeConstraint = Enum.SizeConstraint.RelativeYY,
@@ -1116,178 +1116,178 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0
 	})
-	local ui_object1 = createInstance('UIListLayout', {
+	local ui_object1 = createInstance("UIListLayout", {
 		Parent = gui5,
 		Padding = UDim.new(0, 5),
 		HorizontalAlignment = Enum.HorizontalAlignment.Center
 	})
-	local gui7 = createInstance('TextLabel', {
+	local gui7 = createInstance("TextLabel", {
 		Parent = gui2,
-		Name = 'label',
+		Name = "label",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.065, 0, -0.206, 0),
 		Size = UDim2.new(0.13, 0, 0.257, 0),
-		Text = 'select player',
+		Text = "select player",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui8 = createInstance('TextLabel', {
+	local gui8 = createInstance("TextLabel", {
 		Parent = gui2,
-		Name = 'currentplr',
+		Name = "currentplr",
 		Position = UDim2.new(0.141, 0, -0.343, 0),
 		Size = UDim2.new(0.212, 0, 0.257, 0),
-		Text = 'selectedPlayer: nobody',
+		Text = "selectedPlayer: nobody",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextScaled = true
 	})
-	local gui9 = createInstance('TextBox', {
+	local gui9 = createInstance("TextBox", {
 		Parent = gui2,
-		Name = 'searchPlayer',
+		Name = "searchPlayer",
 		Position = UDim2.new(0.141, 0, -0.023),
 		Size = UDim2.new(0.212, 0, 0.257, 0),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true,
-		PlaceholderText = 'search player (username)'
+		PlaceholderText = "search player (username)"
 	})
-	local gui10 = createInstance('TextLabel', {
+	local gui10 = createInstance("TextLabel", {
 		Parent = gui2,
-		Name = 'distance',
+		Name = "distance",
 		Position = UDim2.new(0.141, 0, 0.309, 0),
 		Size = UDim2.new(0, 0, 0.257, 0),
-		Text = 'distance from character: unknown',
+		Text = "distance from character: unknown",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextScaled = true,
 		AutomaticSize = Enum.AutomaticSize.X
 	})
-	local gui11 = createInstance('TextLabel', {
+	local gui11 = createInstance("TextLabel", {
 		Parent = gui2,
-		Name = 'spawndistance',
+		Name = "spawndistance",
 		Position = UDim2.new(0.141, 0, 0.64, 0),
 		Size = UDim2.new(0, 0, 0.257, 0),
-		Text = 'distance from spawn: unknown',
+		Text = "distance from spawn: unknown",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextScaled = true,
 		AutomaticSize = Enum.AutomaticSize.X
 	})
-	local gui12 = createInstance('TextLabel', {
+	local gui12 = createInstance("TextLabel", {
 		Parent = gui2,
-		Name = 'currentspeed',
+		Name = "currentspeed",
 		Position = UDim2.new(0.141, 0, 0.972, 0),
 		Size = UDim2.new(0, 0, 0.257, 0),
-		Text = 'current speed: unknown | 0:0',
+		Text = "current speed: unknown | 0:0",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextScaled = true,
 		AutomaticSize = Enum.AutomaticSize.X
 	})
-	local gui14 = createInstance('TextButton', {
+	local gui14 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'unitformat',
+		Name = "unitformat",
 		Size = UDim2.new(0.138, 0, 0.252, 0),
 		Position = UDim2.new(0.003, 0, 1.326, 0),
-		Text = 'format: M',
+		Text = "format: M",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui15 = createInstance('TextButton', {
+	local gui15 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'hidebutton',
+		Name = "hidebutton",
 		Size = UDim2.new(0.054, 0, 0.389, 0),
 		Position = UDim2.new(0.694, 0, -0.544, 0),
-		Text = 'hide',
+		Text = "hide",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui16 = createInstance('TextButton', {
+	local gui16 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'explorer',
+		Name = "explorer",
 		Size = UDim2.new(0.138, 0, 0.343, 0),
 		Position = UDim2.new(0.003, 0, 1.658, 0),
-		Text = 'open explorer',
+		Text = "open explorer",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true,
 		Visible = true
 	})
-	local gui16 = createInstance('TextButton', {
+	local gui16 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'uicolor',
+		Name = "uicolor",
 		Size = UDim2.new(0.181, 0, 0.194, 0),
 		Position = UDim2.new(0.502, 0, -0.555, 0),
-		Text = 'set UI color',
+		Text = "set UI color",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui17 = createInstance('TextButton', {
+	local gui17 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'placeinfo',
+		Name = "placeinfo",
 		Size = UDim2.new(0.181, 0, 0.194, 0),
 		Position = UDim2.new(0.32, 0, -0.555, 0),
-		Text = 'place info',
+		Text = "place info",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui18 = createInstance('TextButton', {
+	local gui18 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = 'logs',
+		Name = "logs",
 		Size = UDim2.new(0.181, 0, 0.194, 0),
 		Position = UDim2.new(0.129, 0, -0.555, 0),
-		Text = 'open logs',
+		Text = "open logs",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
 	})
-	local gui_obj_2 = createInstance('UIPadding', {
+	local gui_obj_2 = createInstance("UIPadding", {
 		Parent = gui10,
 		PaddingBottom = UDim.new(0, 5),
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
 		PaddingTop = UDim.new(0, 5),
 	})
-	local gui_obj_3 = createInstance('UIPadding', {
+	local gui_obj_3 = createInstance("UIPadding", {
 		Parent = gui11,
 		PaddingBottom = UDim.new(0, 5),
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
 		PaddingTop = UDim.new(0, 5),
 	})
-	local gui_obj_4 = createInstance('UIPadding', {
+	local gui_obj_4 = createInstance("UIPadding", {
 		Parent = gui12,
 		PaddingBottom = UDim.new(0, 5),
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
 		PaddingTop = UDim.new(0, 5),
 	})
-	local gui_obj_6 = createInstance('UISizeConstraint', {
+	local gui_obj_6 = createInstance("UISizeConstraint", {
 		Parent = gui10,
 		MaxSize = Vector2.new(590, 1e308)
 	})
-	local gui_obj_7 = createInstance('UISizeConstraint', {
+	local gui_obj_7 = createInstance("UISizeConstraint", {
 		Parent = gui11,
 		MaxSize = Vector2.new(590, 1e308)
 	})
-	local gui_obj_8 = createInstance('UISizeConstraint', {
+	local gui_obj_8 = createInstance("UISizeConstraint", {
 		Parent = gui12,
 		MaxSize = Vector2.new(590, 1e308)
 	})
 
-	local explorerGui1 = createInstance('Frame', {
+	local explorerGui1 = createInstance("Frame", {
 		Parent = gui1,
-		Name = 'explorer',
+		Name = "explorer",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		Position = UDim2.fromOffset(0, 88),
 		Size = UDim2.fromOffset(240, 160),
@@ -1295,123 +1295,123 @@ local function createGui()
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	local explorerGui2 = createInstance('ScrollingFrame', {
+	local explorerGui2 = createInstance("ScrollingFrame", {
 		Parent = explorerGui1,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		AutomaticCanvasSize = Enum.AutomaticSize.XY,
-		BottomImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png',
+		BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
 		ScrollBarImageColor3 = Color3.new(),
 		CanvasSize = UDim2.fromScale(0, 0),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		TopImage = 'rbxasset://textures/ui/Scroll/scroll-middle.png',
+		TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
 	})
-	local explorerGui3 = createInstance('UIListLayout', {Parent = explorerGui2})
-	local explorerGui4 = createInstance('TextButton', {
+	local explorerGui3 = createInstance("UIListLayout", {Parent = explorerGui2})
+	local explorerGui4 = createInstance("TextButton", {
 		Parent = explorerGui1,
-		Name = 'dragbutton',
+		Name = "dragbutton",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		AnchorPoint = Vector2.new(0, 1),
 		Size = UDim2.new(1, 0, 0, 30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = 'explorer',
+		Text = "explorer",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
-		FontFace = Font.new('rbxassetid://12187374954'),
+		FontFace = Font.new("rbxassetid://12187374954"),
 		AutoButtonColor = false,
 		ClipsDescendants = true
 	})
-	local explorerGui5 = createInstance('Frame', {
+	local explorerGui5 = createInstance("Frame", {
 		Parent = explorerGui4,
-		Name = 'outline',
+		Name = "outline",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.fromScale(1, 2),
 	})
-	local explorerGui6 = createInstance('TextButton', {
+	local explorerGui6 = createInstance("TextButton", {
 		Parent = explorerGui1,
-		Name = 'resizebottom',
+		Name = "resizebottom",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, -2, 0, 7),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
-	local explorerGui7 = createInstance('TextButton', {
+	local explorerGui7 = createInstance("TextButton", {
 		Parent = explorerGui1,
-		Name = 'resizeside',
+		Name = "resizeside",
 		BackgroundTransparency = 1,
 		Position = UDim2.new(1, 0, 0, -30),
 		Size = UDim2.new(0, 7, 1, 28),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
-	local explorerGui8 = createInstance('TextButton', {
+	local explorerGui8 = createInstance("TextButton", {
 		Parent = explorerGui4,
-		Name = 'fullclose',
+		Name = "fullclose",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -5, 0, 5),
 		Size = UDim2.fromOffset(20, 20),
-		Text = ''
+		Text = ""
 	})
-	local explorerGui9 = createInstance('UIStroke', {
+	local explorerGui9 = createInstance("UIStroke", {
 		Parent = explorerGui8,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local explorerGui10 = createInstance('ImageLabel', {
+	local explorerGui10 = createInstance("ImageLabel", {
 		Parent = explorerGui8,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://74120900238837'
+		Image = "rbxassetid://74120900238837"
 	})
-	local explorerGui11 = createInstance('TextButton', {
+	local explorerGui11 = createInstance("TextButton", {
 		Parent = explorerGui4,
-		Name = 'close',
+		Name = "close",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -30, 0, 5),
 		Size = UDim2.fromOffset(20, 20),
-		Text = ''
+		Text = ""
 	})
-	local explorerGui12 = createInstance('UIStroke', {
+	local explorerGui12 = createInstance("UIStroke", {
 		Parent = explorerGui11,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local explorerGui13 = createInstance('ImageLabel', {
+	local explorerGui13 = createInstance("ImageLabel", {
 		Parent = explorerGui11,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://15396333997'
+		Image = "rbxassetid://15396333997"
 	})
-	local explorerGui14 = createInstance('TextButton', {
+	local explorerGui14 = createInstance("TextButton", {
 		Parent = explorerGui1,
-		Name = 'resizeboth',
+		Name = "resizeboth",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(1, 1),
 		Size = UDim2.fromOffset(7, 7),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
-	explorerGui11:SetAttribute('ClosedImage', 'rbxassetid://12072054746')
-	explorerGui11:SetAttribute('OpenedImage', 'rbxassetid://15396333997')
+	explorerGui11:SetAttribute("ClosedImage", "rbxassetid://12072054746")
+	explorerGui11:SetAttribute("OpenedImage", "rbxassetid://15396333997")
 
-	local pickerGui1 = createInstance('Frame', {
+	local pickerGui1 = createInstance("Frame", {
 		Parent = gui1,
-		Name = 'colorpicker',
+		Name = "colorpicker",
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		Position = UDim2.fromOffset(0, 88),
 		Size = UDim2.fromOffset(220, 320),
@@ -1419,19 +1419,19 @@ local function createGui()
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	local pickerGui2 = createInstance('UIScale', {Parent = pickerGui1})
-	local pickerGui3 = createInstance('Frame', {
+	local pickerGui2 = createInstance("UIScale", {Parent = pickerGui1})
+	local pickerGui3 = createInstance("Frame", {
 		Parent = pickerGui1,
-		Name = 'middlebar',
+		Name = "middlebar",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		Position = UDim2.fromOffset(0, 170),
 		Size = UDim2.fromOffset(220, 30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui4 = createInstance('Frame', {
+	local pickerGui4 = createInstance("Frame", {
 		Parent = pickerGui3,
-		Name = 'divider',
+		Name = "divider",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -1439,9 +1439,9 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui5 = createInstance('Frame', {
+	local pickerGui5 = createInstance("Frame", {
 		Parent = pickerGui3,
-		Name = 'result',
+		Name = "result",
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -5, 0, 2),
@@ -1449,93 +1449,93 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui6 = createInstance('Frame', {
+	local pickerGui6 = createInstance("Frame", {
 		Parent = pickerGui5,
-		Name = 'color',
+		Name = "color",
 		BackgroundColor3 = Color3.new(1, 0, 0),
 		Position = UDim2.fromOffset(3, 2),
 		Size = UDim2.fromOffset(94, 22),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui7 = createInstance('TextButton', {
+	local pickerGui7 = createInstance("TextButton", {
 		Parent = pickerGui5,
-		Name = 'color_switch',
+		Name = "color_switch",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0.52, 0.077),
 		Size = UDim2.fromOffset(44, 22),
 		ClipsDescendants = true,
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	pickerGui7:SetAttribute('HSVPos', 0)
-	pickerGui7:SetAttribute('RGBPos', -27)
-	local pickerGui8 = createInstance('Frame', {
+	pickerGui7:SetAttribute("HSVPos", 0)
+	pickerGui7:SetAttribute("RGBPos", -27)
+	local pickerGui8 = createInstance("Frame", {
 		Parent = pickerGui7,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(44, 49),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui9 = createInstance('TextLabel', {
+	local pickerGui9 = createInstance("TextLabel", {
 		Parent = pickerGui8,
-		Name = 'hsv',
+		Name = "hsv",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(44, 22),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = 'HSV',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "HSV",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 21,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui10 = createInstance('TextLabel', {
+	local pickerGui10 = createInstance("TextLabel", {
 		Parent = pickerGui8,
-		Name = 'rgb',
+		Name = "rgb",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, 27),
 		Size = UDim2.fromOffset(44, 22),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = 'RGB',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "RGB",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 21,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui11 = createInstance('TextLabel', {
+	local pickerGui11 = createInstance("TextLabel", {
 		Parent = pickerGui3,
-		Name = 'hex',
+		Name = "hex",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(95, 30),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = 'hex:',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "hex:",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 16,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui12 = createInstance('UIPadding', {Parent = pickerGui11,PaddingLeft = UDim.new(0, 5)})
-	local pickerGui13 = createInstance('TextBox', {
+	local pickerGui12 = createInstance("UIPadding", {Parent = pickerGui11,PaddingLeft = UDim.new(0, 5)})
+	local pickerGui13 = createInstance("TextBox", {
 		Parent = pickerGui11,
 		BackgroundTransparency = 1,
 		ClearTextOnFocus = false,
 		Position = UDim2.fromScale(0.286, 0),
 		Size = UDim2.fromOffset(64, 30),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '#ff0000',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "#ff0000",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 22,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui14 = createInstance('UIPadding', {Parent = pickerGui13,PaddingLeft = UDim.new(0, 5)})
-	local pickerGui15 = createInstance('Frame', {
+	local pickerGui14 = createInstance("UIPadding", {Parent = pickerGui13,PaddingLeft = UDim.new(0, 5)})
+	local pickerGui15 = createInstance("Frame", {
 		Parent = pickerGui1,
-		Name = 'options',
+		Name = "options",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -5, 0, 15),
@@ -1543,25 +1543,25 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui16 = createInstance('Frame', {
+	local pickerGui16 = createInstance("Frame", {
 		Parent = pickerGui15,
-		Name = 'modes',
+		Name = "modes",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(25, 60),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui17 = createInstance('Frame', {
+	local pickerGui17 = createInstance("Frame", {
 		Parent = pickerGui16,
-		Name = 'circle',
+		Name = "circle",
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 16),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui18 = createInstance('Frame', {
+	local pickerGui18 = createInstance("Frame", {
 		Parent = pickerGui17,
-		Name = 'selected',
+		Name = "selected",
 		BackgroundColor3 = Color3.fromRGB(52, 52, 52),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -1569,33 +1569,33 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui19 = createInstance('UICorner', {
+	local pickerGui19 = createInstance("UICorner", {
 		Parent = pickerGui18,
 		CornerRadius = UDim.new(0.5, 0)
 	})
-	local pickerGui20 = createInstance('TextButton', {
+	local pickerGui20 = createInstance("TextButton", {
 		Parent = pickerGui17,
-		Name = 'button',
+		Name = "button",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui21 = createInstance('ImageLabel', {
+	local pickerGui21 = createInstance("ImageLabel", {
 		Parent = pickerGui17,
-		Name = 'icon',
+		Name = "icon",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(16, 16),
-		Image = 'rbxassetid://91460273345882',
+		Image = "rbxassetid://91460273345882",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui22 = createInstance('Frame', {
+	local pickerGui22 = createInstance("Frame", {
 		Parent = pickerGui16,
-		Name = 'square',
+		Name = "square",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -1603,9 +1603,9 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui23 = createInstance('Frame', {
+	local pickerGui23 = createInstance("Frame", {
 		Parent = pickerGui22,
-		Name = 'selected',
+		Name = "selected",
 		BackgroundColor3 = Color3.fromRGB(52, 52, 52),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -1614,34 +1614,34 @@ local function createGui()
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	local pickerGui24 = createInstance('UICorner', {
+	local pickerGui24 = createInstance("UICorner", {
 		Parent = pickerGui23,
 		CornerRadius = UDim.new(0, 6)
 	})
-	local pickerGui25 = createInstance('TextButton', {
+	local pickerGui25 = createInstance("TextButton", {
 		Parent = pickerGui22,
-		Name = 'button',
+		Name = "button",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui26 = createInstance('ImageLabel', {
+	local pickerGui26 = createInstance("ImageLabel", {
 		Parent = pickerGui22,
-		Name = 'icon',
+		Name = "icon",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(16, 16),
-		Image = 'rbxassetid://81707513428574',
+		Image = "rbxassetid://81707513428574",
 		ImageTransparency = 0.5,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui27 = createInstance('Frame', {
+	local pickerGui27 = createInstance("Frame", {
 		Parent = pickerGui16,
-		Name = 'triangle',
+		Name = "triangle",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),
@@ -1649,68 +1649,68 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui28 = createInstance('ImageLabel', {
+	local pickerGui28 = createInstance("ImageLabel", {
 		Parent = pickerGui27,
-		Name = 'selected',
+		Name = "selected",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(26, 26),
-		Image = 'rbxassetid://90218356450094',
+		Image = "rbxassetid://90218356450094",
 		ImageColor3 = Color3.fromRGB(52, 52, 52),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	local pickerGui29 = createInstance('TextButton', {
+	local pickerGui29 = createInstance("TextButton", {
 		Parent = pickerGui27,
-		Name = 'button',
+		Name = "button",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui30 = createInstance('ImageLabel', {
+	local pickerGui30 = createInstance("ImageLabel", {
 		Parent = pickerGui27,
-		Name = 'icon',
+		Name = "icon",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(16, 16),
-		Image = 'rbxassetid://114667886210601',
+		Image = "rbxassetid://114667886210601",
 		ImageTransparency = 0.5,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui31 = createInstance('Frame', {
+	local pickerGui31 = createInstance("Frame", {
 		Parent = pickerGui1,
-		Name = 'picker',
+		Name = "picker",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(35, 15),
 		Size = UDim2.fromOffset(150, 150),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui32 = createInstance('Frame', {
+	local pickerGui32 = createInstance("Frame", {
 		Parent = pickerGui31,
-		Name = 'square',
+		Name = "square",
 		BackgroundColor3 = Color3.new(1, 0, 0),
 		Size = UDim2.fromScale(1, 1),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	local pickerGui33 = createInstance('Frame', {
+	local pickerGui33 = createInstance("Frame", {
 		Parent = pickerGui32,
-		Name = 'blackgradient',
+		Name = "blackgradient",
 		BackgroundColor3 = Color3.new(),
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 3,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui34 = createInstance('UIGradient', {
+	local pickerGui34 = createInstance("UIGradient", {
 		Parent = pickerGui33,
 		Rotation = -90,
 		Transparency = NumberSequence.new({
@@ -1718,106 +1718,106 @@ local function createGui()
 			NumberSequenceKeypoint.new(1, 1)
 		})
 	})
-	local pickerGui35 = createInstance('Frame', {
+	local pickerGui35 = createInstance("Frame", {
 		Parent = pickerGui32,
-		Name = 'whitegradient',
+		Name = "whitegradient",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 2,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui36 = createInstance('UIGradient', {
+	local pickerGui36 = createInstance("UIGradient", {
 		Parent = pickerGui35,
 		Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 0),
 			NumberSequenceKeypoint.new(1, 1)
 		})
 	})
-	local pickerGui37 = createInstance('TextButton', {
+	local pickerGui37 = createInstance("TextButton", {
 		Parent = pickerGui31,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui38 = createInstance('ImageLabel', {
+	local pickerGui38 = createInstance("ImageLabel", {
 		Parent = pickerGui31,
-		Name = 'circle',
+		Name = "circle",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://2849458409',
+		Image = "rbxassetid://2849458409",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui39 = createInstance('ImageLabel', {
+	local pickerGui39 = createInstance("ImageLabel", {
 		Parent = pickerGui31,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(30, 30),
-		Image = 'rbxassetid://133734996035045',
+		Image = "rbxassetid://133734996035045",
 		ZIndex = 4,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui40 = createInstance('ImageLabel', {
+	local pickerGui40 = createInstance("ImageLabel", {
 		Parent = pickerGui31,
-		Name = 'triangle',
+		Name = "triangle",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://119614645478849',
+		Image = "rbxassetid://119614645478849",
 		ImageColor3 = Color3.new(1, 0, 0),
 		Visible = false,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui41 = createInstance('ImageLabel', {
+	local pickerGui41 = createInstance("ImageLabel", {
 		Parent = pickerGui40,
-		Name = 'black',
+		Name = "black",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://90395096352510',
+		Image = "rbxassetid://90395096352510",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		ZIndex = 2
 	})
-	local pickerGui42 = createInstance('ImageLabel', {
+	local pickerGui42 = createInstance("ImageLabel", {
 		Parent = pickerGui40,
-		Name = 'white',
+		Name = "white",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://114393129271758',
+		Image = "rbxassetid://114393129271758",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui43 = createInstance('Frame', {
+	local pickerGui43 = createInstance("Frame", {
 		Parent = pickerGui1,
-		Name = 'sliders',
+		Name = "sliders",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(10, 220),
 		Size = UDim2.fromOffset(200, 211),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui44 = createInstance('UIListLayout', {
+	local pickerGui44 = createInstance("UIListLayout", {
 		Parent = pickerGui43,
 		Padding = UDim.new(0, 25),
 		SortOrder = Enum.SortOrder.LayoutOrder
 	})
-	local pickerGui45 = createInstance('Frame', {
+	local pickerGui45 = createInstance("Frame", {
 		Parent = pickerGui43,
-		Name = 'hue',
+		Name = "hue",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromOffset(170, 10),
 		LayoutOrder = 1,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui46 = createInstance('UIGradient', {
+	local pickerGui46 = createInstance("UIGradient", {
 		Parent = pickerGui45,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 0, 0)),
@@ -1829,9 +1829,9 @@ local function createGui()
 			ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0)),
 		}),
 	})
-	local pickerGui47 = createInstance('Frame', {
+	local pickerGui47 = createInstance("Frame", {
 		Parent = pickerGui45,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundColor3 = Color3.new(),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -1839,48 +1839,48 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui48 = createInstance('TextButton', {
+	local pickerGui48 = createInstance("TextButton", {
 		Parent = pickerGui45,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui49 = createInstance('TextBox', {
+	local pickerGui49 = createInstance("TextBox", {
 		Parent = pickerGui45,
-		Name = 'value',
+		Name = "value",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '100',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui50 = createInstance('Frame', {
+	local pickerGui50 = createInstance("Frame", {
 		Parent = pickerGui43,
-		Name = 'saturation',
+		Name = "saturation",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromOffset(170, 10),
 		LayoutOrder = 2,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui51 = createInstance('UIGradient', {
+	local pickerGui51 = createInstance("UIGradient", {
 		Parent = pickerGui50,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0))
 		})
 	})
-	local pickerGui52 = createInstance('Frame', {
+	local pickerGui52 = createInstance("Frame", {
 		Parent = pickerGui50,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundColor3 = Color3.new(),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -1888,48 +1888,48 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui53 = createInstance('TextButton', {
+	local pickerGui53 = createInstance("TextButton", {
 		Parent = pickerGui50,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui54 = createInstance('TextBox', {
+	local pickerGui54 = createInstance("TextBox", {
 		Parent = pickerGui50,
-		Name = 'value',
+		Name = "value",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '100',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui55 = createInstance('Frame', {
+	local pickerGui55 = createInstance("Frame", {
 		Parent = pickerGui43,
-		Name = 'value',
+		Name = "value",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromOffset(170, 10),
 		LayoutOrder = 3,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui56 = createInstance('UIGradient', {
+	local pickerGui56 = createInstance("UIGradient", {
 		Parent = pickerGui55,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new()),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0))
 		})
 	})
-	local pickerGui57 = createInstance('Frame', {
+	local pickerGui57 = createInstance("Frame", {
 		Parent = pickerGui55,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundColor3 = Color3.new(),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -1937,48 +1937,48 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui58 = createInstance('TextButton', {
+	local pickerGui58 = createInstance("TextButton", {
 		Parent = pickerGui55,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui59 = createInstance('TextBox', {
+	local pickerGui59 = createInstance("TextBox", {
 		Parent = pickerGui55,
-		Name = 'value',
+		Name = "value",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '100',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui60 = createInstance('Frame', {
+	local pickerGui60 = createInstance("Frame", {
 		Parent = pickerGui43,
-		Name = 'R',
+		Name = "R",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromOffset(170, 10),
 		LayoutOrder = 4,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui61 = createInstance('UIGradient', {
+	local pickerGui61 = createInstance("UIGradient", {
 		Parent = pickerGui60,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new()),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0))
 		})
 	})
-	local pickerGui62 = createInstance('Frame', {
+	local pickerGui62 = createInstance("Frame", {
 		Parent = pickerGui60,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundColor3 = Color3.new(),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -1986,48 +1986,48 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui63 = createInstance('TextButton', {
+	local pickerGui63 = createInstance("TextButton", {
 		Parent = pickerGui60,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui64 = createInstance('TextBox', {
+	local pickerGui64 = createInstance("TextBox", {
 		Parent = pickerGui60,
-		Name = 'value',
+		Name = "value",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '100',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui65 = createInstance('Frame', {
+	local pickerGui65 = createInstance("Frame", {
 		Parent = pickerGui43,
-		Name = 'G',
+		Name = "G",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromOffset(170, 10),
 		LayoutOrder = 5,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui66 = createInstance('UIGradient', {
+	local pickerGui66 = createInstance("UIGradient", {
 		Parent = pickerGui65,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new()),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0))
 		})
 	})
-	local pickerGui67 = createInstance('Frame', {
+	local pickerGui67 = createInstance("Frame", {
 		Parent = pickerGui65,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundColor3 = Color3.new(),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -2035,48 +2035,48 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui68 = createInstance('TextButton', {
+	local pickerGui68 = createInstance("TextButton", {
 		Parent = pickerGui65,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui69 = createInstance('TextBox', {
+	local pickerGui69 = createInstance("TextBox", {
 		Parent = pickerGui65,
-		Name = 'value',
+		Name = "value",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '100',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui70 = createInstance('Frame', {
+	local pickerGui70 = createInstance("Frame", {
 		Parent = pickerGui43,
-		Name = 'B',
+		Name = "B",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		Size = UDim2.fromOffset(170, 10),
 		LayoutOrder = 6,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui71 = createInstance('UIGradient', {
+	local pickerGui71 = createInstance("UIGradient", {
 		Parent = pickerGui70,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new()),
 			ColorSequenceKeypoint.new(1, Color3.new(1, 0, 0))
 		})
 	})
-	local pickerGui72 = createInstance('Frame', {
+	local pickerGui72 = createInstance("Frame", {
 		Parent = pickerGui70,
-		Name = 'pointer',
+		Name = "pointer",
 		BackgroundColor3 = Color3.new(),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
@@ -2084,131 +2084,131 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui73 = createInstance('TextButton', {
+	local pickerGui73 = createInstance("TextButton", {
 		Parent = pickerGui70,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui74 = createInstance('TextBox', {
+	local pickerGui74 = createInstance("TextBox", {
 		Parent = pickerGui70,
-		Name = 'value',
+		Name = "value",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = '100',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui75 = createInstance('ImageButton', {
+	local pickerGui75 = createInstance("ImageButton", {
 		Parent = pickerGui1,
-		Name = 'resize',
+		Name = "resize",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(209, 309),
 		Size = UDim2.fromOffset(44, 44),
-		Image = 'rbxassetid://10928806245',
+		Image = "rbxassetid://10928806245",
 		ImageTransparency = 1,
 		ScaleType = Enum.ScaleType.Slice,
 		SliceCenter = Rect.new(0, 0, 512, 512),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui76 = createInstance('TextButton', {
+	local pickerGui76 = createInstance("TextButton", {
 		Parent = pickerGui1,
-		Name = 'dragbutton',
+		Name = "dragbutton",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		AnchorPoint = Vector2.new(0, 1),
 		Size = UDim2.new(1, 0, 0, 30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = 'color picker',
+		Text = "color picker",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
-		FontFace = Font.new('rbxassetid://12187374954'),
+		FontFace = Font.new("rbxassetid://12187374954"),
 		AutoButtonColor = false,
 		ClipsDescendants = true,
 	})
-	local pickerGui77 = createInstance('TextButton', {
+	local pickerGui77 = createInstance("TextButton", {
 		Parent = pickerGui76,
-		Name = 'fullclose',
+		Name = "fullclose",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -5, 0, 5),
 		Size = UDim2.fromOffset(20, 20),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui78 = createInstance('UIStroke', {
+	local pickerGui78 = createInstance("UIStroke", {
 		Parent = pickerGui77,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local pickerGui79 = createInstance('ImageLabel', {
+	local pickerGui79 = createInstance("ImageLabel", {
 		Parent = pickerGui77,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://74120900238837',
+		Image = "rbxassetid://74120900238837",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui80 = createInstance('TextButton', {
+	local pickerGui80 = createInstance("TextButton", {
 		Parent = pickerGui76,
-		Name = 'close',
+		Name = "close",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -30, 0, 5),
 		Size = UDim2.fromOffset(20, 20),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui81 = createInstance('UIStroke', {
+	local pickerGui81 = createInstance("UIStroke", {
 		Parent = pickerGui80,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local pickerGui82 = createInstance('ImageLabel', {
+	local pickerGui82 = createInstance("ImageLabel", {
 		Parent = pickerGui80,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://15396333997',
+		Image = "rbxassetid://15396333997",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui83 = createInstance('ImageButton', {
+	local pickerGui83 = createInstance("ImageButton", {
 		Parent = pickerGui15,
-		Name = 'close',
+		Name = "close",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(25, 25),
 		Position = UDim2.fromScale(0, 0.473),
-		Image = 'rbxassetid://3192543734',
+		Image = "rbxassetid://3192543734",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local pickerGui84 = createInstance('TextButton', {
+	local pickerGui84 = createInstance("TextButton", {
 		Parent = pickerGui1,
-		Name = 'resizebottom',
+		Name = "resizebottom",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, -2, 0, 7),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
-	local notifyGui1 = createInstance('Frame', {
+	local notifyGui1 = createInstance("Frame", {
 		Parent = gui1,
-		Name = 'notification',
+		Name = "notification",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 1),
 		Size = UDim2.new(0, 200, 1, -20),
@@ -2216,16 +2216,16 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local notifyGui2 = createInstance('UIListLayout', {
+	local notifyGui2 = createInstance("UIListLayout", {
 		Parent = notifyGui1,
 		Padding = UDim.new(0, 5),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		HorizontalAlignment = Enum.HorizontalAlignment.Right,
 		VerticalAlignment = Enum.VerticalAlignment.Bottom
 	})
-	local placeInfoGui1 = createInstance('Frame', {
+	local placeInfoGui1 = createInstance("Frame", {
 		Parent = gui1,
-		Name = 'placeinfo',
+		Name = "placeinfo",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -2234,36 +2234,36 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0
 	})
-	local placeInfoGui2 = createInstance('UIAspectRatioConstraint', {
+	local placeInfoGui2 = createInstance("UIAspectRatioConstraint", {
 		Parent = placeInfoGui1,
 		AspectRatio = 1.215
 	})
-	local placeInfoGui3 = createInstance('UIStroke', {
+	local placeInfoGui3 = createInstance("UIStroke", {
 		Parent = placeInfoGui1,
 		Color = Color3.fromRGB(163, 162, 165),
 		LineJoinMode = Enum.LineJoinMode.Miter,
 		Thickness = 5
 	})
-	local placeInfoGui4 = createInstance('ScrollingFrame', {
+	local placeInfoGui4 = createInstance("ScrollingFrame", {
 		Parent = placeInfoGui1,
-		Name = 'list',
+		Name = "list",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(10, 10),
 		Size = UDim2.new(1, -20, 1, -20),
 		CanvasSize = UDim2.fromScale(0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	})
-	local placeInfoGui5 = createInstance('UIListLayout', {
+	local placeInfoGui5 = createInstance("UIListLayout", {
 		Parent = placeInfoGui4,
 		Padding = UDim.new(0, 2),
 		SortOrder = Enum.SortOrder.LayoutOrder
 	})
-	local placeInfoGui6 = createInstance('TextButton', {
+	local placeInfoGui6 = createInstance("TextButton", {
 		Parent = gui1,
-		Name = 'closeregion',
+		Name = "closeregion",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Text = '',
+		Text = "",
 		Visible = false,
 		ZIndex = 0
 	})
@@ -2290,102 +2290,102 @@ local function createGui()
 		Parent = logGui2,
 		SortOrder = Enum.SortOrder.LayoutOrder
 	})
-	local logGui4 = createInstance('TextButton', {
+	local logGui4 = createInstance("TextButton", {
 		Parent = logGui1,
-		Name = 'dragbutton',
+		Name = "dragbutton",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		AnchorPoint = Vector2.new(0, 1),
 		Size = UDim2.new(1, 0, 0, 30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = 'logs.txt',
+		Text = "logs.txt",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
-		FontFace = Font.new('rbxassetid://12187374954'),
+		FontFace = Font.new("rbxassetid://12187374954"),
 		AutoButtonColor = false,
 		ClipsDescendants = true,
 	})
-	local logGui5 = createInstance('TextButton', {
+	local logGui5 = createInstance("TextButton", {
 		Parent = logGui4,
-		Name = 'fullclose',
+		Name = "fullclose",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -5, 0, 5),
 		Size = UDim2.fromOffset(20, 20),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local logGui6 = createInstance('UIStroke', {
+	local logGui6 = createInstance("UIStroke", {
 		Parent = logGui5,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local logGui7 = createInstance('ImageLabel', {
+	local logGui7 = createInstance("ImageLabel", {
 		Parent = logGui5,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://74120900238837',
+		Image = "rbxassetid://74120900238837",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local logGui8 = createInstance('TextButton', {
+	local logGui8 = createInstance("TextButton", {
 		Parent = logGui4,
-		Name = 'close',
+		Name = "close",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -30, 0, 5),
 		Size = UDim2.fromOffset(20, 20),
-		Text = '',
+		Text = "",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local logGui9 = createInstance('UIStroke', {
+	local logGui9 = createInstance("UIStroke", {
 		Parent = logGui8,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local logGui10 = createInstance('ImageLabel', {
+	local logGui10 = createInstance("ImageLabel", {
 		Parent = logGui8,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = 'rbxassetid://15396333997',
+		Image = "rbxassetid://15396333997",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local logGui11 = createInstance('TextButton', {
+	local logGui11 = createInstance("TextButton", {
 		Parent = logGui1,
-		Name = 'resizebottom',
+		Name = "resizebottom",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, -2, 0, 7),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
-	local logGui12 = createInstance('TextButton', {
+	local logGui12 = createInstance("TextButton", {
 		Parent = logGui1,
-		Name = 'resizeside',
+		Name = "resizeside",
 		BackgroundTransparency = 1,
 		Position = UDim2.new(1, 0, 0, -30),
 		Size = UDim2.new(0, 7, 1, 28),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
-	local logGui13 = createInstance('TextButton', {
+	local logGui13 = createInstance("TextButton", {
 		Parent = logGui1,
-		Name = 'resizeboth',
+		Name = "resizeboth",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(1, 1),
 		Size = UDim2.fromOffset(7, 7),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = '',
+		Text = "",
 		AutoButtonColor = false
 	})
 	local commandGui1 = createInstance("Frame", {
@@ -2453,6 +2453,7 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
+	local commandGui8 = createInstance("UIScale", {Parent = commandGui1})
 	commandGui1:SetAttribute("Hovering", false)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -2465,62 +2466,62 @@ local function getMousePos()
 end
 
 local function makeFakeScripts()
-	local folder = createInstance('Folder', {
+	local folder = createInstance("Folder", {
 		Parent = game.ReplicatedStorage,
-		Name = '_DeepScopeCore'
+		Name = "_DeepScopeCore"
 	})
-	local fakeScript1 = createInstance('ModuleScript', {
+	local fakeScript1 = createInstance("ModuleScript", {
 		Parent = folder,
-		Name = 'Core'
+		Name = "Core"
 	})
-	local fakeScript2 = createInstance('ModuleScript', {
+	local fakeScript2 = createInstance("ModuleScript", {
 		Parent = fakeScript1,
-		Name = 'Explorer'
+		Name = "Explorer"
 	})
-	local fakeScript3 = createInstance('ModuleScript', {
+	local fakeScript3 = createInstance("ModuleScript", {
 		Parent = fakeScript1,
-		Name = 'Properties'
+		Name = "Properties"
 	})
-	local fakeScript4 = createInstance('ModuleScript', {
+	local fakeScript4 = createInstance("ModuleScript", {
 		Parent = folder,
-		Name = 'ColorPicker'
+		Name = "ColorPicker"
 	})
-	local fakeScript5 = createInstance('ModuleScript', {
+	local fakeScript5 = createInstance("ModuleScript", {
 		Parent = folder,
-		Name = 'Notifications'
+		Name = "Notifications"
 	})
-	local fakeScript6 = createInstance('ModuleScript', {
+	local fakeScript6 = createInstance("ModuleScript", {
 		Parent = folder,
-		Name = 'BuildMode'
+		Name = "BuildMode"
 	})
-	local fakeScript7 = createInstance('ModuleScript', {
+	local fakeScript7 = createInstance("ModuleScript", {
 		Parent = folder,
-		Name = 'Logs'
+		Name = "Logs"
 	})
 end
 
 local function notify(icon, text, countdown)
 	if not countdown then countdown = 3 end
-	local template = createInstance('Frame', {
+	local template = createInstance("Frame", {
 		Parent = newgui.Parent.notification,
-		Name = 'template',
+		Name = "template",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(200, 50),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
 	})
-	local notifyGui4 = createInstance('Frame', {
+	local notifyGui4 = createInstance("Frame", {
 		Parent = template,
-		Name = 'inner',
+		Name = "inner",
 		Size = UDim2.fromOffset(200, 50),
 		Position = UDim2.fromOffset(210, 0),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local notifyGui5 = createInstance('Frame', {
+	local notifyGui5 = createInstance("Frame", {
 		Parent = notifyGui4,
-		Name = 'countdown',
+		Name = "countdown",
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),
@@ -2528,9 +2529,9 @@ local function notify(icon, text, countdown)
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local notifyGui6 = createInstance('Frame', {
+	local notifyGui6 = createInstance("Frame", {
 		Parent = notifyGui4,
-		Name = 'mainframe',
+		Name = "mainframe",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -2538,35 +2539,35 @@ local function notify(icon, text, countdown)
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local notifyGui7 = createInstance('UIListLayout', {
+	local notifyGui7 = createInstance("UIListLayout", {
 		Parent = notifyGui6,
 		Padding = UDim.new(0, 5),
 		FillDirection = Enum.FillDirection.Horizontal
 	})
-	local notifyGui8 = createInstance('UIPadding', {
+	local notifyGui8 = createInstance("UIPadding", {
 		Parent = notifyGui6,
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5)
 	})
-	local notifyGui9 = createInstance('ImageLabel', {
+	local notifyGui9 = createInstance("ImageLabel", {
 		Parent = notifyGui6,
-		Name = 'icon',
+		Name = "icon",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(30, 30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local notifyGui10 = createInstance('TextLabel', {
+	local notifyGui10 = createInstance("TextLabel", {
 		Parent = notifyGui6,
-		Name = 'title',
+		Name = "title",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(155, 30),
-		Text = 'hi',
+		Text = "hi",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 13,
 		RichText = true,
 		TextWrapped = true,
-		FontFace = Font.new('rbxassetid://12187374954'),
+		FontFace = Font.new("rbxassetid://12187374954"),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -2579,12 +2580,12 @@ local function notify(icon, text, countdown)
 	}):Play()
 	newTemplate.inner.mainframe.title.Size = UDim2.fromOffset(icon ~= nil and 155 or 190, 30)
 	newTemplate.inner.mainframe.icon.Visible = icon ~= nil
-	newTemplate.inner.mainframe.icon.Image = icon ~= nil and icon or ''
+	newTemplate.inner.mainframe.icon.Image = icon ~= nil and icon or ""
 	newTemplate.inner.mainframe.title.Text = text
 	newTemplate.LayoutOrder = -notify_amount
-	newTemplate.Name = 'template' .. notify_amount
+	newTemplate.Name = "template" .. notify_amount
 	newTemplate.Visible = true
-	local sound = Instance.new('Sound')
+	local sound = Instance.new("Sound")
 	sound.Parent = newTemplate.inner
 	sound.SoundId = notificationSoundId
 	sound:Play()
@@ -2674,34 +2675,34 @@ end
 
 
 local function createEntryForInstance(node, parentGui)
-	local template = createInstance('Frame', {
+	local template = createInstance("Frame", {
 		Parent = nil,
-		Name = 'template',
+		Name = "template",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(228, 32),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local explorerGui5 = createInstance('Frame', {
+	local explorerGui5 = createInstance("Frame", {
 		Parent = template,
-		Name = 'mainframe',
+		Name = "mainframe",
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, 32)
 	})
-	local explorerGui6 = createInstance('UIListLayout', {
+	local explorerGui6 = createInstance("UIListLayout", {
 		Parent = explorerGui5,
 		Padding = UDim.new(0, 2),
 		FillDirection = Enum.FillDirection.Horizontal,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
 		SortOrder = Enum.SortOrder.LayoutOrder
 	})
-	local explorerGui7 = createInstance('UIPadding', {
+	local explorerGui7 = createInstance("UIPadding", {
 		Parent = explorerGui5,
 		PaddingLeft = UDim.new(0, 2)
 	})
-	local explorerGui8 = createInstance('UIGradient', {
+	local explorerGui8 = createInstance("UIGradient", {
 		Parent = explorerGui5,
 		Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 0),
@@ -2709,45 +2710,45 @@ local function createEntryForInstance(node, parentGui)
 			NumberSequenceKeypoint.new(1, 1)
 		})
 	})
-	local explorerGui9 = createInstance('ImageButton', {
+	local explorerGui9 = createInstance("ImageButton", {
 		Parent = explorerGui5,
-		Name = 'dropdownbutton',
+		Name = "dropdownbutton",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(29, 29),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0
 	})
-	local explorerGui10 = createInstance('ImageLabel', {
+	local explorerGui10 = createInstance("ImageLabel", {
 		Parent = explorerGui9,
-		Name = 'icon',
+		Name = "icon",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		BorderColor3 = Color3.new(0, 0, 0),
 		Rotation = -90,
 		BorderSizePixel = 0,
-		Image = 'rbxassetid://11552476728',
+		Image = "rbxassetid://11552476728",
 	})
-	local explorerGui11 = createInstance('ImageLabel', {
+	local explorerGui11 = createInstance("ImageLabel", {
 		Parent = explorerGui5,
-		Name = 'icon',
+		Name = "icon",
 		BackgroundTransparency = 1,
 		LayoutOrder = 1,
 		Size = UDim2.fromOffset(28, 28),
-		Image = 'rbxassetid://765660635',
+		Image = "rbxassetid://765660635",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		ImageRectOffset = Vector2.new(1.5, 1.5),
 		ImageRectSize = Vector2.new(table.unpack(icons.size))
 	})
-	local explorerGui12 = createInstance('TextLabel', {
+	local explorerGui12 = createInstance("TextLabel", {
 		Parent = explorerGui5,
-		Name = 'name',
+		Name = "name",
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
 		LayoutOrder = 2,
 		Size = UDim2.fromOffset(0, 28),
-		FontFace = Font.new('rbxassetid://12187374954'),
-		Text = 'hi',
+		FontFace = Font.new("rbxassetid://12187374954"),
+		Text = "hi",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 15,
 		BorderColor3 = Color3.new(0, 0, 0),
@@ -2755,36 +2756,36 @@ local function createEntryForInstance(node, parentGui)
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
-	local explorerGui17 = createInstance('ImageButton', {
+	local explorerGui17 = createInstance("ImageButton", {
 		Parent = explorerGui5,
-		Name = 'add',
+		Name = "add",
 		BackgroundTransparency = 1,
 		LayoutOrder = 3,
 		Size = UDim2.fromOffset(25, 15),
-		Image = 'rbxassetid://88065133864491',
+		Image = "rbxassetid://88065133864491",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		ScaleType = Enum.ScaleType.Fit,
 		Visible = false
 	})
-	local explorerGui13 = createInstance('UISizeConstraint', {
+	local explorerGui13 = createInstance("UISizeConstraint", {
 		Parent = explorerGui12,
 		MaxSize = Vector2.new(163, 1e308)
 	})
-	local explorerGui14 = createInstance('Frame', {
+	local explorerGui14 = createInstance("Frame", {
 		Parent = template,
-		Name = 'dropdown',
+		Name = "dropdown",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(32, 32),
 		Size = UDim2.fromScale(1, 0),
 		Visible = false
 	})
-	local explorerGui15 = createInstance('UIListLayout', {Parent = explorerGui14})
-	local explorerGui16 = createInstance('TextButton', {
+	local explorerGui15 = createInstance("UIListLayout", {Parent = explorerGui14})
+	local explorerGui16 = createInstance("TextButton", {
 		Parent = template,
-		Name = 'activateregion',
+		Name = "activateregion",
 		BackgroundTransparency = 1,
-		Text = '',
+		Text = "",
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
@@ -2862,14 +2863,14 @@ local function setExplorer()
 	end
 	local MIN_WIDTH, MIN_HEIGHT = 240, 32
 	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
-	workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
+	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
 		MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
 	end)
 	explorer.resizebottom.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if explorerOpened then
-				if not countdowns['explorer'] then
-					resizingExplorer = 'Y'
+				if not countdowns["explorer"] then
+					resizingExplorer = "Y"
 					startMousePos = getMousePos()
 					startExplorerSize = explorer.Size
 				end
@@ -2879,8 +2880,8 @@ local function setExplorer()
 
 	explorer.resizeside.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if not countdowns['explorer'] then
-				resizingExplorer = 'X'
+			if not countdowns["explorer"] then
+				resizingExplorer = "X"
 				startMousePos = getMousePos()
 				startExplorerSize = explorer.Size
 			end
@@ -2889,33 +2890,33 @@ local function setExplorer()
 
 	explorer.resizeboth.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if not countdowns['explorer'] then
-				resizingExplorer = 'XY'
+			if not countdowns["explorer"] then
+				resizingExplorer = "XY"
 				startMousePos = getMousePos()
 				startExplorerSize = explorer.Size
 			end
 		end
 	end)
 
-	game:GetService('UserInputService').InputEnded:Connect(function(input)
+	game:GetService("UserInputService").InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			resizingExplorer = false
 		end
 	end)
 
-	game:GetService('RunService').RenderStepped:Connect(function()
+	game:GetService("RunService").RenderStepped:Connect(function()
 		if resizingExplorer then
 			local mouse = getMousePos()
 
-			if resizingExplorer == 'Y' then
+			if resizingExplorer == "Y" then
 				local deltaY = mouse.Y - startMousePos.Y
 				local newHeight = math.clamp(startExplorerSize.Y.Offset + deltaY, MIN_HEIGHT, MAX_HEIGHT)
 				explorer.Size = UDim2.new(startExplorerSize.X.Scale, startExplorerSize.X.Offset, 0, newHeight)
-			elseif resizingExplorer == 'X' then
+			elseif resizingExplorer == "X" then
 				local deltaX = mouse.X - startMousePos.X
 				local newWidth = math.clamp(startExplorerSize.X.Offset + deltaX, MIN_WIDTH, MAX_HEIGHT)
 				explorer.Size = UDim2.new(0, newWidth, startExplorerSize.Y.Scale, startExplorerSize.Y.Offset)
-			elseif resizingExplorer == 'XY' then
+			elseif resizingExplorer == "XY" then
 				local deltaX = mouse.X - startMousePos.X
 				local deltaY = mouse.Y - startMousePos.Y
 				local newWidth = math.clamp(startExplorerSize.X.Offset + deltaX, MIN_WIDTH, MAX_WIDTH)
@@ -2971,17 +2972,17 @@ local function setExplorer()
 		explorerOpened = not explorerOpened
 		if not explorerOpened then
 			countdowns.explorer = true
-			explorer.dragbutton.close.ImageLabel.Image = explorer.dragbutton.close:GetAttribute('ClosedImage')
-			explorer:SetAttribute('oldysize', explorer.Size.Y.Offset)
-			explorer:TweenSize(UDim2.fromOffset(explorer.Size.X.Offset, 0), 'InOut', 'Sine', 0.2, true)
+			explorer.dragbutton.close.ImageLabel.Image = explorer.dragbutton.close:GetAttribute("ClosedImage")
+			explorer:SetAttribute("oldysize", explorer.Size.Y.Offset)
+			explorer:TweenSize(UDim2.fromOffset(explorer.Size.X.Offset, 0), "InOut", "Sine", 0.2, true)
 			delay(0.2, function()
 				countdowns.explorer = nil
 			end)
 		else
 			countdowns.explorer = true
-			explorer.dragbutton.close.ImageLabel.Image = explorer.dragbutton.close:GetAttribute('OpenedImage')
-			explorer:TweenSize(UDim2.fromOffset(explorer.Size.X.Offset, explorer:GetAttribute('oldysize')), 'InOut', 'Sine', 0.2, true)
-			explorer:SetAttribute('oldysize', nil)
+			explorer.dragbutton.close.ImageLabel.Image = explorer.dragbutton.close:GetAttribute("OpenedImage")
+			explorer:TweenSize(UDim2.fromOffset(explorer.Size.X.Offset, explorer:GetAttribute("oldysize")), "InOut", "Sine", 0.2, true)
+			explorer:SetAttribute("oldysize", nil)
 			delay(0.2, function()
 				countdowns.explorer = nil
 			end)
@@ -2991,7 +2992,7 @@ local function setExplorer()
 		explorerUsing = false
 		explorerData = {}
 		for _, child in list:GetChildren() do
-			if child:IsA('Frame') then
+			if child:IsA("Frame") then
 				child:Destroy()
 			end
 		end
@@ -3004,14 +3005,14 @@ local function setExplorer()
 
 			local topEntry = nil
 			for _, obj in ipairs(guiObjects) do
-				if obj:FindFirstChild('mainframe') then
+				if obj:FindFirstChild("mainframe") then
 					topEntry = obj
 					break
 				end
 			end
 
 			for _, v in explorer.ScrollingFrame:GetDescendants() do
-				if v:IsA('Frame') and v:FindFirstChild('mainframe') then
+				if v:IsA("Frame") and v:FindFirstChild("mainframe") then
 					if v == topEntry then
 						v.mainframe.BackgroundColor3 = Color3.fromRGB(67, 66, 68)
 						v.mainframe.add.Visible = true
@@ -3038,15 +3039,15 @@ local function setMode(mode)
 		button.selected.Visible = true
 		button.icon.ImageTransparency = 0
 	end
-	if mode == 'square' then
+	if mode == "square" then
 		picker.picker.square.Visible = true
 		picker.picker.circle.Visible = false
 		picker.picker.triangle.Visible = false
-	elseif mode == 'circle' then
+	elseif mode == "circle" then
 		picker.picker.square.Visible = false
 		picker.picker.circle.Visible = true
 		picker.picker.triangle.Visible = false
-	elseif mode == 'triangle' then
+	elseif mode == "triangle" then
 		picker.picker.square.Visible = false
 		picker.picker.circle.Visible = false
 		picker.picker.triangle.Visible = true
@@ -3056,13 +3057,13 @@ local function setMode(mode)
 	pickerMode = mode
 end
 local function setColorMode()
-	if colorMode == 'hsv' then
-		colorMode = 'rgb'
+	if colorMode == "hsv" then
+		colorMode = "rgb"
 	else
-		colorMode = 'hsv'
+		colorMode = "hsv"
 	end
-	newgui.Parent.colorpicker.middlebar.result.color_switch.Frame:TweenPosition(UDim2.new(0, 0, 0, colorMode == 'rgb' and -27 or 0), 'InOut', 'Quad', 0.2, true)
-	if colorMode == 'rgb' then
+	newgui.Parent.colorpicker.middlebar.result.color_switch.Frame:TweenPosition(UDim2.new(0, 0, 0, colorMode == "rgb" and -27 or 0), "InOut", "Quad", 0.2, true)
+	if colorMode == "rgb" then
 		newgui.Parent.colorpicker.sliders.R.Visible = true
 		newgui.Parent.colorpicker.sliders.G.Visible = true
 		newgui.Parent.colorpicker.sliders.B.Visible = true
@@ -3088,7 +3089,7 @@ local function setColorPicker(color, gui)
 		local module = modules[pickerMode]
 		pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
 		picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-		picker.middlebar.hex.TextBox.Text = string.format('#%02x%02x%02x', colors.r, colors.g, colors.b)
+		picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
 		picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
 		picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
@@ -3115,7 +3116,7 @@ local function setColorPicker(color, gui)
 	else
 		colors.h, colors.s, colors.v = 0, 0, 1
 	end
-	game:GetService('RunService').RenderStepped:Connect(function()
+	game:GetService("RunService").RenderStepped:Connect(function()
 		if draggingColorPicker then
 			local newX = getMousePos().X - startMousePos.X
 			local newY = getMousePos().Y - startMousePos.Y
@@ -3138,7 +3139,7 @@ local function setColorPicker(color, gui)
 			colors.r, colors.g, colors.b = math.round(Color3.fromHSV(h, s, v).R * 255), math.round(Color3.fromHSV(h, s, v).G * 255), math.round(Color3.fromHSV(h, s, v).B * 255)
 			pointer.Position = module.GetPointerPositionFromColor(h, s, v)
 			picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(h, s, v)
-			picker.middlebar.hex.TextBox.Text = string.format('#%02x%02x%02x', colors.r, colors.g, colors.b)
+			picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
 			picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
 			picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
 				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
@@ -3167,16 +3168,16 @@ local function setColorPicker(color, gui)
 			local mousePos = (getMousePos() - usingSlider.slider.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)) / usingSlider.slider.AbsoluteSize
 			local name = usingSlider.slider.Name:sub(1, 1):lower()
 			local module = modules[pickerMode]
-			if name == 'h' or name == 's' or name == 'v' then
+			if name == "h" or name == "s" or name == "v" then
 				colors[name] = math.clamp(mousePos.X, 0, 1)
 				colors.r, colors.g, colors.b = math.floor(Color3.fromHSV(colors.h, colors.s, colors.v).R * 255), math.floor(Color3.fromHSV(colors.h, colors.s, colors.v).G * 255), math.floor(Color3.fromHSV(colors.h, colors.s, colors.v).B * 255)
 			end
-			if name == 'r' or name == 'g' or name == 'b' then
+			if name == "r" or name == "g" or name == "b" then
 				colors[name] = math.clamp(mousePos.X, 0, 1)*255
 				colors.h, colors.s, colors.v = Color3.new(colors.r/255, colors.g/255, colors.b/255):ToHSV()
 			end
 			picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-			picker.middlebar.hex.TextBox.Text = string.format('#%02x%02x%02x', colors.r, colors.g, colors.b)
+			picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
 			picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
 			picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
 				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
@@ -3201,7 +3202,7 @@ local function setColorPicker(color, gui)
 			picker.picker.pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
 			newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
 			newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
-			if colorMode == 'rgb' then
+			if colorMode == "rgb" then
 				local h, s, v = Color3.fromRGB(colors.r, colors.g, colors.b):ToHSV()
 				newgui.Parent.colorpicker.picker.pointer.Position = module.GetPointerPositionFromColor(h, s, v)
 			end
@@ -3233,7 +3234,7 @@ local function setColorPicker(color, gui)
 		end
 	end)
 	for _, v in picker.sliders:GetChildren() do
-		if v:IsA('Frame') then
+		if v:IsA("Frame") then
 			v.activateregion.MouseButton1Down:Connect(function()
 				usingSlider = {
 					enabled = true,
@@ -3243,7 +3244,7 @@ local function setColorPicker(color, gui)
 			v.value.FocusLost:Connect(function()
 				local module = modules[pickerMode]
 				local name = v.Name:sub(1, 1):lower()
-				if name == 'r' or name == 'g' or name == 'b' then
+				if name == "r" or name == "g" or name == "b" then
 					local ok, error = pcall(function()
 						colors[v.Name:sub(1, 1):lower()] = math.clamp(tonumber(v.value.Text)/255 or 0, 0, 1) * 255
 					end)
@@ -3252,7 +3253,7 @@ local function setColorPicker(color, gui)
 						v.value.Text = 0
 					end
 				end
-				if name == 's' or name == 'v' then
+				if name == "s" or name == "v" then
 					local ok, error = pcall(function()
 						colors[v.Name:sub(1, 1):lower()] = math.clamp(tonumber(v.value.Text)/100 or 0, 0, 1)
 					end)
@@ -3260,7 +3261,7 @@ local function setColorPicker(color, gui)
 						v.value.Text = 0
 					end
 				end
-				if name == 'h' then
+				if name == "h" then
 					local ok, error = pcall(function()
 						colors[v.Name:sub(1, 1):lower()] = math.clamp(tonumber(v.value.Text)/360 or 0, 0, 1)
 					end)
@@ -3270,7 +3271,7 @@ local function setColorPicker(color, gui)
 				end
 				local r, g, b = math.round(Color3.fromHSV(colors.h, colors.s, colors.v).R * 255), math.round(Color3.fromHSV(colors.h, colors.s, colors.v).G * 255), math.round(Color3.fromHSV(colors.h, colors.s, colors.v).B * 255)
 				picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-				picker.middlebar.hex.TextBox.Text = string.format('#%02x%02x%02x', r, g, b)
+				picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", r, g, b)
 				picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
 				picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
 					ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
@@ -3295,7 +3296,7 @@ local function setColorPicker(color, gui)
 				picker.picker.pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
 				newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
 				newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
-				if colorMode == 'rgb' then
+				if colorMode == "rgb" then
 					local h, s, v = Color3.fromRGB(colors.r, colors.g, colors.b):ToHSV()
 					newgui.Parent.colorpicker.picker.pointer.Position = module.GetPointerPositionFromColor(h, s, v)
 				end
@@ -3303,7 +3304,7 @@ local function setColorPicker(color, gui)
 		end
 	end
 	for _, v in picker.options.modes:GetChildren() do
-		local button = v:FindFirstChild('button')
+		local button = v:FindFirstChild("button")
 		button.MouseButton1Click:Connect(function()
 			setMode(v.Name)
 		end)
@@ -3327,7 +3328,7 @@ local function setColorPicker(color, gui)
 		picker.Visible = false
 		pickerOpened = false
 		for _, v in newgui:GetDescendants() do
-			if v:IsA('TextButton') or v:IsA('Frame') or v:IsA('TextBox') or v:IsA('TextLabel') then
+			if v:IsA("TextButton") or v:IsA("Frame") or v:IsA("TextBox") or v:IsA("TextLabel") then
 				if v.BackgroundTransparency ~= 1 then
 					v.BackgroundColor3 = currentUIColor
 				end
@@ -3341,14 +3342,14 @@ local function setLogMenu()
 	logMenu.Visible = true
 	local MIN_WIDTH, MIN_HEIGHT = 170, 20
 	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
-	workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
+	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
 		MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
 	end)
 	logMenu.resizebottom.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if explorerOpened then
-				if not countdowns['logMenu'] then
-					resizingLogMenu = 'Y'
+				if not countdowns["logMenu"] then
+					resizingLogMenu = "Y"
 					startMousePos = getMousePos()
 					startLogSize = logMenu.Size
 				end
@@ -3358,8 +3359,8 @@ local function setLogMenu()
 
 	logMenu.resizeside.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if not countdowns['logMenu'] then
-				resizingLogMenu = 'X'
+			if not countdowns["logMenu"] then
+				resizingLogMenu = "X"
 				startMousePos = getMousePos()
 				startLogSize = logMenu.Size
 			end
@@ -3368,33 +3369,33 @@ local function setLogMenu()
 
 	logMenu.resizeboth.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if not countdowns['logMenu'] then
-				resizingLogMenu = 'XY'
+			if not countdowns["logMenu"] then
+				resizingLogMenu = "XY"
 				startMousePos = getMousePos()
 				startLogSize = logMenu.Size
 			end
 		end
 	end)
 
-	game:GetService('UserInputService').InputEnded:Connect(function(input)
+	game:GetService("UserInputService").InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			resizingLogMenu = false
 		end
 	end)
 
-	game:GetService('RunService').RenderStepped:Connect(function()
+	game:GetService("RunService").RenderStepped:Connect(function()
 		if resizingLogMenu then
 			local mouse = getMousePos()
 
-			if resizingLogMenu == 'Y' then
+			if resizingLogMenu == "Y" then
 				local deltaY = mouse.Y - startMousePos.Y
 				local newHeight = math.clamp(startLogSize.Y.Offset + deltaY, MIN_HEIGHT, MAX_HEIGHT)
 				logMenu.Size = UDim2.new(startLogSize.X.Scale, startLogSize.X.Offset, 0, newHeight)
-			elseif resizingLogMenu == 'X' then
+			elseif resizingLogMenu == "X" then
 				local deltaX = mouse.X - startMousePos.X
 				local newWidth = math.clamp(startLogSize.X.Offset + deltaX, MIN_WIDTH, MAX_WIDTH)
 				logMenu.Size = UDim2.new(0, newWidth, startLogSize.Y.Scale, startLogSize.Y.Offset)
-			elseif resizingLogMenu == 'XY' then
+			elseif resizingLogMenu == "XY" then
 				local deltaX = mouse.X - startMousePos.X
 				local deltaY = mouse.Y - startMousePos.Y
 				local newWidth = math.clamp(startLogSize.X.Offset + deltaX, MIN_WIDTH, MAX_WIDTH)
@@ -3467,7 +3468,7 @@ newgui.logs.MouseButton1Click:Connect(function()
 	end
 end)
 newgui.Parent.colorpicker.middlebar.hex.TextBox.FocusLost:Connect(function()
-	local success,color = pcall(function() return Color3.fromHex(newgui.Parent.colorpicker.middlebar.hex.TextBox.Text:gsub('#', '')) end)
+	local success,color = pcall(function() return Color3.fromHex(newgui.Parent.colorpicker.middlebar.hex.TextBox.Text:gsub("#", "")) end)
 
 	if success and color then
 		local r, g, b = math.round(color.R * 255), math.round(color.G * 255), math.round(color.B * 255)
@@ -3478,7 +3479,7 @@ newgui.Parent.colorpicker.middlebar.hex.TextBox.FocusLost:Connect(function()
 		local pointer = newgui.Parent.colorpicker.picker.pointer
 		pointer.Position = module.GetPointerPositionFromColor(h, s, v)
 		newgui.Parent.colorpicker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(h, s, v)
-		newgui.Parent.colorpicker.middlebar.hex.TextBox.Text = string.format('#%02x%02x%02x', colors.r, colors.g, colors.b)
+		newgui.Parent.colorpicker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
 		newgui.Parent.colorpicker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, newgui.Parent.colorpicker.sliders.hue)
 		newgui.Parent.colorpicker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
@@ -3505,7 +3506,7 @@ newgui.Parent.colorpicker.middlebar.hex.TextBox.FocusLost:Connect(function()
 		local h, s, v = Color3.fromRGB(colors.r, colors.g, colors.b):ToHSV()
 		newgui.Parent.colorpicker.picker.pointer.Position = module.GetPointerPositionFromColor(h, s, v)
 	else
-		newgui.Parent.colorpicker.middlebar.hex.TextBox.Text = string.format('#%02x%02x%02x', colors.r, colors.g, colors.b)
+		newgui.Parent.colorpicker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
 	end
 end)
 newgui.Parent.colorpicker.resizebottom.MouseButton1Down:Connect(function()
@@ -3551,18 +3552,18 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	local module = modules.other.placeinfo
 	local placeId = game.PlaceId
 	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
-	module.CreateText('Name', gameInfo.Name)
-	module.CreateText('ID', gameInfo.AssetId)
-	module.CreateText('Updated', gameInfo.Updated:sub(1, 10):gsub('-', '/'))
-	module.CreateText('Created', gameInfo.Created:sub(1, 10):gsub('-', '/'))
-	module.CreateSeparator('CREATOR INFO')
+	module.CreateText("Name", gameInfo.Name)
+	module.CreateText("ID", gameInfo.AssetId)
+	module.CreateText("Updated", gameInfo.Updated:sub(1, 10):gsub("-", "/"))
+	module.CreateText("Created", gameInfo.Created:sub(1, 10):gsub("-", "/"))
+	module.CreateSeparator("CREATOR INFO")
 	if gameInfo.Creator.HasVerifiedBadge then
-		module.CreateText('Creator', gameInfo.Creator.Name..utf8.char(0xE000))
+		module.CreateText("Creator", gameInfo.Creator.Name..utf8.char(0xE000))
 	else
-		module.CreateText('Creator', gameInfo.Creator.Name)
+		module.CreateText("Creator", gameInfo.Creator.Name)
 	end
-	module.CreateText('UserId', gameInfo.Creator.Id)
-	module.CreateSeparator('SERVER INFO')
+	module.CreateText("UserId", gameInfo.Creator.Id)
+	module.CreateSeparator("SERVER INFO")
 	module.CreateText("PartsAmount", Stats().PrimitivesCount)
 	module.CreateText("PartsMoving", Stats().MovingPrimitivesCount)
 	module.CreateText("ServerAge", math.floor(workspace.DistributedGameTime))
@@ -3574,7 +3575,7 @@ newgui.Parent.closeregion.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = false
 	newgui.Parent.closeregion.Visible = false
 	for _, v in newgui.Parent.placeinfo.list:GetChildren() do
-		if v:IsA('Frame') then
+		if v:IsA("Frame") then
 			v:Destroy()
 		end
 	end
@@ -3586,11 +3587,11 @@ newgui.uicolor.MouseButton1Click:Connect(function()
 end)
 local function format(number, useCommas, useShort, demicals)
 	demicals = demicals or 1
-	if type(number) ~= 'number' then
-		error('Expected number, got ' .. typeof(number))
+	if type(number) ~= "number" then
+		error("Expected number, got " .. typeof(number))
 	end
 
-	local absNumber = math.round(tonumber(tostring(number):format('%.0f', number)))
+	local absNumber = math.round(tonumber(tostring(number):format("%.0f", number)))
 
 	if useShort then
 		if absNumber < 1000 then
@@ -3599,10 +3600,10 @@ local function format(number, useCommas, useShort, demicals)
 
 		local tier = math.round(math.log10(absNumber) / 3) -- 3 digits per suffix
 		if tier >= #suffixes then
-			return string.format('%.0f', number)
+			return string.format("%.0f", number)
 		end
 
-		local suffix = ''
+		local suffix = ""
 		local scaled = 0
 		local succ, err = pcall(function()
 			suffix = suffixes[tier + 1]:upper()
@@ -3610,17 +3611,17 @@ local function format(number, useCommas, useShort, demicals)
 		end)
 
 		if scaled % 1 == 0 then
-			return string.format('%d%s', scaled, suffix)
+			return string.format("%d%s", scaled, suffix)
 		else
 			return string.format(`%.{demicals}f%s`, scaled, suffix)
 		end
 	end
 
 	if useCommas then
-		local formatted = string.format('%.0f', math.round(number))
+		local formatted = string.format("%.0f", math.round(number))
 		local k
 		while true do
-			formatted, k = formatted:gsub('^(-?%d+)(%d%d%d)', '%1,%2')
+			formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
 			if k == 0 then break end
 		end
 		return formatted
@@ -3640,11 +3641,11 @@ local function search()
 	local list = guiobj_1:GetChildren()
 
 	for _, v in list do
-		if v:IsA('TextButton') then
-			if text == '' then
+		if v:IsA("TextButton") then
+			if text == "" then
 				v.Visible = true
 			else
-				local name = v.Text:split(' | ')[1]:lower()
+				local name = v.Text:split(" | ")[1]:lower()
 				if name:find(text, 1, true) then
 					v.Visible = true
 				else
@@ -3656,11 +3657,11 @@ local function search()
 end
 
 local function updatePlayerList()
-	local gui_template = createInstance('TextButton', {
+	local gui_template = createInstance("TextButton", {
 		Parent = nil,
-		Name = 'template',
+		Name = "template",
 		Size = UDim2.new(1, 0, 0.2, 0),
-		Text = '',
+		Text = "",
 		BackgroundColor3 = currentUIColor,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -3668,7 +3669,7 @@ local function updatePlayerList()
 		TextScaled = true
 	})
 	for _, v in guiobj_1:GetChildren() do
-		if v:IsA('TextButton') then
+		if v:IsA("TextButton") then
 			v:Destroy()
 		end
 	end
@@ -3676,37 +3677,37 @@ local function updatePlayerList()
 		if v.Name ~= LocalPlayer.Name then
 			local new = gui_template:Clone()
 			new.Name = v.Name
-			new.Text = v.Name..' | '..v.DisplayName
+			new.Text = v.Name.." | "..v.DisplayName
 			new.Parent = guiobj_1
 			new.MouseButton1Click:Connect(function()
-				newgui.currentplr.Text = 'selectedPlayer: '..v.Name
+				newgui.currentplr.Text = "selectedPlayer: "..v.Name
 				selectedplr = v.Name
 				AddLog("Player Attached.", "info")
 			end)
 			new.MouseButton2Click:Connect(function()
-				newgui.currentplr.Text = 'selectedPlayer: nobody'
-				selectedplr = 'nobody'
+				newgui.currentplr.Text = "selectedPlayer: nobody"
+				selectedplr = "nobody"
 				AddLog("Player Deattached.", "Server", "info")
 			end)
 		end
 	end
 	search()
-	newgui.label.Text = 'select player | total players: '..#game.Players:GetPlayers()
+	newgui.label.Text = "select player | total players: "..#game.Players:GetPlayers()
 end
 updatePlayerList()
 game.Players.ChildAdded:Connect(function(plr)
 	updatePlayerList()
-	notify(nil, 'Player '..plr.Name..' Joined.', 4)
+	notify(nil, "Player "..plr.Name.." Joined.", 4)
 	AddLog("Player "..plr.Name.." Joined.", "Server", "info")
 end)
 game.Players.ChildRemoved:Connect(function(plr)
 	updatePlayerList()
-	notify(nil, 'Player '..plr.Name..' Left.', 4)
+	notify(nil, "Player "..plr.Name.." Left.", 4)
 	AddLog("Player "..plr.Name.." Left.", "Server", "info")
 	if plr.Name == selectedplr then
-		notify(nil, 'Player '..plr.Name..' Left, target deattached')
-		selectedplr = 'nobody'
-		newgui.currentplr.Text = 'selectedPlayer: '..selectedplr
+		notify(nil, "Player "..plr.Name.." Left, target deattached")
+		selectedplr = "nobody"
+		newgui.currentplr.Text = "selectedPlayer: "..selectedplr
 	end
 end)
 local db = false
@@ -3715,11 +3716,11 @@ newgui.hidebutton.MouseButton1Click:Connect(function()
 		guiHiden = not guiHiden
 		db = true
 		for _, v in newgui:GetChildren() do
-			if v.Name ~= 'hidebutton' then
+			if v.Name ~= "hidebutton" then
 				if guiHiden then
-					v:TweenPosition(UDim2.fromScale(v.Position.X.Scale, v.Position.Y.Scale - 3), 'InOut', 'Quad', 0.5, true)
+					v:TweenPosition(UDim2.fromScale(v.Position.X.Scale, v.Position.Y.Scale - 3), "InOut", "Quad", 0.5, true)
 				else
-					v:TweenPosition(UDim2.fromScale(v.Position.X.Scale, v.Position.Y.Scale + 3), 'InOut', 'Quad', 0.5, true)
+					v:TweenPosition(UDim2.fromScale(v.Position.X.Scale, v.Position.Y.Scale + 3), "InOut", "Quad", 0.5, true)
 				end
 				task.wait(0.05)
 			end
@@ -3727,43 +3728,43 @@ newgui.hidebutton.MouseButton1Click:Connect(function()
 		delay(1, function()
 			db = false
 		end)
-		newgui.hidebutton.Text = guiHiden and 'show' or 'hide'
+		newgui.hidebutton.Text = guiHiden and "show" or "hide"
 	end
 end)
 
 newgui.unitformat.MouseButton1Click:Connect(function()
-	if currentUnit == 'K' then
-		currentUnit = 'M'
-	elseif currentUnit == 'M' then
-		currentUnit = 'B'
-	elseif currentUnit == 'B' then
-		currentUnit = 'T'
-	elseif currentUnit == 'T' then
-		currentUnit = 'QA'
-	elseif currentUnit == 'QA' then
-		currentUnit = 'QI'
-	elseif currentUnit == 'QI' then
-		currentUnit = 'SX'
-	elseif currentUnit == 'SX' then
-		currentUnit = 'SP'
-	elseif currentUnit == 'SP' then
-		currentUnit = 'OC'
-	elseif currentUnit == 'OC' then
-		currentUnit = 'NO'
-	elseif currentUnit == 'NO' then
-		currentUnit = 'DC'
-	elseif currentUnit == 'DC' then
-		currentUnit = 'UND'
-	elseif currentUnit == 'UND' then
-		currentUnit = 'K'
+	if currentUnit == "K" then
+		currentUnit = "M"
+	elseif currentUnit == "M" then
+		currentUnit = "B"
+	elseif currentUnit == "B" then
+		currentUnit = "T"
+	elseif currentUnit == "T" then
+		currentUnit = "QA"
+	elseif currentUnit == "QA" then
+		currentUnit = "QI"
+	elseif currentUnit == "QI" then
+		currentUnit = "SX"
+	elseif currentUnit == "SX" then
+		currentUnit = "SP"
+	elseif currentUnit == "SP" then
+		currentUnit = "OC"
+	elseif currentUnit == "OC" then
+		currentUnit = "NO"
+	elseif currentUnit == "NO" then
+		currentUnit = "DC"
+	elseif currentUnit == "DC" then
+		currentUnit = "UND"
+	elseif currentUnit == "UND" then
+		currentUnit = "K"
 	end
 	AddLog("Number format changed to: "..currentUnit, "DeepScope", "info")
-	newgui.unitformat.Text = 'format: '..currentUnit
+	newgui.unitformat.Text = "format: "..currentUnit
 end)
 
 newgui.startbutton.MouseButton1Down:Connect(function()
 	cheatEnabled = not cheatEnabled
-	newgui.startbutton.Text = cheatEnabled and 'stop' or 'start'
+	newgui.startbutton.Text = cheatEnabled and "stop" or "start"
 	if cheatEnabled == true then
 		lastcf = LocalPlayer.Character:GetPrimaryPartCFrame()
 	else
@@ -3806,22 +3807,22 @@ local function generateRandomString()
 	end
 	return result
 end
-notify('rbxthumb://type=AvatarHeadShot&id='..LocalPlayer.UserId..'&w=420&h=420', initMessages[math.random(1, #initMessages)]:gsub('{player}', LocalPlayer.DisplayName), 10)
-warn('aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=')
+notify("rbxthumb://type=AvatarHeadShot&id="..LocalPlayer.UserId.."&w=420&h=420", initMessages[math.random(1, #initMessages)]:gsub("{player}", LocalPlayer.DisplayName), 10)
+warn("aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=")
 newgui.mode.MouseButton1Down:Connect(function()
-	if mode == 'follow' then
-		mode = 'spectate'
-	elseif mode == 'spectate' then
-		mode = 'follow'
+	if mode == "follow" then
+		mode = "spectate"
+	elseif mode == "spectate" then
+		mode = "follow"
 	end
-	newgui.mode.Text = 'mode: '..mode
+	newgui.mode.Text = "mode: "..mode
 end)
 LocalPlayer.Character.Humanoid.Seated:Connect(function(active, seat)
-	if Enabled and seat and seat:IsA('VehicleSeat') then
+	if Enabled and seat and seat:IsA("VehicleSeat") then
 		humanoid.Sit = false
 		humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 15, 0)
 
-		notify('rbxassetid://6525485104', 'You cant seat on VehicleSeat while Flying!', 6)
+		notify("rbxassetid://6525485104", "You cant seat on VehicleSeat while Flying!", 6)
 	end
 end)
 local commands = {}
@@ -3857,7 +3858,7 @@ local function runCommand(input)
 		input = input:sub(2)
 	end
 
-	local parts = input:split(' ')
+	local parts = input:split(" ")
 	local commandName = parts[1]:lower()
 	local args = {}
 
@@ -3886,8 +3887,8 @@ textBox.Changed:Connect(function()
 	local list = newgui.Parent.commandbar.commandlist:GetChildren()
 
 	for _, v in list do
-		if v:IsA('TextButton') then
-			if text == '' then
+		if v:IsA("TextButton") then
+			if text == "" then
 				v.Visible = true
 			else
 				local name = v.Text:lower()
@@ -3972,7 +3973,7 @@ registerCommand("unfreeze", function()
 end)
 registerCommand("toggledeepscope", function()
 	cheatEnabled = not cheatEnabled
-	newgui.startbutton.Text = cheatEnabled and 'stop' or 'start'
+	newgui.startbutton.Text = cheatEnabled and "stop" or "start"
 	if cheatEnabled == true then
 		lastcf = LocalPlayer.Character:GetPrimaryPartCFrame()
 	else
@@ -4046,7 +4047,7 @@ registerCommand("jerk", function()
 	end
 end)
 registerCommand("info", function()
-	notify(nil, `Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY's <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
+	notify(nil, `Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY"s <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
 end)
 local Noclipping = nil
 registerCommand("noclip", function()
@@ -4095,7 +4096,7 @@ registerCommand("serverhop", function(args, speaker)
 	if #servers > 0 then
 		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
 	else
-		return notify(nil, "Couldn't find a server.")
+		return notify(nil, "Could't find a server.")
 	end
 end)
 registerCommand("exit", function()
@@ -4172,7 +4173,7 @@ registerCommand("fling", function()
 		runCommand("noclip")
 		local spiny = Instance.new("BodyAngularVelocity", root)
 		spiny.Name = generateRandomString()
-		spiny.AngularVelocity = Vector3.new(0, 100000, 0)
+		spiny.AngularVelocity = Vector3.new(0, 1000000, 0)
 		spiny.MaxTorque = Vector3.new(0, math.huge, 0)
 		spiny.P = math.huge
 		local char = LocalPlayer.Character
@@ -4185,9 +4186,9 @@ registerCommand("fling", function()
 		end
 		flinging = true
 		local function flingDiedF()
-			runCommand('unfling')
+			runCommand("unfling")
 		end
-		flingDied = LocalPlayer.Character:FindFirstChildOfClass('Humanoid').Died:Connect(flingDiedF)
+		flingDied = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Died:Connect(flingDiedF)
 		repeat
 			spiny.AngularVelocity = Vector3.new(0,99999,0)
 			wait(.2)
@@ -4206,7 +4207,7 @@ registerCommand("unfling", function()
 	local char = LocalPlayer.Character
 	if not char and char:FindFirstChild("HumanoidRootPart") then return end
 	for i,v in pairs(char:FindFirstChild("HumanoidRootPart"):GetChildren()) do
-		if v.ClassName == 'BodyAngularVelocity' then
+		if v.ClassName == "BodyAngularVelocity" then
 			v:Destroy()
 		end
 	end
@@ -4216,6 +4217,56 @@ registerCommand("unfling", function()
 		end
 	end
 end)
+local walkflinging = false
+registerCommand("walkfling", function()
+	runCommand("unwalkfling")
+	local humanoid = LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
+	if humanoid then
+		humanoid.Died:Connect(function()
+			runCommand("unwalkfling")
+		end)
+	end
+	
+	runCommand("noclip")
+	walkflinging = true
+	repeat RunService.Heartbeat:Wait()
+		local character = LocalPlayer.Character
+		local root = character:FindFirstChild("HumanoidRootPart")
+		local vel, movel = nil, 0.1
+		while not (character and character.Parent and root and root.Parent) do
+			RunService.Heartbeat:Wait()
+			character = LocalPlayer.Character
+			root = character:FindFirstChild("HumanoidRootPart")
+		end
+		vel = root.Velocity
+		root.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+		
+		RunService.RenderStepped:Wait()
+		if character and character.Parent and root and root.Parent then
+			root.Velocity = vel
+		end
+
+		RunService.Stepped:Wait()
+		if character and character.Parent and root and root.Parent then
+			root.Velocity = vel + Vector3.new(0, movel, 0)
+			movel = movel * -1
+		end
+	until walkflinging == false
+end)
+registerCommand("unwalkfling", function()
+	walkflinging = false
+	runCommand("unnoclip")
+end)
+registerCommand("guiscale", function(args)
+	local min = 0.5
+	local max = 3
+	local value = tonumber(args[1]) or 1
+	local uiscale = newgui.Parent.commandbar.UIScale
+	
+	if uiscale then
+		uiscale.Scale = math.clamp(value, min, max)
+	end
+end)
 while true do
 	task.wait()
 	modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
@@ -4223,7 +4274,7 @@ while true do
 	modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
 	modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
 	modules.other.placeinfo.UpdateText("ServerAge", workspace.DistributedGameTime)
-	if selectedplr ~= 'nobody' then
+	if selectedplr ~= "nobody" then
 		local player = workspace:FindFirstChild(selectedplr)
 		if player then
 			if player.PrimaryPart then
@@ -4236,15 +4287,15 @@ while true do
 						)
 						local demicals = 4
 						local precent_toT = string.format(`%.{demicals}f`, math.clamp((distance / units[currentUnit:lower()]) * 100, 0, 100))
-						newgui.distance.Text = 'distance from character: ' ..  format(math.round(distance), false, true, 3) .. ' | ' .. format(distance, true, false) .. ` ({precent_toT}% to one {fullUnits[currentUnit:lower()]})`
+						newgui.distance.Text = "distance from character: " ..  format(math.round(distance), false, true, 3) .. " | " .. format(distance, true, false) .. ` ({precent_toT}% to one {fullUnits[currentUnit:lower()]})`
 						newgui.spawndistance.TextColor3 = Color3.new(math.clamp(distance / units[currentUnit:lower()], 0, 1), 0, 0)	
 					end)
 				else
-					newgui.distance.Text = 'distance from character: unknown | unknown'
+					newgui.distance.Text = "distance from character: unknown | unknown"
 				end
 				if cheatEnabled == true then
 					if LocalPlayer.Character.PrimaryPart then
-						if mode == 'follow' then
+						if mode == "follow" then
 							LocalPlayer.Character:SetPrimaryPartCFrame(player.PrimaryPart.CFrame * CFrame.new(0, 0, -3) * CFrame.Angles(0, math.pi, 0))
 						end
 						pcall(function()
@@ -4259,7 +4310,7 @@ while true do
 				end
 			end
 			pcall(function()
-				newgui.currentspeed.Text = 'current speed: ' .. format(math.round(
+				newgui.currentspeed.Text = "current speed: " .. format(math.round(
 					math.round(
 						fixMagnitudeLimit(
 							player.PrimaryPart.AssemblyLinearVelocity.X,
@@ -4267,13 +4318,13 @@ while true do
 							player.PrimaryPart.AssemblyLinearVelocity.Z
 						)
 					)
-					), false, true, 3) .. ' | ' .. format(player.Humanoid.WalkSpeed, false, true, 3)..' | '..string.format('%.6f',
+					), false, true, 3) .. " | " .. format(player.Humanoid.WalkSpeed, false, true, 3).." | "..string.format("%.6f",
 					fixMagnitudeLimit(
 						player.PrimaryPart.AssemblyLinearVelocity.X,
 						player.PrimaryPart.AssemblyLinearVelocity.Y,
 						player.PrimaryPart.AssemblyLinearVelocity.Z
 					)
-						/player.Humanoid.WalkSpeed)..':1'
+						/player.Humanoid.WalkSpeed)..":1"
 			end)
 		else
 			workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
@@ -4281,7 +4332,7 @@ while true do
 		end
 	else
 		pcall(function()
-			newgui.currentspeed.Text = 'current speed: ' .. format(math.round(
+			newgui.currentspeed.Text = "current speed: " .. format(math.round(
 				math.round(
 					fixMagnitudeLimit(
 						LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.X,
@@ -4289,13 +4340,13 @@ while true do
 						LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Z
 					)
 				)
-				), false, true, 3) .. ' | ' .. format(LocalPlayer.Character.Humanoid.WalkSpeed, false, true, 3)..' | '..string.format('%.6f',
+				), false, true, 3) .. " | " .. format(LocalPlayer.Character.Humanoid.WalkSpeed, false, true, 3).." | "..string.format("%.6f",
 				fixMagnitudeLimit(
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.X,
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y,
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Z
 				)
-					/LocalPlayer.Character.Humanoid.WalkSpeed)..':1'
+					/LocalPlayer.Character.Humanoid.WalkSpeed)..":1"
 		end)
 	end
 	if LocalPlayer.Character.PrimaryPart then
@@ -4306,12 +4357,9 @@ while true do
 		)
 		local demicals = 4
 		local precent_toT = string.format(`%.{demicals}f`, math.clamp((distance / units[currentUnit:lower()]) * 100, 0, 100))
-		newgui.spawndistance.Text = 'distance from spawn: ' ..  format(math.round(distance), false, true, 3) .. ' | ' .. format(distance, true, false) .. ` ({precent_toT}% to one {fullUnits[currentUnit:lower()]})`
+		newgui.spawndistance.Text = "distance from spawn: " ..  format(math.round(distance), false, true, 3) .. " | " .. format(distance, true, false) .. ` ({precent_toT}% to one {fullUnits[currentUnit:lower()]})`
 		newgui.spawndistance.TextColor3 = Color3.new(math.clamp(distance / units[currentUnit:lower()], 0, 1), 0, 0)
 	else
-		newgui.spawndistance.Text = 'distance from spawn: unknown | unknown'
+		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
