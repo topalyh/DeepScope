@@ -864,7 +864,6 @@ local modules = {
 				local newTemplate = template:Clone()
 				newTemplate.Parent = infoList
 				newTemplate.Visible = true
-				newTemplate.Name = infoTxt
 				newTemplate.copyableinfo.Text = copyableTxt
 				newTemplate.info.Text = infoTxt
 			end,
@@ -3589,7 +3588,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
 		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
 		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
-		modules.other.placeinfo.UpdateText("ServerAge", math.floor(workspace:GetServerTimeNow() - tick()))
+		modules.other.placeinfo.UpdateText("ServerAge", workspace.DistributedGameTime)
 	end)
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
@@ -4105,7 +4104,6 @@ registerCommand("rejoin", function()
 	end
 end)
 registerCommand("serverhop", function(args, speaker)
-	-- thanks to Amity for fixing
 	local servers = {}
 	local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
 	local body = game.HttpService:JSONDecode(req)
@@ -4267,7 +4265,7 @@ registerCommand("walkfling", function()
 			root = character:FindFirstChild("HumanoidRootPart")
 		end
 		vel = root.Velocity
-		root.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+		root.Velocity = vel * 1000000 + Vector3.new(0, 1000000, 0)
 		
 		RunService.RenderStepped:Wait()
 		if character and character.Parent and root and root.Parent then
@@ -4294,6 +4292,13 @@ registerCommand("guiscale", function(args)
 	if uiscale then
 		uiscale.Scale = math.clamp(value, min, max)
 	end
+end)
+registerCommand("flyfling", function(args)
+	runCommand("unfly")
+	runCommand("unwalkfling")
+	task.wait()
+	runCommand("fly "..tonumber(args[1]) or flySpeed)
+	runCommand("walkfling")
 end)
 while true do
 	task.wait()
@@ -4386,5 +4391,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
