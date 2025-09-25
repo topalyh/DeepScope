@@ -1025,9 +1025,9 @@ UserInputService.InputEnded:Connect(function(processed)
 	end
 end)
 spawn(function()
-	while RunService.Heartbeat:Wait() do
+	repeat wait()
 		modules.other.fly.Loop()
-	end
+	until not Enabled
 end)
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
@@ -4267,6 +4267,13 @@ registerCommand("guiscale", function(args)
 		uiscale.Scale = math.clamp(value, min, max)
 	end
 end)
+registerCommand("esp", function()
+	local data = {}
+	data = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId))
+	for i, v in data do
+		print(i, v.." | "..game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId))
+	end
+end)
 while true do
 	task.wait()
 	modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
@@ -4363,4 +4370,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
