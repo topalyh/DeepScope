@@ -1025,9 +1025,9 @@ UserInputService.InputEnded:Connect(function(processed)
 	end
 end)
 spawn(function()
-	repeat wait()
+	while RunService.Heartbeat:Wait() do
 		modules.other.fly.Loop()
-	until not Enabled
+	end
 end)
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
@@ -2825,6 +2825,11 @@ local function createEntryForInstance(node, parentGui)
 				dropdown.Size = UDim2.new(1, 0, 0, dropdown.UIListLayout.AbsoluteContentSize.Y)
 			else
 				dropdown.Size = UDim2.new(1, 0, 0, 0)
+				for _, v in dropdown:GetChildren() do
+					if v:IsA("Frame") then
+						v:Destroy()
+					end
+				end
 			end
 
 			-- ✅ пересчитываем размер вверх
@@ -3545,7 +3550,7 @@ game.UserInputService.InputEnded:Connect(function(input)
 		}
 	end
 end)
-
+local updateConn = nil
 newgui.placeinfo.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = true
 	newgui.Parent.closeregion.Visible = true
@@ -3558,11 +3563,19 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateText("Created", gameInfo.Created:sub(1, 10):gsub("-", "/"))
 	module.CreateSeparator("CREATOR INFO")
 	if gameInfo.Creator.HasVerifiedBadge then
-		module.CreateText("Creator", gameInfo.Creator.Name..utf8.char(0xE000))
+		if gameInfo.Creator.CreatorType == "Group" then
+			module.CreateText("Group", gameInfo.Creator.Name..utf8.char(0xE000))
+		else
+			module.CreateText("Creator", gameInfo.Creator.Name..utf8.char(0xE000))
+		end
 	else
-		module.CreateText("Creator", gameInfo.Creator.Name)
+		if gameInfo.Creator.CreatorType == "Group" then
+			module.CreateText("Group", gameInfo.Creator.Name)
+		else
+			module.CreateText("Creator", gameInfo.Creator.Name)
+		end
 	end
-	module.CreateText("UserId", gameInfo.Creator.Id)
+	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
 	module.CreateSeparator("SERVER INFO")
 	module.CreateText("PartsAmount", Stats().PrimitivesCount)
 	module.CreateText("PartsMoving", Stats().MovingPrimitivesCount)
@@ -3570,10 +3583,21 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateSeparator("RENDER")
 	module.CreateText("RenderedTriangles", Stats().SceneTriangleCount)
 	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
+	updateConn = RunService.RenderStepped:Connect(function()
+		modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
+		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
+		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
+		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
+		modules.other.placeinfo.UpdateText("ServerAge", workspace.DistributedGameTime)
+	end)
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = false
 	newgui.Parent.closeregion.Visible = false
+	if updateConn then
+		updateConn:Disconnect()
+		updateConn = nil
+	end
 	for _, v in newgui.Parent.placeinfo.list:GetChildren() do
 		if v:IsA("Frame") then
 			v:Destroy()
@@ -4159,6 +4183,9 @@ end)
 registerCommand("notifyping", function()
 	notify(nil, "Ping: "..math.round(LocalPlayer:GetNetworkPing() * 1000).."ms", 4)
 end)
+registerCommand("notifyfps", function()
+	notify(nil, "FPS: "..math.round(1 / game:GetService("RunService").RenderStepped:Wait()).."fps", 4)
+end)
 local flinging = false
 registerCommand("fling", function()
 	flinging = false
@@ -4267,20 +4294,8 @@ registerCommand("guiscale", function(args)
 		uiscale.Scale = math.clamp(value, min, max)
 	end
 end)
-registerCommand("esp", function()
-	local data = {}
-	data = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId))
-	for i, v in data do
-		print(i, v.." | "..game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId))
-	end
-end)
 while true do
 	task.wait()
-	modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
-	modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
-	modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
-	modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
-	modules.other.placeinfo.UpdateText("ServerAge", workspace.DistributedGameTime)
 	if selectedplr ~= "nobody" then
 		local player = workspace:FindFirstChild(selectedplr)
 		if player then
