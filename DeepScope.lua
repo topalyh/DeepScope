@@ -3589,7 +3589,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
 		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
 		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
-		modules.other.placeinfo.UpdateText("ServerAge", workspace.DistributedGameTime)
+		modules.other.placeinfo.UpdateText("ServerAge", math.floor(workspace:GetServerTimeNow() - tick()))
 	end)
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
@@ -4386,4 +4386,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
