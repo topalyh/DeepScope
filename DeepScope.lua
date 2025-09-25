@@ -864,6 +864,7 @@ local modules = {
 				local newTemplate = template:Clone()
 				newTemplate.Parent = infoList
 				newTemplate.Visible = true
+				newTemplate.Name = infoTxt
 				newTemplate.copyableinfo.Text = copyableTxt
 				newTemplate.info.Text = infoTxt
 			end,
@@ -4385,3 +4386,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
