@@ -3075,7 +3075,7 @@ local function createEntryForInstance(node, parentGui)
 
 	-- сохраняем ссылку, чтобы при сворачивании можно было уничтожать детей
 	newTemplate:SetAttribute("OriginalSize", UDim2.new(1, 0, 0, 32))
-	newTemplate:SetAttribute("NodeInstance", node.Instance)
+	newTemplate:SetAttribute("NodeInstance", node.Instance.Name)
 
 	-- если есть дети — показываем кнопку и подключаем поведение
 	if node.Data.ChildrenCount > 0 then
@@ -4705,3 +4705,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
