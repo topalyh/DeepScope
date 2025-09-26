@@ -1517,7 +1517,7 @@ local function createGui()
 		BorderSizePixel = 0,
 		TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
 	})
-	local explorerGui3 = createInstance("UIListLayout", {Parent = explorerGui2})
+	local explorerGui3 = createInstance("UIListLayout", {Parent = explorerGui2, SortOrder = Enum.SortOrder.LayoutOrder})
 	local explorerGui4 = createInstance("TextButton", {
 		Parent = explorerGui1,
 		Name = "dragbutton",
@@ -2708,6 +2708,14 @@ local function makeFakeScripts()
 		Parent = folder,
 		Name = "Logs"
 	})
+	local fakeScript8 = createInstance("ModuleScript", {
+		Parent = folder,
+		Name = "DeepScopeCommandBar"
+	})
+	local fakeScript9 = createInstance("ModuleScript", {
+		Parent = fakeScript8,
+		Name = "Commands"
+	})
 end
 
 local function notify(icon, text, countdown)
@@ -2847,6 +2855,9 @@ local function buildExplorerData(instance)
 	-- Только имя, без лишних сигналов
 	instance:GetPropertyChangedSignal("Name"):Connect(function()
 		node.Data.Name = instance.Name
+	end)
+	instance:GetPropertyChangedSignal("Parent"):Connect(function()
+		node.Data.Parent = instance.Parent
 	end)
 
 	return node
@@ -3815,9 +3826,6 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		end
 		module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId))
 	end
-	local fps = math.round((1 / RunService.RenderStepped:Wait()))
-	local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
-	local color_ratioG = math.round((math.clamp(fps, 1, 60) / 60) * 255)
 	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
 	module.CreateSeparator("SERVER INFO")
 	module.CreateText("PartsAmount", Stats().PrimitivesCount)
@@ -3828,8 +3836,11 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
 	module.CreateSeparator("CLIENT")
 	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
-	module.CreateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
+	module.CreateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(0, 0, 0))
 	updateConn = RunService.RenderStepped:Connect(function()
+		local fps = math.round((1 / RunService.RenderStepped:Wait()))
+		local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
+		local color_ratioG = math.round((math.clamp(fps, 1, 60) / 60) * 255)
 		modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
 		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
 		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
