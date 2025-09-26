@@ -815,6 +815,7 @@ local currentUIColor = Color3.fromRGB(163, 162, 165)
 local usingSlider = {
 	enabled = false
 }
+local guiToNode = setmetatable({}, {__mode = "k"})
 local logConfig = {
 	colors = {
 		normal = {204, 204, 204},
@@ -3076,7 +3077,7 @@ local function createEntryForInstance(node, parentGui)
 	end
 
 	-- НЕ сохраняем Instance в атрибут — сохраняем в weak-table
-	-- guiToNode[newTemplate] = node
+	guiToNode[newTemplate] = node
 
 	-- флаги/атрибуты безопасные к хранению
 	newTemplate:SetAttribute("OriginalSize", UDim2.new(1, 0, 0, 32))
@@ -4711,5 +4712,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
