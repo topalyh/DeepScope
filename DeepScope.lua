@@ -2837,57 +2837,68 @@ local explorerData = explorerData or {} -- главное хранилище н�
 local nodesBuilt = nodesBuilt or {} -- опционально для отслеживания созданных GUI
 
 local function buildExplorerData(instance)
-	-- Если уже есть нода — вернуть её (не рекурсивно)
+	-- проверка: объект валидный? (бывает, что к моменту вызова он уже удалён)
+	if not instance or not instance.Parent and instance ~= game then
+		return nil
+	end
+
+	-- если узел уже построен, возвращаем
 	if explorerData[instance] then
 		return explorerData[instance]
 	end
 
+	-- создаём узел
 	local node = {
-		Instance = instance,
 		Data = {
-			Name = instance.Name,
-			ClassName = instance.ClassName,
-			FullPath = instance:GetFullName(),
+			Name = instance.Name or "Unnamed",
+			ClassName = instance.ClassName or "Unknown",
+			FullPath = (pcall(function() return instance:GetFullName() end) and instance:GetFullName()) or "Unknown",
 			Parent = instance.Parent,
-			ChildrenCount = 0, -- заполнится ниже
+			ChildrenCount = #instance:GetChildren()
 		},
-		Children = {},      -- список child instances (лениво заполняется)
-		ChildrenBuilt = false, -- GUI для детей ещё не создан
+		Instance = instance,
+		Children = {},
 	}
 
-	-- записываем в мапу
 	explorerData[instance] = node
 
-	-- подписки на изменения основных свойств (легковесные)
-	instance:GetPropertyChangedSignal("Name"):Connect(function()
-		local n = explorerData[instance]
-		if n then
-			n.Data.Name = instance.Name
-			n.Data.FullPath = instance:GetFullName()
-		end
-	end)
-	instance:GetPropertyChangedSignal("ClassName"):Connect(function()
-		local n = explorerData[instance]
-		if n then n.Data.ClassName = instance.ClassName end
-	end)
-	if instance:IsA("ValueBase") then
-		node.Data.Value = instance.Value
-		instance:GetPropertyChangedSignal("Value"):Connect(function()
-			local n = explorerData[instance]
-			if n then n.Data.Value = instance.Value end
+	-- обновление имени
+	if instance.Name then
+		instance:GetPropertyChangedSignal("Name"):Connect(function()
+			if node.Data then
+				node.Data.Name = instance.Name
+				node.Data.FullPath = (pcall(function() return instance:GetFullName() end) and instance:GetFullName()) or "Unknown"
+			end
 		end)
 	end
 
-	-- НЕ рекурсивно: просто соберём прямых детей (лениво)
-	do
-		local children = instance:GetChildren()
-		for i = 1, #children do
-			local child = children[i]
-			if not table.find(explorerBlacklistInstances, child.Name) then
-				node.Children[#node.Children + 1] = child
+	-- обновление класса (редко меняется, но пусть будет)
+	if instance.ClassName then
+		instance:GetPropertyChangedSignal("ClassName"):Connect(function()
+			if node.Data then
+				node.Data.ClassName = instance.ClassName
+			end
+		end)
+	end
+
+	-- для ValueBase добавляем слежение за Value
+	if instance:IsA("ValueBase") then
+		node.Data.Value = instance.Value
+		instance:GetPropertyChangedSignal("Value"):Connect(function()
+			if node.Data then
+				node.Data.Value = instance.Value
+			end
+		end)
+	end
+
+	-- рекурсивно собираем детей
+	for _, child in ipairs(instance:GetChildren()) do
+		if not table.find(explorerBlacklistInstances, child.Name) then
+			local childNode = buildExplorerData(child)
+			if childNode then
+				table.insert(node.Children, childNode)
 			end
 		end
-		node.Data.ChildrenCount = #node.Children
 	end
 
 	return node
