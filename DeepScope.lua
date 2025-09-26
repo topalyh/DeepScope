@@ -2832,70 +2832,115 @@ LocalPlayer.CharacterAdded:Connect(function(char)
 	end)
 end)
 
+local explorerData = explorerData or {} -- главное хранилище нод
+local nodesBuilt = nodesBuilt or {} -- опционально для отслеживания созданных GUI
+
 local function buildExplorerData(instance)
+	-- Если уже есть нода — вернуть её (не рекурсивно)
 	if explorerData[instance] then
 		return explorerData[instance]
 	end
 
 	local node = {
+		Instance = instance,
 		Data = {
 			Name = instance.Name,
 			ClassName = instance.ClassName,
 			FullPath = instance:GetFullName(),
 			Parent = instance.Parent,
-			ChildrenCount = #instance:GetChildren(),
+			ChildrenCount = 0, -- заполнится ниже
 		},
-		Instance = instance,
-		Children = {}, -- пока пусто, заполним при раскрытии
-		ChildrenBuilt = false
+		Children = {},      -- список child instances (лениво заполняется)
+		ChildrenBuilt = false, -- GUI для детей ещё не создан
 	}
 
+	-- записываем в мапу
 	explorerData[instance] = node
 
-	-- Только имя, без лишних сигналов
+	-- подписки на изменения основных свойств (легковесные)
 	instance:GetPropertyChangedSignal("Name"):Connect(function()
-		node.Data.Name = instance.Name
+		local n = explorerData[instance]
+		if n then
+			n.Data.Name = instance.Name
+			n.Data.FullPath = instance:GetFullName()
+		end
 	end)
-	instance:GetPropertyChangedSignal("Parent"):Connect(function()
-		node.Data.Parent = instance.Parent
+	instance:GetPropertyChangedSignal("ClassName"):Connect(function()
+		local n = explorerData[instance]
+		if n then n.Data.ClassName = instance.ClassName end
 	end)
+	if instance:IsA("ValueBase") then
+		node.Data.Value = instance.Value
+		instance:GetPropertyChangedSignal("Value"):Connect(function()
+			local n = explorerData[instance]
+			if n then n.Data.Value = instance.Value end
+		end)
+	end
+
+	-- НЕ рекурсивно: просто соберём прямых детей (лениво)
+	do
+		local children = instance:GetChildren()
+		for i = 1, #children do
+			local child = children[i]
+			if not table.find(explorerBlacklistInstances, child.Name) then
+				node.Children[#node.Children + 1] = child
+			end
+		end
+		node.Data.ChildrenCount = #node.Children
+	end
 
 	return node
 end
 
--- при раскрытии
-local function buildChildren(node)
-	if node.ChildrenBuilt then return end
-	for _, child in ipairs(node.Instance:GetChildren()) do
-		if not table.find(explorerBlacklistInstances, child.Name) then
-			local childNode = buildExplorerData(child)
-			table.insert(node.Children, childNode)
-		end
+-- вспомогательная функция — строит node.Children -> node.ChildNodes (в explorerData)
+local function buildChildrenNodes(node)
+	if node._childrenNodesBuilt then return end
+	node._childrenNodesBuilt = true
+
+	for i = 1, #node.Children do
+		local childInst = node.Children[i]
+		local childNode = buildExplorerData(childInst) -- безопасно: если уже есть, вернёт
+		-- заменим на node ссылку на childNode, чтобы работать с node.ChildNodes в GUI
+		node.Children[i] = childNode
 	end
-	node.ChildrenBuilt = true
 end
 
--- обновляет размер фрейма рекурсивно вверх
-local function updateSizeRecursively(frame)
-	if not frame or not frame:IsA("Frame") then return end
+-- обновление размеров вверх по иерархии: вычисляем высоту текущего entry = base + dropdownHeight
+local function recalcAndPropagateSize(entryFrame)
+	if not entryFrame or not entryFrame:IsA("Frame") then return end
 
-	local dropdown = frame:FindFirstChild("dropdown")
-	local baseHeight = 32
-	local totalHeight = baseHeight
-
-	if dropdown and dropdown.Visible then
-		totalHeight = totalHeight + dropdown.UIListLayout.AbsoluteContentSize.Y
+	local function computeFrameHeight(frame)
+		local base = 32 -- базовая высота одной строки
+		local dropdown = frame:FindFirstChild("dropdown")
+		if dropdown and dropdown.Visible then
+			-- UIListLayout.AbsoluteContentSize может быть 0 до рендера, поэтому берём max(,0)
+			local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
+			return base + (h or 0)
+		end
+		return base
 	end
 
-	frame.Size = UDim2.new(1, 0, 0, totalHeight)
+	-- обновим сам frame
+	entryFrame.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
 
-	if frame.Parent and frame.Parent:IsA("Frame") then
-		updateSizeRecursively(frame.Parent)
+	-- подниматься по родительским entry (если они есть)
+	local parent = entryFrame.Parent
+	while parent and parent:IsA("Frame") do
+		-- родитель может быть dropdown (Frame) — если он содержит entryFrames, то пересчитать его родитель entry
+		local parentEntry = parent
+		-- возможно parent — dropdown, тогда parent.Parent — entry
+		if parent.Name == "dropdown" and parent.Parent and parent.Parent:IsA("Frame") then
+			parentEntry = parent.Parent
+		end
+		parentEntry.Size = UDim2.new(1, 0, 0, computeFrameHeight(parentEntry))
+		parent = parentEntry.Parent
 	end
 end
 
 
 local function createEntryForInstance(node, parentGui)
+	if not node or not node.Instance then return end
+	
 	local template = createInstance("Frame", {
 		Parent = nil,
 		Name = "template",
@@ -3010,52 +3055,79 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-
 	
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
-	newTemplate.LayoutOrder = icons.layoutOrders[node.Data.ClassName]
 
+	-- иконка
 	local iconCoords = icons.icons[node.Data.ClassName] or icons.icons.Unknown
 	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconCoords[1], iconCoords[2])
 	newTemplate.mainframe.icon.ImageRectSize = Vector2.new(table.unpack(icons.size))
 
-	local dropdown = newTemplate.dropdown
-	dropdown.Size = UDim2.new(1, 0, 0, 0)
-	dropdown.Visible = false
+	-- начальное состояние dropdown
+	local dropdown = newTemplate:FindFirstChild("dropdown")
+	if dropdown then
+		dropdown.Size = UDim2.new(1, 0, 0, 0)
+		dropdown.Visible = false
+	end
 
+	-- сохраняем ссылку, чтобы при сворачивании можно было уничтожать детей
+	newTemplate:SetAttribute("OriginalSize", UDim2.new(1, 0, 0, 32))
+	newTemplate:SetAttribute("NodeInstance", node.Instance)
+
+	-- если есть дети — показываем кнопку и подключаем поведение
 	if node.Data.ChildrenCount > 0 then
 		newTemplate:SetAttribute("ChildrenBuilt", false)
 		newTemplate.mainframe.dropdownbutton.Visible = true
 
 		newTemplate.mainframe.dropdownbutton.MouseButton1Click:Connect(function()
-			if not node.ChildrenBuilt then
-				buildChildren(node)
+			-- lazy build GUI children
+			if not newTemplate:GetAttribute("ChildrenBuilt") then
+				-- подготовим node.Children -> node.ChildNodes
+				buildChildrenNodes(node) -- безопасно
+				-- создаём GUI для каждой childNode
 				for _, childNode in ipairs(node.Children) do
+					-- здесь мы передаём childNode как node (совместимо с buildChildrenNodes)
 					createEntryForInstance(childNode, dropdown)
 				end
+				newTemplate:SetAttribute("ChildrenBuilt", true)
 			end
 
-			dropdown.Visible = not dropdown.Visible
-			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
+			-- переключаем видимость
+			local now = not dropdown.Visible
+			dropdown.Visible = now
+			newTemplate.mainframe.dropdownbutton.icon.Rotation = now and 0 or -90
 
-			if dropdown.Visible then
-				dropdown.Size = UDim2.new(1, 0, 0, dropdown.UIListLayout.AbsoluteContentSize.Y)
+			-- корректируем размер dropdown (UIListLayout.AbsoluteContentSize может обновиться на следующем рендере)
+			-- поэтому ставим небольшой deferred шаг
+			if now then
+				task.defer(function()
+					local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
+					dropdown.Size = UDim2.new(1, 0, 0, h)
+					recalcAndPropagateSize(newTemplate)
+				end)
 			else
+				-- при сворачивании уничтожаем GUI детей, чтобы экономить память/рендер
+				for _, c in ipairs(dropdown:GetChildren()) do
+					if c:IsA("Frame") then c:Destroy() end
+				end
 				dropdown.Size = UDim2.new(1, 0, 0, 0)
+				newTemplate:SetAttribute("ChildrenBuilt", false)
+				recalcAndPropagateSize(newTemplate)
 			end
-
-			updateSizeRecursively(newTemplate)
 		end)
 	else
-		newTemplate.mainframe.dropdownbutton.icon:Destroy()
-		dropdown:Destroy()
+		-- нет детей — убираем кнопку
+		if newTemplate.mainframe.dropdownbutton and newTemplate.mainframe.dropdownbutton.icon then
+			newTemplate.mainframe.dropdownbutton.icon:Destroy()
+		end
+		if dropdown then dropdown:Destroy() end
 	end
 
+	-- установим начальную высоту
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
-
 	return newTemplate
 end
 
@@ -3078,30 +3150,6 @@ local function setExplorer()
 			createEntryForInstance(node, list)
 		end
 	end
-	local BUFFER = 50 -- запас по высоте
-
-	local function updateVisibility()
-		local canvasPos = list.CanvasPosition.Y
-		local viewTop = canvasPos - BUFFER
-		local viewBottom = canvasPos + list.AbsoluteSize.Y + BUFFER
-
-		for _, frame in ipairs(list:GetChildren()) do
-			if frame:IsA("Frame") then
-				local absPos = frame.AbsolutePosition.Y - list.AbsolutePosition.Y + canvasPos
-				local frameTop = absPos
-				local frameBottom = absPos + frame.AbsoluteSize.Y
-
-				if frameBottom >= viewTop and frameTop <= viewBottom then
-					frame.mainframe.Visible = true
-				else
-					frame.mainframe.Visible = false
-				end
-			end
-		end
-	end
-
-	
-	list:GetPropertyChangedSignal("CanvasPosition"):Connect(updateVisibility)
 	RunService.RenderStepped:Connect(function()
 		if explorerUsing and explorer.Visible then
 			local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, GuiService.TopbarInset.Height)
@@ -3127,7 +3175,6 @@ local function setExplorer()
 					end
 				end
 			end
-			updateVisibility()
 		end
 	end)
 	
