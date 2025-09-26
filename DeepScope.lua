@@ -2938,6 +2938,9 @@ local function recalcAndPropagateSize(entryFrame)
 end
 
 
+-- guiToNode должен быть объявлен в верхней части файла:
+-- local guiToNode = setmetatable({}, { __mode = "k" })
+
 local function createEntryForInstance(node, parentGui)
 	if not node or not node.Instance then return end
 	
@@ -3055,61 +3058,65 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-	
+
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
 
-	-- иконка
 	local iconCoords = icons.icons[node.Data.ClassName] or icons.icons.Unknown
 	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconCoords[1], iconCoords[2])
 	newTemplate.mainframe.icon.ImageRectSize = Vector2.new(table.unpack(icons.size))
 
-	-- начальное состояние dropdown
+	-- dropdown (изначально скрыт)
 	local dropdown = newTemplate:FindFirstChild("dropdown")
 	if dropdown then
 		dropdown.Size = UDim2.new(1, 0, 0, 0)
 		dropdown.Visible = false
 	end
 
-	-- сохраняем ссылку, чтобы при сворачивании можно было уничтожать детей
-	newTemplate:SetAttribute("OriginalSize", UDim2.new(1, 0, 0, 32))
-	newTemplate:SetAttribute("NodeInstance", node.Instance.Name)
+	-- НЕ сохраняем Instance в атрибут — сохраняем в weak-table
+	guiToNode[newTemplate] = node
 
-	-- если есть дети — показываем кнопку и подключаем поведение
+	-- флаги/атрибуты безопасные к хранению
+	newTemplate:SetAttribute("OriginalSize", UDim2.new(1, 0, 0, 32))
+	newTemplate:SetAttribute("ChildrenBuilt", false)
+
 	if node.Data.ChildrenCount > 0 then
-		newTemplate:SetAttribute("ChildrenBuilt", false)
 		newTemplate.mainframe.dropdownbutton.Visible = true
 
 		newTemplate.mainframe.dropdownbutton.MouseButton1Click:Connect(function()
-			-- lazy build GUI children
+			-- lazy: подготовим child nodes (перезапишет node.Children на node-таблицы)
+			if not node._childrenNodesBuilt then
+				node._childrenNodesBuilt = true
+				for i = 1, #node.Children do
+					node.Children[i] = buildExplorerData(node.Children[i]) -- заменяем Instance->node
+				end
+			end
+
+			-- построим GUI детей при первом раскрытии
 			if not newTemplate:GetAttribute("ChildrenBuilt") then
-				-- подготовим node.Children -> node.ChildNodes
-				buildChildrenNodes(node) -- безопасно
-				-- создаём GUI для каждой childNode
 				for _, childNode in ipairs(node.Children) do
-					-- здесь мы передаём childNode как node (совместимо с buildChildrenNodes)
 					createEntryForInstance(childNode, dropdown)
 				end
 				newTemplate:SetAttribute("ChildrenBuilt", true)
 			end
 
-			-- переключаем видимость
-			local now = not dropdown.Visible
-			dropdown.Visible = now
-			newTemplate.mainframe.dropdownbutton.icon.Rotation = now and 0 or -90
+			-- переключаем видимость dropdown
+			local nowVisible = not dropdown.Visible
+			dropdown.Visible = nowVisible
+			newTemplate.mainframe.dropdownbutton.icon.Rotation = nowVisible and 0 or -90
 
-			-- корректируем размер dropdown (UIListLayout.AbsoluteContentSize может обновиться на следующем рендере)
-			-- поэтому ставим небольшой deferred шаг
-			if now then
+			if nowVisible then
+				-- откладываем вычисление размера до следующего кадра — AbsoluteContentSize обновится
 				task.defer(function()
-					local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
-					dropdown.Size = UDim2.new(1, 0, 0, h)
+					local listHeight = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
+					dropdown.Size = UDim2.new(1, 0, 0, listHeight)
+					-- обновляем размеры вверх по иерархии
 					recalcAndPropagateSize(newTemplate)
 				end)
 			else
-				-- при сворачивании уничтожаем GUI детей, чтобы экономить память/рендер
+				-- при сворачивании удаляем GUI детей чтобы экономить память/рендер
 				for _, c in ipairs(dropdown:GetChildren()) do
 					if c:IsA("Frame") then c:Destroy() end
 				end
@@ -3126,7 +3133,6 @@ local function createEntryForInstance(node, parentGui)
 		if dropdown then dropdown:Destroy() end
 	end
 
-	-- установим начальную высоту
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
 	return newTemplate
 end
@@ -4705,4 +4711,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
