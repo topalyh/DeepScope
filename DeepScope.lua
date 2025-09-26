@@ -3055,6 +3055,7 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
+	print(node, typeof(node))
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -3089,7 +3090,7 @@ local function createEntryForInstance(node, parentGui)
 			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
 		end)
 	else
-		newTemplate.mainframe.dropdownbutton:Destroy()
+		newTemplate.mainframe.dropdownbutton.icon:Destroy()
 		dropdown:Destroy()
 	end
 
@@ -3124,8 +3125,8 @@ local function setExplorer()
 
 			for _, frame in ipairs(list:GetChildren()) do
 				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
-					local y = frame.AbsolutePosition.Y
-					local h = frame.AbsoluteSize.Y
+					local y = frame.AbsolutePosition.Y + 50
+					local h = frame.AbsoluteSize.Y - 50
 
 					-- если объект в зоне экрана → показываем mainframe
 					local onScreen = (y + h > absPos) and (y < absPos + absSize)
