@@ -2836,7 +2836,6 @@ local function createEntryForInstance(node, parentGui)
 	end
 
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
-	newTemplate.mainframe.Visible = false -- ⚡ скрываем сразу
 
 	return newTemplate
 end
@@ -4434,3 +4433,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
