@@ -1049,7 +1049,7 @@ local function AddLog(text, sourse, type)
 		Parent = gui,
 		PaddingLeft = UDim.new(0, 5)
 	})
-	local timeNow = os.date("%X", tick())
+	local timeNow = os.date("%X", os.clock())
 	local ok, textResult = pcall(function()
 		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
@@ -1748,7 +1748,7 @@ local function createGui()
 		Name = "circle",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = "rbxassetid://2849458409",
+		Image = "rbxassetid://w",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
@@ -3061,6 +3061,14 @@ local function setMode(mode)
 	setVisualMode()
 	pickerMode = mode
 end
+local function formatTime(num)
+	local formatstr = "%02i:%02i:%02i:%02i"
+	local days = (num / 86400) % 86400
+	local hours = (num / 3600) % 24
+	local minutes = (num / 60) % 60
+	local seconds = num % 60
+	return formatstr:format(days, hours, minutes, seconds)
+end
 local function setColorMode()
 	if colorMode == "hsv" then
 		colorMode = "rgb"
@@ -3537,6 +3545,10 @@ end)
 newgui.Parent.colorpicker.picker.activateregion.MouseButton1Down:Connect(function()
 	pickingColor = true
 end)
+game.UserInputService.InputBegan:Connect(function(input)
+	input.UserInputType = Enum.UserInputType.MouseButton2
+	
+end)
 game.UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		draggingExplorer = false
@@ -3548,6 +3560,9 @@ game.UserInputService.InputEnded:Connect(function(input)
 			enabled = false,
 			slider = nil
 		}
+	end
+	if input.UserInputType == Enum.UserInputType.MouseButton2 then
+		newgui.Parent.closeregion.Interactable = true
 	end
 end)
 local updateConn = nil
@@ -3565,16 +3580,17 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	if gameInfo.Creator.HasVerifiedBadge then
 		if gameInfo.Creator.CreatorType == "Group" then
 			module.CreateText("Group", gameInfo.Creator.Name..utf8.char(0xE000))
-		else
-			module.CreateText("Creator", gameInfo.Creator.Name..utf8.char(0xE000))
 		end
+		module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId)..utf8.char(0xE000))
 	else
 		if gameInfo.Creator.CreatorType == "Group" then
 			module.CreateText("Group", gameInfo.Creator.Name)
-		else
-			module.CreateText("Creator", gameInfo.Creator.Name)
 		end
+		module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId))
 	end
+	local fps = (1 / RunService.RenderStepped:Wait())
+	local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
+	local color_ratioG = math.round((math.clamp(fps, 1, 60) / 60) * 255)
 	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
 	module.CreateSeparator("SERVER INFO")
 	module.CreateText("PartsAmount", Stats().PrimitivesCount)
@@ -3583,12 +3599,17 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateSeparator("RENDER")
 	module.CreateText("RenderedTriangles", Stats().SceneTriangleCount)
 	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
+	module.CreateSeparator("CLIENT")
+	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
+	module.CreateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
 	updateConn = RunService.RenderStepped:Connect(function()
 		modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
 		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
 		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
 		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
-		modules.other.placeinfo.UpdateText("ServerAge", workspace.DistributedGameTime)
+		modules.other.placeinfo.UpdateText("ServerAge", formatTime(math.floor(workspace.DistributedGameTime)))
+		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
+		modules.other.placeinfo.UpdateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
 	end)
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
@@ -3816,7 +3837,9 @@ newgui.Parent.commandbar.hoverregion.MouseEnter:Connect(function()
 	textBox.Parent:SetAttribute("Hovering", true)
 end)
 newgui.Parent.commandbar.hoverregion.MouseLeave:Connect(function()
-	textBox.Parent:SetAttribute("Hovering", false)
+	if not textBox:IsFocused() then
+		textBox.Parent:SetAttribute("Hovering", false)
+	end
 end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
