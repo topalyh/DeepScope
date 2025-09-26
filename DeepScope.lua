@@ -2937,14 +2937,10 @@ local function recalcAndPropagateSize(entryFrame)
 		parent = parentEntry.Parent
 	end
 end
-
-
--- guiToNode должен быть объявлен в верхней части файла:
--- local guiToNode = setmetatable({}, { __mode = "k" })
+local guiToNode = {}
+local nodeToGui = {}
 
 local function createEntryForInstance(node, parentGui)
-	if not node or not node.Instance then return end
-	
 	local template = createInstance("Frame", {
 		Parent = nil,
 		Name = "template",
@@ -3059,43 +3055,29 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
-	newTemplate.mainframe.name.Text = node.Data.Name
 
+	-- иконка + имя
+	newTemplate.mainframe.name.Text = node.Data.Name
 	local iconCoords = icons.icons[node.Data.ClassName] or icons.icons.Unknown
 	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconCoords[1], iconCoords[2])
 	newTemplate.mainframe.icon.ImageRectSize = Vector2.new(table.unpack(icons.size))
 
-	-- dropdown (изначально скрыт)
-	local dropdown = newTemplate:FindFirstChild("dropdown")
-	if dropdown then
-		dropdown.Size = UDim2.new(1, 0, 0, 0)
-		dropdown.Visible = false
-	end
-
-	-- НЕ сохраняем Instance в атрибут — сохраняем в weak-table
+	-- сохраняем связи
 	guiToNode[newTemplate] = node
+	nodeToGui[node] = newTemplate
 
-	-- флаги/атрибуты безопасные к хранению
-	newTemplate:SetAttribute("OriginalSize", UDim2.new(1, 0, 0, 32))
+	-- dropdown
+	local dropdown = newTemplate.dropdown
+	dropdown.Visible = false
 	newTemplate:SetAttribute("ChildrenBuilt", false)
 
 	if node.Data.ChildrenCount > 0 then
 		newTemplate.mainframe.dropdownbutton.Visible = true
 
 		newTemplate.mainframe.dropdownbutton.MouseButton1Click:Connect(function()
-			-- lazy: подготовим child nodes (перезапишет node.Children на node-таблицы)
-			if not node._childrenNodesBuilt then
-				node._childrenNodesBuilt = true
-				for i = 1, #node.Children do
-					node.Children[i] = buildExplorerData(node.Children[i]) -- заменяем Instance->node
-				end
-			end
-
-			-- построим GUI детей при первом раскрытии
 			if not newTemplate:GetAttribute("ChildrenBuilt") then
 				for _, childNode in ipairs(node.Children) do
 					createEntryForInstance(childNode, dropdown)
@@ -3103,52 +3085,28 @@ local function createEntryForInstance(node, parentGui)
 				newTemplate:SetAttribute("ChildrenBuilt", true)
 			end
 
-			-- переключаем видимость dropdown
-			local nowVisible = not dropdown.Visible
-			dropdown.Visible = nowVisible
-			newTemplate.mainframe.dropdownbutton.icon.Rotation = nowVisible and 0 or -90
-
-			if nowVisible then
-				-- откладываем вычисление размера до следующего кадра — AbsoluteContentSize обновится
-				task.defer(function()
-					local listHeight = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
-					dropdown.Size = UDim2.new(1, 0, 0, listHeight)
-					-- обновляем размеры вверх по иерархии
-					recalcAndPropagateSize(newTemplate)
-				end)
-			else
-				-- при сворачивании удаляем GUI детей чтобы экономить память/рендер
-				for _, c in ipairs(dropdown:GetChildren()) do
-					if c:IsA("Frame") then c:Destroy() end
-				end
-				dropdown.Size = UDim2.new(1, 0, 0, 0)
-				newTemplate:SetAttribute("ChildrenBuilt", false)
-				recalcAndPropagateSize(newTemplate)
-			end
+			dropdown.Visible = not dropdown.Visible
+			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
 		end)
 	else
-		-- нет детей — убираем кнопку
-		if newTemplate.mainframe.dropdownbutton and newTemplate.mainframe.dropdownbutton.icon then
-			newTemplate.mainframe.dropdownbutton.icon:Destroy()
-		end
-		if dropdown then dropdown:Destroy() end
+		newTemplate.mainframe.dropdownbutton:Destroy()
+		dropdown:Destroy()
 	end
 
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
 	return newTemplate
 end
 
+
 local function setExplorer()
 	explorerUsing = true
 	explorerData = {}
 	local explorer = newgui.Parent.explorer
-	explorer.Visible = true
 	local list = explorer.ScrollingFrame
+	explorer.Visible = true
 
 	for _, child in ipairs(list:GetChildren()) do
-		if child:IsA("Frame") then
-			child:Destroy()
-		end
+		if child:IsA("Frame") then child:Destroy() end
 	end
 
 	for _, child in ipairs(game:GetChildren()) do
@@ -3157,29 +3115,21 @@ local function setExplorer()
 			createEntryForInstance(node, list)
 		end
 	end
+
+	-- оптимизация видимости
 	RunService.RenderStepped:Connect(function()
 		if explorerUsing and explorer.Visible then
-			local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, GuiService.TopbarInset.Height)
-			local guiObjects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+			local absPos = list.AbsolutePosition.Y
+			local absSize = list.AbsoluteWindowSize.Y
 
-			local topEntry = nil
-			for _, obj in ipairs(guiObjects) do
-				if obj:FindFirstChild("mainframe") then
-					topEntry = obj
-					break
-				end
-			end
+			for _, frame in ipairs(list:GetChildren()) do
+				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
+					local y = frame.AbsolutePosition.Y
+					local h = frame.AbsoluteSize.Y
 
-			for _, v in explorer.ScrollingFrame:GetDescendants() do
-				if v:IsA("Frame") and v:FindFirstChild("mainframe") then
-					if v == topEntry then
-						v.mainframe.BackgroundColor3 = Color3.fromRGB(67, 66, 68)
-						v.mainframe.add.Visible = true
-						hoveringObject = v
-					else
-						v.mainframe.BackgroundColor3 = Color3.fromRGB(88, 87, 89)
-						v.mainframe.add.Visible = false
-					end
+					-- если объект в зоне экрана → показываем mainframe
+					local onScreen = (y + h > absPos) and (y < absPos + absSize)
+					frame.mainframe.Visible = onScreen
 				end
 			end
 		end
