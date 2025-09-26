@@ -838,6 +838,7 @@ local modules = {
 					Position = UDim2.fromScale(1, 0),
 					Size = UDim2.fromScale(0, 1),
 					TextEditable = false,
+					RichText = true,
 					FontFace = Font.new("rbxassetid://12187374954"),
 					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
@@ -856,6 +857,7 @@ local modules = {
 					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
+					RichText = true,
 					TextXAlignment = Enum.TextXAlignment.Left,
 					BorderColor3 = Color3.new(1, 1, 1),
 					BorderSizePixel = 0
@@ -896,6 +898,7 @@ local modules = {
 					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 28,
+					RichText = true,
 					TextXAlignment = Enum.TextXAlignment.Left
 				})
 
@@ -2871,9 +2874,9 @@ local function setExplorer()
 				local frameBottom = absPos + frame.AbsoluteSize.Y
 
 				if frameBottom >= viewTop and frameTop <= viewBottom then
-					frame.Visible = true
+					frame.mainframe.Visible = true
 				else
-					frame.Visible = false
+					frame.mainframe.Visible = false
 				end
 			end
 		end
