@@ -2836,7 +2836,7 @@ local function createEntryForInstance(node, parentGui)
 	end
 
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
-	newTemplate.Visible = false -- ⚡ скрываем сразу
+	newTemplate.mainframe.Visible = false -- ⚡ скрываем сразу
 
 	return newTemplate
 end
@@ -2860,6 +2860,30 @@ local function setExplorer()
 			createEntryForInstance(node, list)
 		end
 	end
+	local BUFFER = 50 -- запас по высоте
+
+	local function updateVisibility()
+		local canvasPos = list.CanvasPosition.Y
+		local viewTop = canvasPos - BUFFER
+		local viewBottom = canvasPos + list.AbsoluteSize.Y + BUFFER
+
+		for _, frame in ipairs(list:GetChildren()) do
+			if frame:IsA("Frame") then
+				local absPos = frame.AbsolutePosition.Y - list.AbsolutePosition.Y + canvasPos
+				local frameTop = absPos
+				local frameBottom = absPos + frame.AbsoluteSize.Y
+
+				if frameBottom >= viewTop and frameTop <= viewBottom then
+					frame.mainframe.Visible = true
+				else
+					frame.mainframe.Visible = false
+				end
+			end
+		end
+	end
+
+	
+	list:GetPropertyChangedSignal("CanvasPosition"):Connect(updateVisibility)
 	RunService.RenderStepped:Connect(function()
 		if explorerUsing and explorer.Visible then
 			local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, GuiService.TopbarInset.Height)
@@ -2885,6 +2909,7 @@ local function setExplorer()
 					end
 				end
 			end
+			updateVisibility()
 		end
 	end)
 	
@@ -4409,4 +4434,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
