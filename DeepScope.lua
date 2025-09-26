@@ -3099,6 +3099,7 @@ local function createEntryForInstance(node, parentGui)
 
 			dropdown.Visible = not dropdown.Visible
 			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
+			recalcAndPropagateSize(newTemplate)
 		end)
 	else
 		newTemplate.mainframe.dropdownbutton.icon:Destroy()
@@ -4674,3 +4675,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
