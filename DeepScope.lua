@@ -2790,6 +2790,7 @@ local function createEntryForInstance(node, parentGui)
 		ZIndex = 0
 	})
 
+	
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -2799,7 +2800,6 @@ local function createEntryForInstance(node, parentGui)
 	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconCoords[1], iconCoords[2])
 	newTemplate.mainframe.icon.ImageRectSize = Vector2.new(table.unpack(icons.size))
 
-	-- дропдаун (пока скрыт)
 	local dropdown = newTemplate.dropdown
 	dropdown.Size = UDim2.new(1, 0, 0, 0)
 	dropdown.Visible = false
@@ -2809,7 +2809,6 @@ local function createEntryForInstance(node, parentGui)
 		newTemplate.mainframe.dropdownbutton.Visible = true
 
 		newTemplate.mainframe.dropdownbutton.MouseButton1Click:Connect(function()
-			-- если ещё не строили детей — строим
 			if not node.ChildrenBuilt then
 				buildChildren(node)
 				for _, childNode in ipairs(node.Children) do
@@ -2817,7 +2816,6 @@ local function createEntryForInstance(node, parentGui)
 				end
 			end
 
-			-- переключаем видимость
 			dropdown.Visible = not dropdown.Visible
 			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
 
@@ -2825,23 +2823,18 @@ local function createEntryForInstance(node, parentGui)
 				dropdown.Size = UDim2.new(1, 0, 0, dropdown.UIListLayout.AbsoluteContentSize.Y)
 			else
 				dropdown.Size = UDim2.new(1, 0, 0, 0)
-				for _, v in dropdown:GetChildren() do
-					if v:IsA("Frame") then
-						v:Destroy()
-					end
-				end
 			end
 
-			-- ✅ пересчитываем размер вверх
 			updateSizeRecursively(newTemplate)
 		end)
 	else
-		-- если детей нет — убираем кнопку
 		newTemplate.mainframe.dropdownbutton.icon:Destroy()
 		dropdown:Destroy()
 	end
 
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
+	newTemplate.Visible = false -- ⚡ скрываем сразу
+
 	return newTemplate
 end
 
@@ -2852,20 +2845,71 @@ local function setExplorer()
 	explorer.Visible = true
 	local list = explorer.ScrollingFrame
 
-	-- очищаем список
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("Frame") then
 			child:Destroy()
 		end
 	end
 
-	-- только верхний уровень
 	for _, child in ipairs(game:GetChildren()) do
 		if not table.find(explorerBlacklistInstances, child.Name) then
 			local node = buildExplorerData(child)
 			createEntryForInstance(node, list)
 		end
 	end
+	local BUFFER = 50 -- запас по высоте
+
+	local function updateVisibility()
+		local canvasPos = list.CanvasPosition.Y
+		local viewTop = canvasPos - BUFFER
+		local viewBottom = canvasPos + list.AbsoluteSize.Y + BUFFER
+
+		for _, frame in ipairs(list:GetChildren()) do
+			if frame:IsA("Frame") then
+				local absPos = frame.AbsolutePosition.Y - list.AbsolutePosition.Y + canvasPos
+				local frameTop = absPos
+				local frameBottom = absPos + frame.AbsoluteSize.Y
+
+				if frameBottom >= viewTop and frameTop <= viewBottom then
+					frame.Visible = true
+				else
+					frame.Visible = false
+				end
+			end
+		end
+	end
+
+	
+	list:GetPropertyChangedSignal("CanvasPosition"):Connect(updateVisibility)
+	RunService.RenderStepped:Connect(function()
+		if explorerUsing and explorer.Visible then
+			local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, GuiService.TopbarInset.Height)
+			local guiObjects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+
+			local topEntry = nil
+			for _, obj in ipairs(guiObjects) do
+				if obj:FindFirstChild("mainframe") then
+					topEntry = obj
+					break
+				end
+			end
+
+			for _, v in explorer.ScrollingFrame:GetDescendants() do
+				if v:IsA("Frame") and v:FindFirstChild("mainframe") then
+					if v == topEntry then
+						v.mainframe.BackgroundColor3 = Color3.fromRGB(67, 66, 68)
+						v.mainframe.add.Visible = true
+						hoveringObject = v
+					else
+						v.mainframe.BackgroundColor3 = Color3.fromRGB(88, 87, 89)
+						v.mainframe.add.Visible = false
+					end
+				end
+			end
+			updateVisibility()
+		end
+	end)
+	
 	local MIN_WIDTH, MIN_HEIGHT = 240, 32
 	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
@@ -3002,33 +3046,6 @@ local function setExplorer()
 			end
 		end
 		explorer.Visible = false
-	end)
-	RunService.RenderStepped:Connect(function()
-		if explorerUsing and explorer.Visible then
-			local mousePos = UserInputService:GetMouseLocation() - Vector2.new(0, GuiService.TopbarInset.Height)
-			local guiObjects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
-
-			local topEntry = nil
-			for _, obj in ipairs(guiObjects) do
-				if obj:FindFirstChild("mainframe") then
-					topEntry = obj
-					break
-				end
-			end
-
-			for _, v in explorer.ScrollingFrame:GetDescendants() do
-				if v:IsA("Frame") and v:FindFirstChild("mainframe") then
-					if v == topEntry then
-						v.mainframe.BackgroundColor3 = Color3.fromRGB(67, 66, 68)
-						v.mainframe.add.Visible = true
-						hoveringObject = v
-					else
-						v.mainframe.BackgroundColor3 = Color3.fromRGB(88, 87, 89)
-						v.mainframe.add.Visible = false
-					end
-				end
-			end
-		end
 	end)
 end
 local function setMode(mode)
