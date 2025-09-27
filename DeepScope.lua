@@ -4026,6 +4026,14 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
 		modules.other.placeinfo.UpdateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
 	end)
+	while wait(5) do
+		if not updateConn then
+			break
+		end
+		local gameURL = "https://www.roblox.com/games/"..game.PlaceId
+		local imported = game:HttpGet(gameURL)
+		print(imported)
+	end
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = false
