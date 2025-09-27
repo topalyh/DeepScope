@@ -1113,11 +1113,11 @@ local modules = {
 				local newTemplate = separatorTemplate:Clone()
 				newTemplate.Parent = infoList
 				newTemplate.Visible = true
+				newTemplate.Name = text
 				newTemplate.TextLabel.Text = text
 			end,
 			UpdateText = function(name, newText)
 				local template = infoList:FindFirstChild(name)
-				print(template, name)
 				if template then
 					template.copyableinfo.Text = newText
 				end
@@ -4669,3 +4669,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
