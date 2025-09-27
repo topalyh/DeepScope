@@ -4038,8 +4038,6 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateText("Created", gameInfo.Created:sub(1, 10):gsub("-", "/"))
 	module.CreateText("CCU", 0)
 	module.CreateText("Visits", 0)
-	module.CreateText("Likes", 0)
-	module.CreateText("Dislikes", 0)
 	module.CreateSeparator("CREATOR INFO")
 	if gameInfo.Creator.HasVerifiedBadge then
 		if gameInfo.Creator.CreatorType == "Group" then
@@ -4093,8 +4091,6 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		local likes = decodedLikes["data"][1]
 		module.UpdateText("CCU", format(gameInfo.playing))
 		module.UpdateText("Visits", format(gameInfo.visits))
-		module.UpdateText("Likes", likes.upVotes or 0)
-		module.UpdateText("Dislikes", likes.downVotes or 0)
 		wait(1)
 	end
 end)
@@ -4850,3 +4846,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
