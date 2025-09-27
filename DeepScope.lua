@@ -1117,6 +1117,7 @@ local modules = {
 			end,
 			UpdateText = function(name, newText)
 				local template = infoList:FindFirstChild(name)
+				print(template, name)
 				if template then
 					template.copyableinfo.Text = newText
 				end
@@ -3066,7 +3067,6 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-	print(node, typeof(node))
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -3137,8 +3137,8 @@ local function setExplorer()
 
 			for _, frame in ipairs(list:GetChildren()) do
 				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
-					local y = frame.AbsolutePosition.Y + 50
-					local h = frame.AbsoluteSize.Y - 50
+					local y = frame.AbsolutePosition.Y + 64
+					local h = frame.AbsoluteSize.Y + 64
 
 					-- если объект в зоне экрана → показываем mainframe
 					local onScreen = (y + h > absPos) and (y < absPos + absSize)
@@ -3147,7 +3147,7 @@ local function setExplorer()
 			end
 		end
 	end)
-	
+
 	local MIN_WIDTH, MIN_HEIGHT = 240, 32
 	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
@@ -3802,7 +3802,7 @@ newgui.Parent.colorpicker.picker.activateregion.MouseButton1Down:Connect(functio
 end)
 game.UserInputService.InputBegan:Connect(function(input)
 	input.UserInputType = Enum.UserInputType.MouseButton2
-	
+
 end)
 game.UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -3853,7 +3853,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
 	module.CreateSeparator("CLIENT")
 	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
-	module.CreateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(0, 0, 0))
+	module.CreateText("FPS", 0)
 	updateConn = RunService.RenderStepped:Connect(function()
 		local fps = math.round((1 / RunService.RenderStepped:Wait()))
 		local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
@@ -4306,7 +4306,7 @@ registerCommand("jerk", function()
 	local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 	local backpack = LocalPlayer:FindFirstChild("Backpack")
 	if not humanoid and not backpack then return end
-	
+
 	local tool = createInstance("Tool", {
 		Parent = backpack,
 		Name = "Jerk Off",
@@ -4314,7 +4314,7 @@ registerCommand("jerk", function()
 	})
 	local joking = false
 	local track = nil
-	
+
 	local function stopAnims()
 		joking = false
 		if track then
@@ -4322,11 +4322,11 @@ registerCommand("jerk", function()
 			track = nil
 		end
 	end
-	
+
 	tool.Equipped:Connect(function() joking = true end)
 	tool.Unequipped:Connect(stopAnims)
 	humanoid.Died:Connect(stopAnims)
-	
+
 	while task.wait() do
 		if not joking then continue end
 
@@ -4349,7 +4349,7 @@ registerCommand("jerk", function()
 	end
 end)
 registerCommand("info", function()
-	notify(nil, `Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY"s <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
+	notify("rbxassetid://1352543873", `Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY"s <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
 end)
 local Noclipping = nil
 registerCommand("noclip", function()
@@ -4530,7 +4530,7 @@ registerCommand("walkfling", function()
 			runCommand("unwalkfling")
 		end)
 	end
-	
+
 	runCommand("noclip")
 	walkflinging = true
 	repeat RunService.Heartbeat:Wait()
@@ -4543,8 +4543,8 @@ registerCommand("walkfling", function()
 			root = character:FindFirstChild("HumanoidRootPart")
 		end
 		vel = root.Velocity
-		root.Velocity = vel * 1000000 + Vector3.new(0, 1000000, 0)
-		
+		root.Velocity = vel * 1e10 + Vector3.new(0, 1e10, 0)
+
 		RunService.RenderStepped:Wait()
 		if character and character.Parent and root and root.Parent then
 			root.Velocity = vel
@@ -4566,7 +4566,7 @@ registerCommand("guiscale", function(args)
 	local max = 3
 	local value = tonumber(args[1]) or 1
 	local uiscale = newgui.Parent.commandbar.UIScale
-	
+
 	if uiscale then
 		uiscale.Scale = math.clamp(value, min, max)
 	end
@@ -4577,12 +4577,6 @@ registerCommand("flyfling", function(args)
 	task.wait()
 	runCommand("fly "..tonumber(args[1]) or flySpeed)
 	runCommand("walkfling")
-end)
-registerCommand("printhttp", function(args)
-	local http = args[1]
-	if http then
-		print(game:HttpGet(http))
-	end
 end)
 while true do
 	task.wait()
@@ -4675,4 +4669,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
