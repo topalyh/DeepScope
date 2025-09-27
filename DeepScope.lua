@@ -4031,10 +4031,12 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			break
 		end
 		local gameURL = "https://games.roblox.com/v1/games?universeIds="..game.GameId
+		local likesURL = "https://games.roblox.com/v1/games/votes?universeIds="..game.GameId
 		local imported = game:HttpGet(gameURL)
 		local decoded = game.HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
-		print(gameInfo.playing, gameInfo.visits, gameInfo.votesUp, gameInfo.votesDown)
+		local likes = game.HttpService:JSONDecode(game:HttpGet(likesURL)).data[1]
+		print(gameInfo.playing, gameInfo.visits, likes.upVotes, likes.downVotes)
 	end
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
