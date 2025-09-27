@@ -4030,19 +4030,11 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		if not updateConn then
 			break
 		end
-		local gameURL = "https://www.roblox.com/games/"..game.PlaceId
+		local gameURL = "https://games.roblox.com/v1/games?universeIds="..game.GameId
 		local imported = game:HttpGet(gameURL)
-		local online = string.gsub(imported, "(.*)", function(number)
-			local splitResult = string.split(number, " ")
-			return tonumber(table.concat(splitResult))
-		end)
-		local dislikes = string.gsub(imported, "(%d+)", function(number)
-			return tonumber(number)
-		end)
-		local likes = string.gsub(imported, "(%d+)", function(number)
-			return tonumber(number)
-		end)
-		print(online, likes, dislikes)
+		local decoded = game.HttpService:JSONDecode(imported)
+		local gameInfo = decoded["data"][1]
+		print(gameInfo.playing, gameInfo.visits, gameInfo.votesUp, gameInfo.votesDown)
 	end
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
