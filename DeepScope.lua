@@ -4082,13 +4082,9 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			break
 		end
 		local gameURL = "https://games.roblox.com/v1/games?universeIds="..game.GameId
-		local likesURL = "https://games.roblox.com/v1/games/votes?universeIds="..game.GameId
 		local imported = game:HttpGet(gameURL)
 		local decoded = game.HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
-		local importedLikes = game:HttpGet(likesURL)
-		local decodedLikes = game.HttpService:JSONDecode(importedLikes)
-		local likes = decodedLikes["data"][1]
 		module.UpdateText("CCU", format(gameInfo.playing))
 		module.UpdateText("Visits", format(gameInfo.visits))
 		wait(1)
@@ -4846,4 +4842,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
