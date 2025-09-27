@@ -2836,6 +2836,7 @@ end)
 
 local explorerData = explorerData or {} -- главное хранилище нод
 local nodesBuilt = nodesBuilt or {} -- опционально для отслеживания созданных GUI
+local templates = templates or {}
 
 local function buildExplorerData(instance)
 	-- проверка: объект валидный? (бывает, что к моменту вызова он уже удалён)
@@ -3105,7 +3106,7 @@ local function createEntryForInstance(node, parentGui)
 		newTemplate.mainframe.dropdownbutton.icon:Destroy()
 		dropdown:Destroy()
 	end
-
+	templates[newTemplate] = newTemplate
 	newTemplate.Size = UDim2.new(1, 0, 0, 32)
 	return newTemplate
 end
@@ -3135,9 +3136,9 @@ local function setExplorer()
 			local absPos = list.AbsolutePosition.Y
 			local absSize = list.AbsoluteWindowSize.Y
 
-			for _, frame in ipairs(list:GetChildren()) do
+			for _, frame in ipairs(templates) do
 				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
-					local y = frame.AbsolutePosition.Y + 64
+					local y = frame.AbsolutePosition.Y - 64
 					local h = frame.AbsoluteSize.Y + 64
 
 					-- если объект в зоне экрана → показываем mainframe
@@ -3836,12 +3837,16 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		if gameInfo.Creator.CreatorType == "Group" then
 			module.CreateText("Group", gameInfo.Creator.Name..utf8.char(0xE000))
 		end
-		module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId)..utf8.char(0xE000))
+		pcall(function()
+			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown"..utf8.char(0xE000))
+		end)
 	else
 		if gameInfo.Creator.CreatorType == "Group" then
 			module.CreateText("Group", gameInfo.Creator.Name)
 		end
-		module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId))
+		pcall(function()
+			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown")
+		end)
 	end
 	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
 	module.CreateSeparator("SERVER INFO")
