@@ -755,6 +755,68 @@ local add_objects = {
 		}
 	}
 }
+local executorConfig = {
+	keywords = {
+		{
+			"local", "function", "end", "if", "then",
+			"else", "elseif", "for", "while", "repeat",
+			"until", "return", "break", "do", "not",
+			"and", "or", "in"
+		},
+		"<font color='rgb(248,109,124)'><b>%s</b></font>"
+	},
+	otherKeywords = {
+		bools = {
+			{"nil", "false", "true"},
+			"<font color='rgb(255,198,0)'><b>%s</b></font>"
+		},
+		["built-in"] = {
+			{
+				"assert","collectgarbage","dofile","error","getfenv",
+				"getmetatable","ipairs","load","loadfile","next",
+				"pairs","pcall","print","rawequal","rawget","rawlen",
+				"rawset","require","select","setfenv","setmetatable",
+				"tonumber","tostring","type","xpcall",
+        
+				"game","workspace","script","Instance","Vector3","UDim2",
+				"Color3","CFrame","Enum","Ray","Axes","BrickColor",
+
+				"table","insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move",
+        
+				"math","abs","acos","asin","atan","atan2","ceil","cos","cosh",
+				"deg","exp","floor","fmod","frexp","ldexp","log","log10",
+				"max","min","modf","pow","rad","random","randomseed",
+				"sin","sinh","sqrt","tan","tanh",
+
+				"string","byte","char","find","format","gmatch","gsub",
+				"len","lower","match","rep","reverse","sub","upper",
+        
+				"coroutine","create","resume","running","status","wrap","yield",
+
+				"os","clock","date","difftime","execute","exit","getenv",
+				"remove","rename","setlocale","time","tmpname",
+
+				"bit32","arshift","band","bnot","bor","btest","bxor",
+				"extract","lrotate","lshift","replace","rrotate","rshift"
+			},
+			"<font color='rgb(132,214,247)'>%s</font>"
+		},
+		enums = {
+			{},
+			{
+				category = "rgb(97,161,241)",
+				value = "rgb(0,139,219)"
+			}
+		}
+	},
+	commentColor = "rgb(102,102,102)",
+	stringColor = "rgb(173,241,149)",
+	numberColor = "rgb(255,198,0)",
+	operatorColor = "rgb(204,204,204)",
+	funcColor = "rgb(97,161,241)",
+	libColor = "rgb(132,214,247)"
+}
+
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
@@ -859,7 +921,7 @@ _createForces = function(hrp)
 	bp.Parent = hrp
 
 	local bg = Instance.new("BodyGyro")
-	bg.MaxTorque = Vector3.new(1e4, 1e4, 1e4)
+	bg.MaxTorque = Vector3.new(1e7, 1e7, 1e7)
 	bg.D = 500
 	bg.P = 1e4
 	bg.CFrame = hrp.CFrame
@@ -1218,6 +1280,94 @@ local modules = {
 
 				return {c, m, y, k}
 			end,
+		},
+		executor = {
+			highlightLuau = (function(code)
+				-- строки
+				code = code:gsub('(".-")', function(str)
+					return string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str)
+				end)
+		
+				-- комментарии
+				code = code:gsub("(%-%-.-)\n", function(comment)
+					return string.format("<font color='%s'>%s</font>\n", executorConfig.commentColor, comment)
+				end)
+		
+				-- числа
+				code = code:gsub("(%d+)", function(num)
+					return string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num)
+				end)
+				
+				code = code:gsub("([%+%-%*/%%%^=<>~]+)", function(op)
+					return string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, op)
+				end)
+		
+				-- ключевые слова
+				for _, word in ipairs(executorConfig.keywords[1]) do
+					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
+						return a .. string.format(executorConfig.keywords[2], b) .. c
+					end)
+				end
+		
+				-- другие ключи (bools и т.п.)
+				for name, group in pairs(executorConfig.otherKeywords) do
+					if name == "enums" then
+						local colors = group[2]
+						code = code:gsub("(Enum%.[%w_]+)%.([%w_]+)", function(category, value)
+							local coloredCategory = string.format("<font color='%s'>%s</font>", colors.category, category)
+							local coloredValue = string.format("<font color='%s'>%s</font>", colors.value, value)
+							return coloredCategory .. "." .. coloredValue
+						end)
+					else
+						local words, formatStr = group[1], group[2]
+						for _, word in ipairs(words) do
+							code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
+								return a .. string.format(formatStr, b) .. c
+							end)
+						end
+					end
+				end
+		
+				-- глобальные функции
+				local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
+				for _, fn in ipairs(globalFns) do
+					code = code:gsub("(%f[%w_])("..fn..")(%s*%b())", function(a, b, c)
+						return a .. string.format("<font color='%s'>%s</font>", executorConfig.funcColor, b) .. c
+					end)
+				end
+		
+				-- библиотеки + их методы
+				local libFns = {
+					math   = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
+					string = {"byte","char","find","format","gmatch","gsub","len","lower","match","rep","reverse","sub","upper",},
+					table  = {"insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move"},
+					coroutine = {"create","resume","running","status","wrap","yield", "isyieldable"},
+					os = {"time","date","clock","difftime"},
+					bit32 = {"arshift","band","bnot","bor","btest","bxor","extract","lrotate","lshift","replace","rrotate","rshift"}
+				}
+				for lib, fns in pairs(libFns) do
+					for _, fn in ipairs(fns) do
+						code = code:gsub("("..lib..")%.("..fn..")(%s*%b())", function(libName, fnName, args)
+							return string.format(
+								"<font color='%s'>%s</font>.<font color='%s'>%s</font>%s",
+								executorConfig.libColor, libName,
+								executorConfig.funcColor, fnName, args
+							)
+						end)
+					end
+				end
+		
+				return code
+			end),
+			init = (function()
+				
+			end),
+			runScript = (function()
+				
+			end),
+			downloadFile = (function()
+				
+			end)
 		}
 	}
 }
@@ -2885,12 +3035,17 @@ local function buildExplorerData(instance)
 
 	-- для ValueBase добавляем слежение за Value
 	if instance:IsA("ValueBase") then
-		node.Data.Value = instance.Value
-		instance:GetPropertyChangedSignal("Value"):Connect(function()
-			if node.Data then
-				node.Data.Value = instance.Value
-			end
+		local success, error = pcall(function()
+			node.Data.Value = instance.Value
+			instance:GetPropertyChangedSignal("Value"):Connect(function()
+				if node.Data then
+					node.Data.Value = instance.Value
+				end
+			end)
 		end)
+		if not success and error then
+			AddLog("game.ReplicatedStorage._DeepScopeCore.Core.Explorer:7423: "..error, "DeepScope", "error")
+		end
 	end
 
 	-- рекурсивно собираем детей
