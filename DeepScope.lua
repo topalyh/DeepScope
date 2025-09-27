@@ -4039,7 +4039,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateText("CCU", 0)
 	module.CreateText("Visits", 0)
 	module.CreateText("Likes", 0)
-	module.CreateText("Dislikes")
+	module.CreateText("Dislikes", 0)
 	module.CreateSeparator("CREATOR INFO")
 	if gameInfo.Creator.HasVerifiedBadge then
 		if gameInfo.Creator.CreatorType == "Group" then
