@@ -4032,7 +4032,17 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		end
 		local gameURL = "https://www.roblox.com/games/"..game.PlaceId
 		local imported = game:HttpGet(gameURL)
-		print(imported)
+		local online = string.gsub(imported, "<p class=\"text-lead font-caption-body\">(.*)</p>", function(number)
+			local splitResult = string.split(number, " ")
+			return tonumber(table.concat(splitResult))
+		end)
+		local dislikes = string.gsub(imported, "<span id=\"vote-down-text\ class=\"vote-text\" title=\"(%d+)\">(.*)</span>", function(number)
+			return tonumber(number)
+		end)
+		local likes = string.gsub(imported, "<span id=\"vote-up-text\ class=\"vote-text\" title=\"(%d+)\">(.*)</span>", function(number)
+			return tonumber(number)
+		end)
+		print(online, likes, dislikes)
 	end
 end)
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
