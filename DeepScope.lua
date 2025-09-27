@@ -4032,6 +4032,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	local module = modules.other.placeinfo
 	local placeId = game.PlaceId
 	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
+	module.CreateSeparator("GAME INFO")
 	module.CreateText("Name", gameInfo.Name)
 	module.CreateText("ID", gameInfo.AssetId)
 	module.CreateText("Updated", gameInfo.Updated:sub(1, 10):gsub("-", "/"))
@@ -4085,7 +4086,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		local imported = game:HttpGet(gameURL)
 		local decoded = game.HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
-		module.UpdateText("CCU", format(gameInfo.playing))
+		module.UpdateText("CCU", format(gameInfo.playing, false, true))
 		module.UpdateText("Visits", format(gameInfo.visits))
 		wait(1)
 	end
@@ -4842,5 +4843,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
