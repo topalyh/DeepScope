@@ -3976,82 +3976,6 @@ game.UserInputService.InputEnded:Connect(function(input)
 		newgui.Parent.closeregion.Interactable = true
 	end
 end)
-local updateConn = nil
-newgui.placeinfo.MouseButton1Click:Connect(function()
-	newgui.Parent.placeinfo.Visible = true
-	newgui.Parent.closeregion.Visible = true
-	local module = modules.other.placeinfo
-	local placeId = game.PlaceId
-	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
-	module.CreateText("Name", gameInfo.Name)
-	module.CreateText("ID", gameInfo.AssetId)
-	module.CreateText("Updated", gameInfo.Updated:sub(1, 10):gsub("-", "/"))
-	module.CreateText("Created", gameInfo.Created:sub(1, 10):gsub("-", "/"))
-	module.CreateSeparator("CREATOR INFO")
-	if gameInfo.Creator.HasVerifiedBadge then
-		if gameInfo.Creator.CreatorType == "Group" then
-			module.CreateText("Group", gameInfo.Creator.Name..utf8.char(0xE000))
-		end
-		pcall(function()
-			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown"..utf8.char(0xE000))
-		end)
-	else
-		if gameInfo.Creator.CreatorType == "Group" then
-			module.CreateText("Group", gameInfo.Creator.Name)
-		end
-		pcall(function()
-			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown")
-		end)
-	end
-	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
-	module.CreateSeparator("SERVER INFO")
-	module.CreateText("PartsAmount", Stats().PrimitivesCount)
-	module.CreateText("PartsMoving", Stats().MovingPrimitivesCount)
-	module.CreateText("ServerAge", math.floor(workspace.DistributedGameTime))
-	module.CreateSeparator("RENDER")
-	module.CreateText("RenderedTriangles", Stats().SceneTriangleCount)
-	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
-	module.CreateSeparator("CLIENT")
-	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
-	module.CreateText("FPS", 0)
-	updateConn = RunService.RenderStepped:Connect(function()
-		local fps = math.round((1 / RunService.RenderStepped:Wait()))
-		local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
-		local color_ratioG = math.round((math.clamp(fps, 1, 60) / 60) * 255)
-		modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
-		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
-		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
-		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
-		modules.other.placeinfo.UpdateText("ServerAge", formatTime(math.floor(workspace.DistributedGameTime)))
-		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
-		modules.other.placeinfo.UpdateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
-	end)
-	while wait(5) do
-		if not updateConn then
-			break
-		end
-		local gameURL = "https://games.roblox.com/v1/games?universeIds="..game.GameId
-		local likesURL = "https://games.roblox.com/v1/games/votes?universeIds="..game.GameId
-		local imported = game:HttpGet(gameURL)
-		local decoded = game.HttpService:JSONDecode(imported)
-		local gameInfo = decoded["data"][1]
-		local likes = game.HttpService:JSONDecode(game:HttpGet(likesURL)).data[1]
-		print(gameInfo.playing, gameInfo.visits, likes.upVotes, likes.downVotes)
-	end
-end)
-newgui.Parent.closeregion.MouseButton1Click:Connect(function()
-	newgui.Parent.placeinfo.Visible = false
-	newgui.Parent.closeregion.Visible = false
-	if updateConn then
-		updateConn:Disconnect()
-		updateConn = nil
-	end
-	for _, v in newgui.Parent.placeinfo.list:GetChildren() do
-		if v:IsA("Frame") then
-			v:Destroy()
-		end
-	end
-end)
 newgui.uicolor.MouseButton1Click:Connect(function()
 	if not pickerOpened then
 		setColorPicker(currentUIColor)
@@ -4101,7 +4025,92 @@ local function format(number, useCommas, useShort, demicals)
 
 	return math.round(number)
 end
-
+local updateConn = nil
+newgui.placeinfo.MouseButton1Click:Connect(function()
+	newgui.Parent.placeinfo.Visible = true
+	newgui.Parent.closeregion.Visible = true
+	local module = modules.other.placeinfo
+	local placeId = game.PlaceId
+	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
+	module.CreateText("Name", gameInfo.Name)
+	module.CreateText("ID", gameInfo.AssetId)
+	module.CreateText("Updated", gameInfo.Updated:sub(1, 10):gsub("-", "/"))
+	module.CreateText("Created", gameInfo.Created:sub(1, 10):gsub("-", "/"))
+	module.CreateText("CCU", 0)
+	module.CreateText("Visits", 0)
+	module.CreateText("Likes", 0)
+	module.CreateText("Dislikes")
+	module.CreateSeparator("CREATOR INFO")
+	if gameInfo.Creator.HasVerifiedBadge then
+		if gameInfo.Creator.CreatorType == "Group" then
+			module.CreateText("Group", gameInfo.Creator.Name..utf8.char(0xE000))
+		end
+		pcall(function()
+			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown"..utf8.char(0xE000))
+		end)
+	else
+		if gameInfo.Creator.CreatorType == "Group" then
+			module.CreateText("Group", gameInfo.Creator.Name)
+		end
+		pcall(function()
+			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown")
+		end)
+	end
+	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
+	module.CreateSeparator("SERVER INFO")
+	module.CreateText("PartsAmount", Stats().PrimitivesCount)
+	module.CreateText("PartsMoving", Stats().MovingPrimitivesCount)
+	module.CreateText("ServerAge", math.floor(workspace.DistributedGameTime))
+	module.CreateSeparator("RENDER")
+	module.CreateText("RenderedTriangles", Stats().SceneTriangleCount)
+	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
+	module.CreateSeparator("CLIENT")
+	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
+	module.CreateText("FPS", 0)
+	updateConn = RunService.RenderStepped:Connect(function()
+		local fps = math.round((1 / RunService.RenderStepped:Wait()))
+		local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
+		local color_ratioG = math.round((math.clamp(fps, 1, 60) / 60) * 255)
+		modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
+		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
+		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
+		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
+		modules.other.placeinfo.UpdateText("ServerAge", formatTime(math.floor(workspace.DistributedGameTime)))
+		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
+		modules.other.placeinfo.UpdateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
+	end)
+	while true do
+		if not updateConn then
+			break
+		end
+		local gameURL = "https://games.roblox.com/v1/games?universeIds="..game.GameId
+		local likesURL = "https://games.roblox.com/v1/games/votes?universeIds="..game.GameId
+		local imported = game:HttpGet(gameURL)
+		local decoded = game.HttpService:JSONDecode(imported)
+		local gameInfo = decoded["data"][1]
+		local importedLikes = game:HttpGet(likesURL)
+		local decodedLikes = game.HttpService:JSONDecode(importedLikes)
+		local likes = decodedLikes["data"][1]
+		module.UpdateText("CCU", format(gameInfo.playing))
+		module.UpdateText("Visits", format(gameInfo.visits))
+		module.UpdateText("Likes", likes.upVotes or 0)
+		module.UpdateText("Dislikes", likes.downVotes or 0)
+		wait(1)
+	end
+end)
+newgui.Parent.closeregion.MouseButton1Click:Connect(function()
+	newgui.Parent.placeinfo.Visible = false
+	newgui.Parent.closeregion.Visible = false
+	if updateConn then
+		updateConn:Disconnect()
+		updateConn = nil
+	end
+	for _, v in newgui.Parent.placeinfo.list:GetChildren() do
+		if v:IsA("Frame") then
+			v:Destroy()
+		end
+	end
+end)
 local function fixMagnitudeLimit(x, y, z)
 	return math.sqrt(x^2 + y^2 + z^2)
 end
