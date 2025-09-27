@@ -777,12 +777,12 @@ local executorConfig = {
 				"pairs","pcall","print","rawequal","rawget","rawlen",
 				"rawset","require","select","setfenv","setmetatable",
 				"tonumber","tostring","type","xpcall",
-        
+
 				"game","workspace","script","Instance","Vector3","UDim2",
 				"Color3","CFrame","Enum","Ray","Axes","BrickColor",
 
 				"table","insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move",
-        
+
 				"math","abs","acos","asin","atan","atan2","ceil","cos","cosh",
 				"deg","exp","floor","fmod","frexp","ldexp","log","log10",
 				"max","min","modf","pow","rad","random","randomseed",
@@ -790,7 +790,7 @@ local executorConfig = {
 
 				"string","byte","char","find","format","gmatch","gsub",
 				"len","lower","match","rep","reverse","sub","upper",
-        
+
 				"coroutine","create","resume","running","status","wrap","yield",
 
 				"os","clock","date","difftime","execute","exit","getenv",
@@ -1287,28 +1287,28 @@ local modules = {
 				code = code:gsub('(".-")', function(str)
 					return string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str)
 				end)
-		
+
 				-- комментарии
 				code = code:gsub("(%-%-.-)\n", function(comment)
 					return string.format("<font color='%s'>%s</font>\n", executorConfig.commentColor, comment)
 				end)
-		
+
 				-- числа
 				code = code:gsub("(%d+)", function(num)
 					return string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num)
 				end)
-				
+
 				code = code:gsub("([%+%-%*/%%%^=<>~]+)", function(op)
 					return string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, op)
 				end)
-		
+
 				-- ключевые слова
 				for _, word in ipairs(executorConfig.keywords[1]) do
 					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
 						return a .. string.format(executorConfig.keywords[2], b) .. c
 					end)
 				end
-		
+
 				-- другие ключи (bools и т.п.)
 				for name, group in pairs(executorConfig.otherKeywords) do
 					if name == "enums" then
@@ -1327,7 +1327,7 @@ local modules = {
 						end
 					end
 				end
-		
+
 				-- глобальные функции
 				local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
 				for _, fn in ipairs(globalFns) do
@@ -1335,7 +1335,7 @@ local modules = {
 						return a .. string.format("<font color='%s'>%s</font>", executorConfig.funcColor, b) .. c
 					end)
 				end
-		
+
 				-- библиотеки + их методы
 				local libFns = {
 					math   = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
@@ -1356,17 +1356,17 @@ local modules = {
 						end)
 					end
 				end
-		
+
 				return code
 			end),
 			init = (function()
-				
+
 			end),
 			runScript = (function()
-				
+
 			end),
 			downloadFile = (function()
-				
+
 			end)
 		}
 	}
@@ -4086,8 +4086,8 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		local imported = game:HttpGet(gameURL)
 		local decoded = game.HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
-		module.UpdateText("CCU", format(gameInfo.playing, false, true))
-		module.UpdateText("Visits", format(gameInfo.visits))
+		module.UpdateText("CCU", format(gameInfo.playing, false, true, 1))
+		module.UpdateText("Visits", format(gameInfo.visits, false, true, 1))
 		wait(1)
 	end
 end)
@@ -4843,6 +4843,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
