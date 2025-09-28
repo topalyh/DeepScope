@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local GuiService = game:GetService("GuiService")
+local TweenService = game:GetService("TweenService")
 if not RunService:IsStudio() then
 	cloneref = missing("function", cloneref, function(...) return ... end)
 	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
@@ -62,6 +63,12 @@ local fullUnits = {
 	["no"] = "Nonillion",
 	["dc"] = "Decillion",
 	["und"] = "Undecillion"
+}
+local fonts = {
+	["SourceSansPro"] = "rbxasset://fonts/families/SourceSansPro.json",
+	["BuilderSans"] = "rbxasset://fonts/families/BuilderSans.json",
+	["BuilderMono"] = "rbxassetid://16658246179",
+	["FiraSans"] = "rbxassedid://12187374954"
 }
 local icons = {
 	size = {19, 19},
@@ -825,18 +832,22 @@ local lastcf = CFrame.new(0, 0, 0)
 local mode = "follow"
 local guiHiden = false
 local explorerOpened = true
-local explorerData = {}
 local draggingExplorer = false
+local draggingExecutor = false
 local draggingColorPicker = false
 local resizingExplorer = false
 local resizingLogMenu = false
 local resizingColorPicker = false
+local resizingExecutor = false
 local startExplorerSize = UDim2.fromOffset(0, 0)
 local startExplorerPos = UDim2.fromOffset(0, 0)
+local startExecutorPos = UDim2.fromOffset(0, 0)
+local startExecutorSize = UDim2.fromOffset(0, 0)
 local startPickerSize = UDim2.fromOffset(0, 0)
 local startLogSize = UDim2.fromOffset(0, 0)
 local startMousePos = UDim2.fromOffset(0, 0)
 local startLogsPos = UDim2.fromOffset(0, 0)
+local startExecutorPos = UDim2.fromOffset(0, 0)
 local dragConn = nil
 local explorerUsing = false
 local countdowns = {}
@@ -871,7 +882,8 @@ local logsOpened = false
 local initMessages = {
 	"Nice to see you {player}!",
 	"Having a good day, {player}?",
-	"Have a nice day {player}!"
+	"Have a nice day {player}!",
+	"Enjoying DeepScope? {player}"
 }
 local currentUIColor = Color3.fromRGB(163, 162, 165)
 local usingSlider = {
@@ -887,7 +899,6 @@ local logConfig = {
 	},
 	stringFormat = "%s - %s  -  %s",
 	messages = 0,
-	limit = 200
 }
 local lastVelocity = Vector3.zero
 local lastTime = tick()
@@ -1064,7 +1075,6 @@ local modules = {
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
 					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed
 
-					-- Плавное приближение
 					currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
 
 					BodyPos.Position = humanoidRootPart.Position + currentVelocity
@@ -1109,7 +1119,7 @@ local modules = {
 					Size = UDim2.fromScale(0, 1),
 					TextEditable = false,
 					RichText = true,
-					FontFace = Font.new("rbxassetid://12187374954"),
+					FontFace = Font.new(fonts.FiraSans),
 					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
@@ -1123,7 +1133,7 @@ local modules = {
 					BackgroundTransparency = 1,
 					AutomaticSize = Enum.AutomaticSize.X,
 					Size = UDim2.fromScale(0, 1),
-					FontFace = Font.new("rbxassetid://12187374954"),
+					FontFace = Font.new(fonts.FiraSans),
 					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
@@ -1282,18 +1292,15 @@ local modules = {
 			end,
 		},
 		executor = {
-			highlightLuau = (function(code)
-				-- строки
+			highlightLuau = function(code)
 				code = code:gsub('(".-")', function(str)
 					return string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str)
 				end)
 
-				-- комментарии
 				code = code:gsub("(%-%-.-)\n", function(comment)
 					return string.format("<font color='%s'>%s</font>\n", executorConfig.commentColor, comment)
 				end)
 
-				-- числа
 				code = code:gsub("(%d+)", function(num)
 					return string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num)
 				end)
@@ -1302,14 +1309,12 @@ local modules = {
 					return string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, op)
 				end)
 
-				-- ключевые слова
 				for _, word in ipairs(executorConfig.keywords[1]) do
 					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
 						return a .. string.format(executorConfig.keywords[2], b) .. c
 					end)
 				end
 
-				-- другие ключи (bools и т.п.)
 				for name, group in pairs(executorConfig.otherKeywords) do
 					if name == "enums" then
 						local colors = group[2]
@@ -1328,7 +1333,6 @@ local modules = {
 					end
 				end
 
-				-- глобальные функции
 				local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
 				for _, fn in ipairs(globalFns) do
 					code = code:gsub("(%f[%w_])("..fn..")(%s*%b())", function(a, b, c)
@@ -1336,11 +1340,10 @@ local modules = {
 					end)
 				end
 
-				-- библиотеки + их методы
 				local libFns = {
-					math   = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
+					math = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
 					string = {"byte","char","find","format","gmatch","gsub","len","lower","match","rep","reverse","sub","upper",},
-					table  = {"insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move"},
+					table = {"insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move"},
 					coroutine = {"create","resume","running","status","wrap","yield", "isyieldable"},
 					os = {"time","date","clock","difftime"},
 					bit32 = {"arshift","band","bnot","bor","btest","bxor","extract","lrotate","lshift","replace","rrotate","rshift"}
@@ -1358,16 +1361,16 @@ local modules = {
 				end
 
 				return code
-			end),
-			init = (function()
+			end,
+			init = function()
 
-			end),
-			runScript = (function()
+			end,
+			runScript = function()
 
-			end),
-			downloadFile = (function()
+			end,
+			downloadFile = function()
 
-			end)
+			end
 		}
 	}
 }
@@ -1398,7 +1401,7 @@ local function AddLog(text, sourse, type)
 		Name = "log",
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -15, 0, 20),
-		FontFace = Font.new("rbxassetid://12187374954", Enum.FontWeight.Medium),
+		FontFace = Font.new(fonts.FiraSans, Enum.FontWeight.Medium),
 		Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 19,
@@ -1681,7 +1684,7 @@ local function createGui()
 		Text = "explorer",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		AutoButtonColor = false,
 		ClipsDescendants = true
 	})
@@ -1846,7 +1849,7 @@ local function createGui()
 		Name = "hsv",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(44, 22),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "HSV",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 21,
@@ -1859,7 +1862,7 @@ local function createGui()
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, 27),
 		Size = UDim2.fromOffset(44, 22),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "RGB",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 21,
@@ -1871,7 +1874,7 @@ local function createGui()
 		Name = "hex",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(95, 30),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "hex:",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 16,
@@ -1886,7 +1889,7 @@ local function createGui()
 		ClearTextOnFocus = false,
 		Position = UDim2.fromScale(0.286, 0),
 		Size = UDim2.fromOffset(64, 30),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "#ff0000",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 22,
@@ -2217,7 +2220,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
@@ -2266,7 +2269,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
@@ -2315,7 +2318,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
@@ -2364,7 +2367,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
@@ -2413,7 +2416,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
@@ -2462,7 +2465,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(1, 0.5),
 		Size = UDim2.fromOffset(30, 20),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "100",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 18,
@@ -2493,7 +2496,7 @@ local function createGui()
 		Text = "color picker",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		AutoButtonColor = false,
 		ClipsDescendants = true,
 	})
@@ -2663,7 +2666,7 @@ local function createGui()
 		Text = "logs.txt",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		AutoButtonColor = false,
 		ClipsDescendants = true,
 	})
@@ -2779,7 +2782,7 @@ local function createGui()
 		BackgroundColor3 = Color3.fromRGB(78, 77, 79),
 		Position = UDim2.fromOffset(0, 18),
 		Size = UDim2.fromOffset(195, 20),
-		FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold),
+		FontFace = Font.new(fonts.SourceSansPro, Enum.FontWeight.Bold),
 		PlaceholderColor3 = Color3.new(1, 1, 1),
 		PlaceholderText = "Command output ("..commandPrefix..")",
 		Text = "",
@@ -2817,6 +2820,215 @@ local function createGui()
 	})
 	local commandGui8 = createInstance("UIScale", {Parent = commandGui1})
 	commandGui1:SetAttribute("Hovering", false)
+	local utilsGui1 = createInstance("TextButton", {
+		Parent = gui2,
+		Name = "utils",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(0.747, 0, 2.657, 0),
+		Size = UDim2.fromOffset(53, 43),
+		Text = "fun utils",
+		TextScaled = true,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local utilsGui2 = createInstance("Frame", {
+		Parent = utilsGui1,
+		Name = "utils",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.fromOffset(0, 0),
+		Visible = false,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	utilsGui2:SetAttribute("Size", UDim2.fromOffset(70, 150))
+	createInstance("UIListLayout", {
+		Parent = utilsGui2,
+		Padding = UDim.new(0, 5),
+		Wraps = true,
+		HorizontalAlignment = Enum.HorizontalAlignment.Right,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		VerticalFlex = Enum.UIFlexAlignment.Fill
+	})
+	createInstance("UIPadding", {
+		Parent = utilsGui2,
+		PaddingBottom = UDim.new(0, 4),
+		PaddingRight = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5)
+	})
+	local utilsGui3 = createInstance("TextButton", {
+		Parent = utilsGui2,
+		Name = "calculator",
+		BackgroundColor3 = Color3.new(),
+		Size = UDim2.fromOffset(60, 0),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "calculator",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 14,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	
+	local utilsGui4 = createInstance("TextButton", {
+		Parent = utilsGui2,
+		Name = "executor",
+		BackgroundColor3 = Color3.new(),
+		Size = UDim2.fromOffset(60, 0),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "executor",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 14,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui1 = createInstance("Frame", {
+		Parent = gui1,
+		Name = "executor",
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		Position = UDim2.fromOffset(0, 88),
+		Size = UDim2.fromOffset(240, 160),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Visible = false
+	})
+	local executorGui2 = createInstance("ScrollingFrame", {
+		Parent = executorGui1,
+		BackgroundColor3 = Color3.fromRGB(37, 37, 37),
+		Size = UDim2.new(1, 0, 1, -30),
+		CanvasSize = UDim2.fromOffset(0, 0),
+		BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+		TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+		ScrollBarImageColor3 = Color3.fromRGB(179, 179, 179),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui3 = createInstance("TextBox", {
+		Parent = executorGui2,
+		Name = "luau",
+		BackgroundTransparency = 1,
+		ClearTextOnFocus = false,
+		MultiLine = true,
+		Size = UDim2.fromOffset(1e6, 1e6),
+		FontFace = Font.new("rbxassetid://16658246179"),
+		Text = [[print("Hello DeepScope!")]],
+		TextColor3 = Color3.fromRGB(204, 204, 204),
+		TextSize = 15,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui4 = createInstance("ImageButton", {
+		Parent = executorGui1,
+		Name = "run",
+		AnchorPoint = Vector2.new(1, 1),
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		Position = UDim2.new(1, -2, 1, -2),
+		Size = UDim2.fromOffset(25, 25),
+		Image = "rbxassetid://12099513379",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui5 = createInstance("TextButton", {
+		Parent = executorGui1,
+		Name = "dragbutton",
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		AnchorPoint = Vector2.new(0, 1),
+		Size = UDim2.new(1, 0, 0, 30),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "executor",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 20,
+		FontFace = Font.new(fonts.FiraSans),
+		AutoButtonColor = false,
+		ClipsDescendants = true,
+	})
+	local executorGui6 = createInstance("TextButton", {
+		Parent = executorGui5,
+		Name = "fullclose",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -5, 0, 5),
+		Size = UDim2.fromOffset(20, 20),
+		Text = "",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	createInstance("UIStroke", {
+		Parent = executorGui6,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = Color3.new(1, 1, 1),
+		LineJoinMode = Enum.LineJoinMode.Miter
+	})
+	local executorGui7 = createInstance("ImageLabel", {
+		Parent = executorGui6,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = "rbxassetid://74120900238837",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui8 = createInstance("TextButton", {
+		Parent = executorGui5,
+		Name = "close",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -30, 0, 5),
+		Size = UDim2.fromOffset(20, 20),
+		Text = "",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui9 = createInstance("UIStroke", {
+		Parent = executorGui8,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = Color3.new(1, 1, 1),
+		LineJoinMode = Enum.LineJoinMode.Miter
+	})
+	local executorGui10 = createInstance("ImageLabel", {
+		Parent = executorGui8,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = "rbxassetid://15396333997",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui11 = createInstance("TextButton", {
+		Parent = executorGui1,
+		Name = "resizebottom",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, -2, 0, 7),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false
+	})
+	local executorGui12 = createInstance("TextButton", {
+		Parent = executorGui1,
+		Name = "resizeside",
+		BackgroundTransparency = 1,
+		Position = UDim2.new(1, 0, 0, -30),
+		Size = UDim2.new(0, 7, 1, 28),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false
+	})
+	local executorGui13 = createInstance("TextButton", {
+		Parent = executorGui1,
+		Name = "resizeboth",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(1, 1),
+		Size = UDim2.fromOffset(7, 7),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false
+	})
+	modules.other.executor.highlightLuau(executorGui3.Text)
 	infoList = placeInfoGui4
 	logList = logGui2
 
@@ -2937,7 +3149,7 @@ local function notify(icon, text, countdown)
 		TextSize = 13,
 		RichText = true,
 		TextWrapped = true,
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -2945,7 +3157,7 @@ local function notify(icon, text, countdown)
 	notify_amount += 1
 	local newTemplate = template:Clone()
 	newTemplate.Parent = newgui.Parent.notification
-	game.TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+	TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 		Position = UDim2.new(0, 0, 0, 0)
 	}):Play()
 	newTemplate.inner.mainframe.title.Size = UDim2.fromOffset(icon ~= nil and 155 or 190, 30)
@@ -2961,17 +3173,17 @@ local function notify(icon, text, countdown)
 	sound:Play()
 	game.Debris:AddItem(newTemplate, countdown + 1.4)
 	delay(0.3, function()
-		game.TweenService:Create(newTemplate.inner.countdown, TweenInfo.new(countdown, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+		TweenService:Create(newTemplate.inner.countdown, TweenInfo.new(countdown, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
 			Size = UDim2.fromOffset(0, 3)
 		}):Play()
 	end)
 	delay(countdown + 0.8, function()
-		game.TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+		TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 			Position = UDim2.new(0, 210, 0, 0)
 		}):Play()
 	end)
 	delay(countdown + 1.15, function()
-		game.TweenService:Create(newTemplate, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+		TweenService:Create(newTemplate, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 			Size = UDim2.fromOffset(200, 0)
 		}):Play()
 	end)
@@ -2984,22 +3196,17 @@ LocalPlayer.CharacterAdded:Connect(function(char)
 	end)
 end)
 
-local explorerData = explorerData or {} -- главное хранилище нод
-local nodesBuilt = nodesBuilt or {} -- опционально для отслеживания созданных GUI
+local explorerData = explorerData or {}
+local nodesBuilt = nodesBuilt or {}
 local templates = templates or {}
 
 local function buildExplorerData(instance)
-	-- проверка: объект валидный? (бывает, что к моменту вызова он уже удалён)
 	if not instance or not instance.Parent and instance ~= game then
 		return nil
 	end
-
-	-- если узел уже построен, возвращаем
 	if explorerData[instance] then
 		return explorerData[instance]
 	end
-
-	-- создаём узел
 	local node = {
 		Data = {
 			Name = instance.Name or "Unnamed",
@@ -3014,7 +3221,6 @@ local function buildExplorerData(instance)
 
 	explorerData[instance] = node
 
-	-- обновление имени
 	if instance.Name then
 		instance:GetPropertyChangedSignal("Name"):Connect(function()
 			if node.Data then
@@ -3023,8 +3229,6 @@ local function buildExplorerData(instance)
 			end
 		end)
 	end
-
-	-- обновление класса (редко меняется, но пусть будет)
 	if instance.ClassName then
 		instance:GetPropertyChangedSignal("ClassName"):Connect(function()
 			if node.Data then
@@ -3032,8 +3236,6 @@ local function buildExplorerData(instance)
 			end
 		end)
 	end
-
-	-- для ValueBase добавляем слежение за Value
 	if instance:IsA("ValueBase") then
 		local success, error = pcall(function()
 			node.Data.Value = instance.Value
@@ -3047,8 +3249,6 @@ local function buildExplorerData(instance)
 			AddLog("game.ReplicatedStorage._DeepScopeCore.Core.Explorer:7423: "..error, "DeepScope", "error")
 		end
 	end
-
-	-- рекурсивно собираем детей
 	for _, child in ipairs(instance:GetChildren()) do
 		if not table.find(explorerBlacklistInstances, child.Name) then
 			local childNode = buildExplorerData(child)
@@ -3061,47 +3261,36 @@ local function buildExplorerData(instance)
 	return node
 end
 
--- вспомогательная функция — строит node.Children -> node.ChildNodes (в explorerData)
 local function buildChildrenNodes(node)
 	if node._childrenNodesBuilt then return end
 	node._childrenNodesBuilt = true
 
 	for i = 1, #node.Children do
 		local childInst = node.Children[i]
-		local childNode = buildExplorerData(childInst) -- безопасно: если уже есть, вернёт
-		-- заменим на node ссылку на childNode, чтобы работать с node.ChildNodes в GUI
+		local childNode = buildExplorerData(childInst)
 		node.Children[i] = childNode
 	end
 end
-
--- обновление размеров вверх по иерархии: вычисляем высоту текущего entry = base + dropdownHeight
 local function recalcAndPropagateSize(entryFrame)
 	if not entryFrame or not entryFrame:IsA("Frame") then return end
 
 	local function computeFrameHeight(frame)
-		local base = 32 -- базовая высота одной строки
+		local base = 32
 		local dropdown = frame:FindFirstChild("dropdown")
 		if dropdown and dropdown.Visible then
-			-- UIListLayout.AbsoluteContentSize может быть 0 до рендера, поэтому берём max(,0)
 			local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
 			return base + (h or 0)
 		end
 		return base
 	end
-
-	-- обновим сам frame
-	entryFrame.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
-
-	-- подниматься по родительским entry (если они есть)
+	entryFrame:TweenSize(UDim2.new(1, 0, 0, computeFrameHeight(entryFrame)), "InOut", "Sine", 0.25, true)
 	local parent = entryFrame.Parent
 	while parent and parent:IsA("Frame") do
-		-- родитель может быть dropdown (Frame) — если он содержит entryFrames, то пересчитать его родитель entry
 		local parentEntry = parent
-		-- возможно parent — dropdown, тогда parent.Parent — entry
 		if parent.Name == "dropdown" and parent.Parent and parent.Parent:IsA("Frame") then
 			parentEntry = parent.Parent
 		end
-		parentEntry.Size = UDim2.new(1, 0, 0, computeFrameHeight(parentEntry))
+		parentEntry:TweenSize(UDim2.new(1, 0, 0, computeFrameHeight(parentEntry)), "InOut", "Sine", 0.25, true)
 		parent = parentEntry.Parent
 	end
 end
@@ -3181,7 +3370,7 @@ local function createEntryForInstance(node, parentGui)
 		BackgroundTransparency = 1,
 		LayoutOrder = 2,
 		Size = UDim2.fromOffset(0, 28),
-		FontFace = Font.new("rbxassetid://12187374954"),
+		FontFace = Font.new(fonts.FiraSans),
 		Text = "hi",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 15,
@@ -3226,18 +3415,13 @@ local function createEntryForInstance(node, parentGui)
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
-
-	-- иконка + имя
 	newTemplate.mainframe.name.Text = node.Data.Name
 	local iconCoords = icons.icons[node.Data.ClassName] or icons.icons.Unknown
 	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconCoords[1], iconCoords[2])
 	newTemplate.mainframe.icon.ImageRectSize = Vector2.new(table.unpack(icons.size))
-
-	-- сохраняем связи
 	guiToNode[newTemplate] = node
 	nodeToGui[node] = newTemplate
 
-	-- dropdown
 	local dropdown = newTemplate.dropdown
 	dropdown.Visible = false
 	newTemplate:SetAttribute("ChildrenBuilt", false)
@@ -3254,7 +3438,9 @@ local function createEntryForInstance(node, parentGui)
 			end
 
 			dropdown.Visible = not dropdown.Visible
-			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
+			TweenService:Create(newTemplate.mainframe.dropdownbutton.icon, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				Rotation = dropdown.Visible and 0 or -90
+			}):Play()
 			recalcAndPropagateSize(newTemplate)
 		end)
 	else
@@ -3285,7 +3471,6 @@ local function setExplorer()
 		end
 	end
 
-	-- оптимизация видимости
 	RunService.RenderStepped:Connect(function()
 		if explorerUsing and explorer.Visible then
 			local absPos = list.AbsolutePosition.Y
@@ -3293,10 +3478,9 @@ local function setExplorer()
 
 			for _, frame in ipairs(templates) do
 				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
-					local y = frame.AbsolutePosition.Y - 64
-					local h = frame.AbsoluteSize.Y + 64
+					local y = frame.AbsolutePosition.Y - 32
+					local h = frame.AbsoluteSize.Y + 32
 
-					-- если объект в зоне экрана → показываем mainframe
 					local onScreen = (y + h > absPos) and (y < absPos + absSize)
 					frame.mainframe.Visible = onScreen
 				end
@@ -3382,32 +3566,32 @@ local function setExplorer()
 	end)
 
 	explorer.resizebottom.MouseEnter:Connect(function()
-		game.TweenService:Create(explorer.resizebottom, TweenInfo.new(0.2), {
+		TweenService:Create(explorer.resizebottom, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 	end)
 	explorer.resizebottom.MouseLeave:Connect(function()
-		game.TweenService:Create(explorer.resizebottom, TweenInfo.new(0.2), {
+		TweenService:Create(explorer.resizebottom, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
 	end)
 	explorer.resizeside.MouseEnter:Connect(function()
-		game.TweenService:Create(explorer.resizeside, TweenInfo.new(0.2), {
+		TweenService:Create(explorer.resizeside, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 	end)
 	explorer.resizeside.MouseLeave:Connect(function()
-		game.TweenService:Create(explorer.resizeside, TweenInfo.new(0.2), {
+		TweenService:Create(explorer.resizeside, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
 	end)
 	explorer.resizeboth.MouseEnter:Connect(function()
-		game.TweenService:Create(explorer.resizeboth, TweenInfo.new(0.2), {
+		TweenService:Create(explorer.resizeboth, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 	end)
 	explorer.resizeboth.MouseLeave:Connect(function()
-		game.TweenService:Create(explorer.resizeboth, TweenInfo.new(0.2), {
+		TweenService:Create(explorer.resizeboth, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
 	end)
@@ -3509,37 +3693,38 @@ local function setColorPicker(color, gui)
 	if color then
 		colors.h, colors.s, colors.v = color:ToHSV()
 		colors.r, colors.g, colors.b = math.round(color.R * 255), math.round(color.G * 255), math.round(color.B * 255)
-		local pointer = picker.picker.pointer
-		local module = modules[pickerMode]
-		pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
-		picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-		picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
-		picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
-		picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, 1, 1))
-		}), picker.sliders.saturation)
-		picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.v, ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.new()),
-			ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, colors.s, 1))
-		}), picker.sliders.value)
-		picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.r/255, ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(0,colors.g/255,colors.b/255)),
-			ColorSequenceKeypoint.new(1,Color3.new(1,colors.g/255,colors.b/255))
-		}), picker.sliders.R)
-		picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.g/255, ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,0,colors.b/255)),
-			ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,1,colors.b/255))
-		}), picker.sliders.G)
-		picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.b/255, ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,colors.g/255,0)),
-			ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,colors.g/255,1))
-		}), picker.sliders.B)
-		newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
-		newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
 	else
 		colors.h, colors.s, colors.v = 0, 0, 1
+		colors.r, colors.g, colors.b = 255, 255, 255
 	end
+	local pointer = picker.picker.pointer
+	local module = modules[pickerMode]
+	pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
+	picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
+	picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
+	picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
+	picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, 1, 1))
+	}), picker.sliders.saturation)
+	picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.v, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.new()),
+		ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, colors.s, 1))
+	}), picker.sliders.value)
+	picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.r/255, ColorSequence.new({
+		ColorSequenceKeypoint.new(0,Color3.new(0,colors.g/255,colors.b/255)),
+		ColorSequenceKeypoint.new(1,Color3.new(1,colors.g/255,colors.b/255))
+	}), picker.sliders.R)
+	picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.g/255, ColorSequence.new({
+		ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,0,colors.b/255)),
+		ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,1,colors.b/255))
+	}), picker.sliders.G)
+	picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.b/255, ColorSequence.new({
+		ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,colors.g/255,0)),
+		ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,colors.g/255,1))
+	}), picker.sliders.B)
+	newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
+	newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
 	game:GetService("RunService").RenderStepped:Connect(function()
 		if draggingColorPicker then
 			local newX = getMousePos().X - startMousePos.X
@@ -3633,7 +3818,7 @@ local function setColorPicker(color, gui)
 		end
 		if resizingColorPicker then
 			local function snap(number)
-				return math.floor(number / 33.3) * 33.3
+				return math.floor(number / 10) * 10
 			end
 			local MAX_HEIGHT = 421
 			local mousePos = getMousePos()
@@ -3734,12 +3919,12 @@ local function setColorPicker(color, gui)
 		end)
 	end
 	picker.resize.MouseEnter:Connect(function()
-		game.TweenService:Create(picker.resize, TweenInfo.new(0.2), {
+		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
 			ImageTransparency = 0.5
 		}):Play()
 	end)
 	picker.resize.MouseLeave:Connect(function()
-		game.TweenService:Create(picker.resize, TweenInfo.new(0.2), {
+		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
 			ImageTransparency = 1
 		}):Play()
 	end)
@@ -3842,32 +4027,32 @@ local function setLogMenu()
 	end)
 
 	logMenu.resizebottom.MouseEnter:Connect(function()
-		game.TweenService:Create(logMenu.resizebottom, TweenInfo.new(0.2), {
+		TweenService:Create(logMenu.resizebottom, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 	end)
 	logMenu.resizebottom.MouseLeave:Connect(function()
-		game.TweenService:Create(logMenu.resizebottom, TweenInfo.new(0.2), {
+		TweenService:Create(logMenu.resizebottom, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
 	end)
 	logMenu.resizeside.MouseEnter:Connect(function()
-		game.TweenService:Create(logMenu.resizeside, TweenInfo.new(0.2), {
+		TweenService:Create(logMenu.resizeside, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 	end)
 	logMenu.resizeside.MouseLeave:Connect(function()
-		game.TweenService:Create(logMenu.resizeside, TweenInfo.new(0.2), {
+		TweenService:Create(logMenu.resizeside, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
 	end)
 	logMenu.resizeboth.MouseEnter:Connect(function()
-		game.TweenService:Create(logMenu.resizeboth, TweenInfo.new(0.2), {
+		TweenService:Create(logMenu.resizeboth, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
 		}):Play()
 	end)
 	logMenu.resizeboth.MouseLeave:Connect(function()
-		game.TweenService:Create(logMenu.resizeboth, TweenInfo.new(0.2), {
+		TweenService:Create(logMenu.resizeboth, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
 	end)
@@ -3879,6 +4064,105 @@ function toClipboard(txt)
 	else
 		notify(nil, "Your executor doesn't have the ability to use the clipboard", 5)
 	end
+end
+function setExecutor()
+	local executor = newgui.Parent.executor
+	
+	executor.resizebottom.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if explorerOpened then
+				if not countdowns["logMenu"] then
+					resizingLogMenu = "Y"
+					startMousePos = getMousePos()
+					startLogSize = executor.Size
+				end
+			end
+		end
+	end)
+
+	executor.resizeside.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if not countdowns["logMenu"] then
+				resizingLogMenu = "X"
+				startMousePos = getMousePos()
+				startLogSize = executor.Size
+			end
+		end
+	end)
+
+	executor.resizeboth.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if not countdowns["logMenu"] then
+				resizingLogMenu = "XY"
+				startMousePos = getMousePos()
+				startLogSize = executor.Size
+			end
+		end
+	end)
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if resizingExecutor then
+			local mouse = getMousePos()
+
+			if resizingExecutor == "Y" then
+				local deltaY = mouse.Y - startMousePos.Y
+				local newHeight = math.clamp(startExecutorSize.Y.Offset + deltaY, 0, 500)
+				executor.Size = UDim2.new(startExecutorSize.X.Scale, startExecutorSize.X.Offset, 0, newHeight)
+			elseif resizingExecutor == "X" then
+				local deltaX = mouse.X - startMousePos.X
+				local newWidth = math.clamp(startExecutorSize.X.Offset + deltaX, 0, 500)
+				executor.Size = UDim2.new(0, newWidth, startExecutorSize.Y.Scale, startExecutorSize.Y.Offset)
+			elseif resizingExecutor == "XY" then
+				local deltaX = mouse.X - startMousePos.X
+				local deltaY = mouse.Y - startMousePos.Y
+				local newWidth = math.clamp(startExecutorSize.X.Offset + deltaX, 0, 500)
+				local newHeight = math.clamp(startExecutorSize.Y.Offset + deltaY, 0, 500)
+				executor.Size = UDim2.new(0, newWidth, 0, newHeight)
+			end
+		end
+		if draggingExecutor then
+			local newX = getMousePos().X - startMousePos.X
+			local newY = getMousePos().Y - startMousePos.Y
+			local minX = 0
+			local maxX = newgui.Parent.AbsoluteSize.X - executor.AbsoluteSize.X
+			local minY = game.GuiService.TopbarInset.Height + executor.dragbutton.AbsoluteSize.Y
+			local maxY = newgui.Parent.AbsoluteSize.Y - executor.AbsoluteSize.Y
+			newX = math.clamp(startExecutorPos.X.Offset + newX, minX, maxX)
+			newY = math.clamp(startExecutorPos.Y.Offset + newY, minY, maxY) 
+
+			executor.Position = UDim2.new(0, newX, 0, newY)
+		end
+	end)
+
+	executor.resizebottom.MouseEnter:Connect(function()
+		TweenService:Create(executor.resizebottom, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	executor.resizebottom.MouseLeave:Connect(function()
+		TweenService:Create(executor.resizebottom, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	executor.resizeside.MouseEnter:Connect(function()
+		TweenService:Create(executor.resizeside, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	executor.resizeside.MouseLeave:Connect(function()
+		TweenService:Create(executor.resizeside, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	executor.resizeboth.MouseEnter:Connect(function()
+		TweenService:Create(executor.resizeboth, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	executor.resizeboth.MouseLeave:Connect(function()
+		TweenService:Create(executor.resizeboth, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
 end
 
 newgui.explorer.MouseButton1Click:Connect(function()
@@ -3933,11 +4217,6 @@ newgui.Parent.colorpicker.middlebar.hex.TextBox.FocusLost:Connect(function()
 		newgui.Parent.colorpicker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
 	end
 end)
-newgui.Parent.colorpicker.resizebottom.MouseButton1Down:Connect(function()
-	startMousePos = game.UserInputService:GetMouseLocation()
-	startPickerSize = newgui.Parent.colorpicker.Size
-	resizingColorPicker = true
-end)
 newgui.Parent.explorer.dragbutton.MouseButton1Down:Connect(function()
 	startMousePos = game.UserInputService:GetMouseLocation()
 	startExplorerPos = newgui.Parent.explorer.Position
@@ -3953,12 +4232,16 @@ newgui.Parent.colorpicker.dragbutton.MouseButton1Down:Connect(function()
 	startExplorerPos = newgui.Parent.colorpicker.Position
 	draggingColorPicker = true
 end)
+newgui.Parent.executor.dragbutton.MouseButton1Down:Connect(function()
+	startMousePos = game.UserInputService:GetMouseLocation()
+	startExecutorPos = newgui.Parent.executor.Position
+	draggingExecutor = true
+end)
 newgui.Parent.colorpicker.picker.activateregion.MouseButton1Down:Connect(function()
 	pickingColor = true
 end)
 game.UserInputService.InputBegan:Connect(function(input)
 	input.UserInputType = Enum.UserInputType.MouseButton2
-
 end)
 game.UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -3967,6 +4250,8 @@ game.UserInputService.InputEnded:Connect(function(input)
 		pickingColor = false
 		draggingLogs = false
 		resizingColorPicker = false
+		resizingExecutor = false
+		draggingExecutor = false
 		usingSlider = {
 			enabled = false,
 			slider = nil
@@ -3994,7 +4279,7 @@ local function format(number, useCommas, useShort, demicals)
 			return tostring(number)
 		end
 
-		local tier = math.round(math.log10(absNumber) / 3) -- 3 digits per suffix
+		local tier = math.round(math.log10(absNumber) / 3)
 		if tier >= #suffixes then
 			return string.format("%.0f", number)
 		end
@@ -4082,7 +4367,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		if not updateConn then
 			break
 		end
-		local gameURL = "https://games.roblox.com/v1/games?universeIds="..game.GameId
+		local gameURL = "https://games.roblox.com/v1/games?universeIds=" .. game.GameId
 		local imported = game:HttpGet(gameURL)
 		local decoded = game.HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
@@ -4253,6 +4538,16 @@ newgui.Parent.commandbar:GetAttributeChangedSignal("Hovering"):Connect(function(
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 18), "InOut", "Quad", 0.3, true)
 	end
 end)
+newgui.utils.MouseButton1Click:Connect(function()
+	if newgui.utils.utils.AbsoluteSize.Magnitude > 0.1 then
+		newgui.utils:TweenSize(newgui.utils.utils:GetAttribute("Size"), "InOut", "Size", 0.3, true)
+	else
+		newgui.utils:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Size", 0.3, true)
+	end
+end)
+newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
+	modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
+end)
 local textBox: TextBox = newgui.Parent.commandbar.input
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
@@ -4311,7 +4606,7 @@ local function registerCommand(name, callback)
 		Name = name,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(195, 15),
-		FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold),
+		FontFace = Font.new(fonts.SourceSansPro, Enum.FontWeight.Bold),
 		Text = name,
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 16,
@@ -4843,6 +5138,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
