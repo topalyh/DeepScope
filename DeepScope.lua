@@ -68,7 +68,7 @@ local fonts = {
 	["SourceSansPro"] = "rbxasset://fonts/families/SourceSansPro.json",
 	["BuilderSans"] = "rbxasset://fonts/families/BuilderSans.json",
 	["BuilderMono"] = "rbxassetid://16658246179",
-	["FiraSans"] = "rbxassedid://12187374954"
+	["FiraSans"] = "rbxassetid://12187374954"
 }
 local icons = {
 	size = {19, 19},
@@ -879,6 +879,7 @@ local infoList = nil
 local logList = nil
 local placeInfoOpened = false
 local logsOpened = false
+local utilsOpened = false
 local initMessages = {
 	"Nice to see you {player}!",
 	"Having a good day, {player}?",
@@ -940,6 +941,42 @@ _createForces = function(hrp)
 
 	BodyPos = bp
 	BodyGyro = bg
+end
+local function AddLog(text, sourse, type)
+	if not type then type = "normal" end
+	repeat wait() until logList
+	local gui = createInstance("TextLabel", {
+		Name = "log",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -15, 0, 20),
+		FontFace = Font.new(fonts.FiraSans, Enum.FontWeight.Medium),
+		Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
+		TextColor3 = Color3.fromRGB(204, 204, 204),
+		TextSize = 19,
+		RichText = true,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Visible = false
+	})
+	local gui2 = createInstance("UIPadding", {
+		Parent = gui,
+		PaddingLeft = UDim.new(0, 5)
+	})
+	local timeNow = os.date("%X", os.clock())
+	local ok, textResult = pcall(function()
+		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
+	end)
+	logConfig.messages += 1
+	local newTemplate = gui:Clone()
+	newTemplate.Parent = logList
+	newTemplate.Name = "log"..logConfig.messages
+	newTemplate.LayoutOrder = -logConfig.messages
+	newTemplate.Visible = true
+	if ok then
+		newTemplate.Text = textResult
+	else
+		newTemplate.Text = timeNow.."  game.ReplicatedStorage._DeepScopeCore.Logs:4727: "..textResult.."  -  DeepScope"
+	end
 end
 local modules = {
 	circle = {
@@ -1308,6 +1345,10 @@ local modules = {
 				code = code:gsub("([%+%-%*/%%%^=<>~]+)", function(op)
 					return string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, op)
 				end)
+				
+				code = code:gsub("([%w_]+)(%s*:%s*[%w_]+)(%s*=%s*)", function(a, b, c)
+					return string.format("<font color='rgb(248,109,124)'>%s</font><font color='rgb(0,255,255)'>%s</font>%s", a, b, c)
+				end)
 
 				for _, word in ipairs(executorConfig.keywords[1]) do
 					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
@@ -1362,11 +1403,13 @@ local modules = {
 
 				return code
 			end,
-			init = function()
-
-			end,
-			runScript = function()
-
+			runScript = function(codeToExecute)
+				local executed, err = pcall(function()
+					loadstring(codeToExecute)()
+				end)
+				if not executed then
+					AddLog("game.ReplicatedStorage._DeepScopeCode.Core.Executor:3841: "..err, "DeepScope", "error")
+				end
 			end,
 			downloadFile = function()
 
@@ -1394,42 +1437,6 @@ spawn(function()
 		modules.other.fly.Loop()
 	end
 end)
-local function AddLog(text, sourse, type)
-	if not type then type = "normal" end
-	repeat wait() until logList
-	local gui = createInstance("TextLabel", {
-		Name = "log",
-		BackgroundTransparency = 1,
-		Size = UDim2.new(1, -15, 0, 20),
-		FontFace = Font.new(fonts.FiraSans, Enum.FontWeight.Medium),
-		Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
-		TextColor3 = Color3.fromRGB(204, 204, 204),
-		TextSize = 19,
-		RichText = true,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Visible = false
-	})
-	local gui2 = createInstance("UIPadding", {
-		Parent = gui,
-		PaddingLeft = UDim.new(0, 5)
-	})
-	local timeNow = os.date("%X", os.clock())
-	local ok, textResult = pcall(function()
-		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
-	end)
-	logConfig.messages += 1
-	local newTemplate = gui:Clone()
-	newTemplate.Parent = logList
-	newTemplate.Name = "log"..logConfig.messages
-	newTemplate.LayoutOrder = -logConfig.messages
-	newTemplate.Visible = true
-	if ok then
-		newTemplate.Text = textResult
-	else
-		newTemplate.Text = timeNow.."  game.ReplicatedStorage._DeepScopeCore.Logs:4727: "..textResult.."  -  DeepScope"
-	end
-end
 local function createGui()
 	local gui1 = createInstance("ScreenGui", {
 		DisplayOrder = 2147483647,
@@ -3080,6 +3087,10 @@ local function makeFakeScripts()
 		Parent = fakeScript8,
 		Name = "Commands"
 	})
+	local fakeScript10 = createInstance("ModuleScript", {
+		Parent = fakeScript1,
+		Name = "Executor"
+	})
 end
 
 local function notify(icon, text, countdown)
@@ -3283,14 +3294,14 @@ local function recalcAndPropagateSize(entryFrame)
 		end
 		return base
 	end
-	entryFrame:TweenSize(UDim2.new(1, 0, 0, computeFrameHeight(entryFrame)), "InOut", "Sine", 0.25, true)
+	entryFrame.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
 	local parent = entryFrame.Parent
 	while parent and parent:IsA("Frame") do
 		local parentEntry = parent
 		if parent.Name == "dropdown" and parent.Parent and parent.Parent:IsA("Frame") then
 			parentEntry = parent.Parent
 		end
-		parentEntry:TweenSize(UDim2.new(1, 0, 0, computeFrameHeight(parentEntry)), "InOut", "Sine", 0.25, true)
+		parentEntry.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
 		parent = parentEntry.Parent
 	end
 end
@@ -3438,7 +3449,7 @@ local function createEntryForInstance(node, parentGui)
 			end
 
 			dropdown.Visible = not dropdown.Visible
-			TweenService:Create(newTemplate.mainframe.dropdownbutton.icon, TweenInfo.new(0.25, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+			TweenService:Create(newTemplate.mainframe.dropdownbutton.icon, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 				Rotation = dropdown.Visible and 0 or -90
 			}):Play()
 			recalcAndPropagateSize(newTemplate)
@@ -4132,7 +4143,12 @@ function setExecutor()
 			executor.Position = UDim2.new(0, newX, 0, newY)
 		end
 	end)
-
+	newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
+		modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
+	end)
+	newgui.Parent.executor.run.MouseButton1Click:Connect(function()
+		modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
+	end)
 	executor.resizebottom.MouseEnter:Connect(function()
 		TweenService:Create(executor.resizebottom, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
@@ -4539,14 +4555,19 @@ newgui.Parent.commandbar:GetAttributeChangedSignal("Hovering"):Connect(function(
 	end
 end)
 newgui.utils.MouseButton1Click:Connect(function()
-	if newgui.utils.utils.AbsoluteSize.Magnitude > 0.1 then
-		newgui.utils:TweenSize(newgui.utils.utils:GetAttribute("Size"), "InOut", "Size", 0.3, true)
+	if not utilsOpened then
+		utilsOpened = true
+		newgui.utils:TweenSize(newgui.utils.utils:GetAttribute("Size"), "InOut", "Sine", 0.3, true)
 	else
-		newgui.utils:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Size", 0.3, true)
+		utilsOpened = false
+		newgui.utils:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Sine", 0.3, true)
 	end
 end)
-newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
-	modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
+newgui.utils.utils.executor.MouseButton1Click:Connect(function()
+	if not newgui.Parent.executor.Visible then
+		newgui.Parent.executor.Visible = true
+		setExecutor()
+	end
 end)
 local textBox: TextBox = newgui.Parent.commandbar.input
 UserInputService.InputBegan:Connect(function(input, processed)
