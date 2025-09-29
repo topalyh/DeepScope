@@ -1330,26 +1330,39 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				print(code)
-				code = code:gsub('(".-")', function(str)
-					return string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str)
-				end)
+				code = code:gsub(
+					'(".-")',
+					"<font color='rgb(173,241,149)'>%1</font>"
+				)
+				code = code:gsub(
+					"('.-')",
+					"<font color='rgb(173,241,149)'>%1</font>"
+				)
+				code = code:gsub(
+					'(`.-`)',
+					"<font color='rgb(173,241,149)'>%1</font>"
+				)
+				code = code:gsub(
+					'([[.-]])',
+					"<font color='rgb(173,241,149)'>%1</font>"
+				)
+				code = code:gsub(
+					"(%-%-.-)\n",
+					"<font color='rgb(102,102,102)'>%1</font>\n"
+				)
+				code = code:gsub(
+					"(%d+)",
+					"<font color='rgb(255,198,0)'>%1</font>"
+				)
+				code = code:gsub(
+					"([%+%-%*/%%%^=<>~]+)",
+					"<font color='rgb(204,204,204)'>%1</font>"
+				)
 
-				code = code:gsub("(%-%-.-)\n", function(comment)
-					return string.format("<font color='%s'>%s</font>\n", executorConfig.commentColor, comment)
-				end)
-
-				code = code:gsub("(%d+)", function(num)
-					return string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num)
-				end)
-
-				code = code:gsub("([%+%-%*/%%%^=<>~]+)", function(op)
-					return string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, op)
-				end)
-
-				code = code:gsub("([%w_]+)(%s*:%s*[%w_]+)(%s*=%s*)", function(a, b, c)
-					return string.format("<font color='rgb(248,109,124)'>%s</font><font color='rgb(0,255,255)'>%s</font>%s", a, b, c)
-				end)
+				code = code:gsub(
+					"([%w_]+)(%s*:%s*[%w_]+)(%s*=%s*)",
+					"<font color='rgb(248,109,124)'>%1</font><font color='rgb(0,255,255)'>%2</font>%3"
+				)
 
 				for _, word in ipairs(executorConfig.keywords[1]) do
 					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
@@ -2921,6 +2934,7 @@ local function createGui()
 		Text = [[print("Hello DeepScope!")]],
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
+		RichText = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		BorderColor3 = Color3.new(0, 0, 0),
@@ -4176,7 +4190,7 @@ function setExecutor()
 	end)
 end
 newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
-	modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
+	newgui.Parent.executor.ScrollingFrame.luau.Text = modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
 	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
@@ -4257,7 +4271,9 @@ newgui.Parent.colorpicker.picker.activateregion.MouseButton1Down:Connect(functio
 	pickingColor = true
 end)
 game.UserInputService.InputBegan:Connect(function(input)
-	input.UserInputType = Enum.UserInputType.MouseButton2
+	if input.UserInputType == Enum.UserInputType.MouseButton2 then
+		newgui.Parent.closeregion.Interactable = false
+	end
 end)
 game.UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
