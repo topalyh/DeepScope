@@ -1330,89 +1330,71 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				-- экранируем угловые скобки, чтобы не ломались теги
-				code = code:gsub("<", "§lt;"):gsub(">", "§gt;")
+				-- экранируем спец символы для HTML
+				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				-- строки (двойные, одинарные, многострочные)
-				code = code:gsub('(".-")', "<font color='rgb(173,241,149)'>%1</font>")
-				code = code:gsub("('.-')", "<font color='rgb(173,241,149)'>%1</font>")
-				code = code:gsub("%[%[(.-)%]%]", "<font color='rgb(173,241,149)'>[[%1]]</font>")
+				local tokens = {}
+				local pos = 1
 
-				-- комментарии
-				code = code:gsub("(%-%-.-)\n", "<font color='rgb(102,102,102)'>%1</font>\n")
+				while pos <= #code do
+					local c = code:sub(pos, pos)
 
-				-- числа
-				code = code:gsub("(%f[%d])(%d+)(%f[^%d])", function(a, b, c)
-					return a .. string.format("<font color='rgb(255,198,0)'>%s</font>", b) .. c
-				end)
+					-- строки
+					if c == '"' or c == "'" then
+						local closing = code:find(c, pos + 1, true) or (#code + 1)
+						local str = code:sub(pos, closing)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
+						pos = closing + 1
 
-				-- операторы
-				code = code:gsub("([%+%-%*/%%%^=<>~]+)", "<font color='rgb(204,204,204)'>%1</font>")
+						-- комментарии
+					elseif code:sub(pos, pos+1) == "--" then
+						local closing = code:find("\n", pos) or (#code + 1)
+						local com = code:sub(pos, closing)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
+						pos = closing
 
-				-- типизированные переменные (var: Type = ...)
-				code = code:gsub(
-					"([%w_]+)(%s*:%s*[%w_]+)(%s*=%s*)",
-					"<font color='rgb(248,109,124)'>%1</font><font color='rgb(0,255,255)'>%2</font>%3"
-				)
+						-- числа
+					elseif c:match("%d") then
+						local num = code:match("^%d+", pos)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
+						pos = pos + #num
 
-				-- ключевые слова
-				for _, word in ipairs(executorConfig.keywords[1]) do
-					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
-						return a .. string.format(executorConfig.keywords[2], b) .. c
-					end)
-				end
+						-- идентификаторы (слова)
+					elseif c:match("[%a_]") then
+						local word = code:match("^[%w_]+", pos)
+						local colored = nil
 
-				-- built-in и enums
-				for name, group in pairs(executorConfig.otherKeywords) do
-					if name == "enums" then
-						local colors = group[2]
-						code = code:gsub("(Enum%.[%w_]+)%.([%w_]+)", function(category, value)
-							local coloredCategory = string.format("<font color='%s'>%s</font>", colors.category, category)
-							local coloredValue = string.format("<font color='%s'>%s</font>", colors.value, value)
-							return coloredCategory .. "." .. coloredValue
-						end)
-					else
-						local words, formatStr = group[1], group[2]
-						for _, word in ipairs(words) do
-							code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
-								return a .. string.format(formatStr, b) .. c
-							end)
+						-- ключевые слова
+						if table.find(executorConfig.keywords[1], word) then
+							colored = string.format(executorConfig.keywords[2], word)
 						end
+
+						-- built-in
+						for _, group in pairs(executorConfig.otherKeywords) do
+							local words, fmt = group[1], group[2]
+							if table.find(words, word) then
+								colored = string.format(fmt, word)
+								break
+							end
+						end
+
+						-- глобальные функции
+						local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
+						if table.find(globalFns, word) then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+						end
+
+						table.insert(tokens, colored or word)
+						pos = pos + #word
+
+						-- операторы/прочее
+					else
+						table.insert(tokens, c)
+						pos = pos + 1
 					end
 				end
 
-				-- глобальные функции
-				local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
-				for _, fn in ipairs(globalFns) do
-					code = code:gsub("(%f[%w_])("..fn..")(%s*%b())", function(a, b, c)
-						return a .. string.format("<font color='%s'>%s</font>", executorConfig.funcColor, b) .. c
-					end)
-				end
-
-				-- библиотеки
-				local libFns = {
-					math = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
-					string = {"byte","char","find","format","gmatch","gsub","len","lower","match","rep","reverse","sub","upper"},
-					table = {"insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move"},
-					coroutine = {"create","resume","running","status","wrap","yield", "isyieldable"},
-					os = {"time","date","clock","difftime"},
-					bit32 = {"arshift","band","bnot","bor","btest","bxor","extract","lrotate","lshift","replace","rrotate","rshift"}
-				}
-				for lib, fns in pairs(libFns) do
-					for _, fn in ipairs(fns) do
-						code = code:gsub("("..lib..")%.("..fn..")(%s*%b())", function(libName, fnName, args)
-							return string.format(
-								"<font color='%s'>%s</font>.<font color='%s'>%s</font>%s",
-								executorConfig.libColor, libName,
-								executorConfig.funcColor, fnName, args
-							)
-						end)
-					end
-				end
-
-				-- возвращаем угловые скобки
-				code = code:gsub("§lt;", "<"):gsub("§gt;", ">")
-				return code
+				return table.concat(tokens)
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
