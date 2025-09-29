@@ -1,4 +1,3 @@
-warn("aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=")
 if DS_LOADED then return end
 pcall(function() getgenv().DS_LOADED = true end)
 local function createInstance(name, tbl)
@@ -3051,7 +3050,7 @@ local function createGui()
 		Text = "",
 		AutoButtonColor = false
 	})
-	modules.other.executor.highlightLuau(executorGui3.Text)
+	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.Text)
 	infoList = placeInfoGui4
 	logList = logGui2
 
@@ -4190,7 +4189,7 @@ function setExecutor()
 		}):Play()
 	end)
 end
-newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
+newgui.Parent.executor.ScrollingFrame.luau:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.luau.Text = modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
@@ -4617,6 +4616,7 @@ local function generateRandomString()
 	return table.concat(array)
 end
 notify("rbxthumb://type=AvatarHeadShot&id="..LocalPlayer.UserId.."&w=420&h=420", initMessages[math.random(1, #initMessages)]:gsub("{player}", LocalPlayer.DisplayName), 10)
+warn("aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=")
 newgui.mode.MouseButton1Down:Connect(function()
 	if mode == "follow" then
 		mode = "spectate"
@@ -5175,4 +5175,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
