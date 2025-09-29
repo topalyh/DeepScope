@@ -803,7 +803,7 @@ local executorConfig = {
 
 				"os","clock","date","difftime","execute","exit","getenv",
 				"remove","rename","setlocale","time","tmpname",
-				
+
 				"UDim2","new","fromScale","fromOffset",
 				"UDim","new",
 
@@ -1380,8 +1380,9 @@ local modules = {
 							"getmetatable","ipairs","load","loadfile","next",
 							"pairs","pcall","print","rawequal","rawget","rawlen",
 							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","type","xpcall","loadstring",
-							"UserSettings"
+							"tonumber","tostring","xpcall","loadstring","typeof",
+							"UserSettings", "CFrame", "Vector3", "Vector2", "UDim2",
+							"UDim"
 						}
 						if table.find(globalFns, word) then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
