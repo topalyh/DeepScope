@@ -1350,11 +1350,10 @@ local modules = {
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
 					elseif code:sub(pos, pos+1) == "--" then
-						local closing = (#code + 1)
+						local closing = code:find("\n", pos + 2) or (#code + 1)
 						local com = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
-
 					elseif c:match("%d") then
 						local num = code:match("^%d+", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
@@ -4116,17 +4115,17 @@ function setExecutor()
 
 			if resizingExecutor == "Y" then
 				local deltaY = mouse.Y - startMousePos.Y
-				local newHeight = math.clamp(startExecutorSize.Y.Offset + deltaY, 0, 500)
+				local newHeight = math.clamp(startExecutorSize.Y.Offset + deltaY, 180, 2000)
 				executor.Size = UDim2.new(startExecutorSize.X.Scale, startExecutorSize.X.Offset, 0, newHeight)
 			elseif resizingExecutor == "X" then
 				local deltaX = mouse.X - startMousePos.X
-				local newWidth = math.clamp(startExecutorSize.X.Offset + deltaX, 0, 500)
+				local newWidth = math.clamp(startExecutorSize.X.Offset + deltaX, 0, 2000)
 				executor.Size = UDim2.new(0, newWidth, startExecutorSize.Y.Scale, startExecutorSize.Y.Offset)
 			elseif resizingExecutor == "XY" then
 				local deltaX = mouse.X - startMousePos.X
 				local deltaY = mouse.Y - startMousePos.Y
-				local newWidth = math.clamp(startExecutorSize.X.Offset + deltaX, 0, 500)
-				local newHeight = math.clamp(startExecutorSize.Y.Offset + deltaY, 0, 500)
+				local newWidth = math.clamp(startExecutorSize.X.Offset + deltaX, 180, 2000)
+				local newHeight = math.clamp(startExecutorSize.Y.Offset + deltaY, 0, 2000)
 				executor.Size = UDim2.new(0, newWidth, 0, newHeight)
 			end
 		end
