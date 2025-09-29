@@ -1330,7 +1330,10 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				-- строки
+				-- экранируем угловые скобки, чтобы не ломались теги
+				code = code:gsub("<", "§lt;"):gsub(">", "§gt;")
+
+				-- строки (двойные, одинарные, многострочные)
 				code = code:gsub('(".-")', "<font color='rgb(173,241,149)'>%1</font>")
 				code = code:gsub("('.-')", "<font color='rgb(173,241,149)'>%1</font>")
 				code = code:gsub("%[%[(.-)%]%]", "<font color='rgb(173,241,149)'>[[%1]]</font>")
@@ -1339,7 +1342,9 @@ local modules = {
 				code = code:gsub("(%-%-.-)\n", "<font color='rgb(102,102,102)'>%1</font>\n")
 
 				-- числа
-				code = code:gsub("(%d+)", "<font color='rgb(255,198,0)'>%1</font>")
+				code = code:gsub("(%f[%d])(%d+)(%f[^%d])", function(a, b, c)
+					return a .. string.format("<font color='rgb(255,198,0)'>%s</font>", b) .. c
+				end)
 
 				-- операторы
 				code = code:gsub("([%+%-%*/%%%^=<>~]+)", "<font color='rgb(204,204,204)'>%1</font>")
@@ -1357,7 +1362,7 @@ local modules = {
 					end)
 				end
 
-				-- built-in
+				-- built-in и enums
 				for name, group in pairs(executorConfig.otherKeywords) do
 					if name == "enums" then
 						local colors = group[2]
@@ -1405,6 +1410,8 @@ local modules = {
 					end
 				end
 
+				-- возвращаем угловые скобки
+				code = code:gsub("§lt;", "<"):gsub("§gt;", ">")
 				return code
 			end,
 			runScript = function(codeToExecute)
