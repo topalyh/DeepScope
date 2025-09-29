@@ -783,7 +783,8 @@ local executorConfig = {
 				"getmetatable","ipairs","load","loadfile","next",
 				"pairs","pcall","print","rawequal","rawget","rawlen",
 				"rawset","require","select","setfenv","setmetatable",
-				"tonumber","tostring","type","xpcall",
+				"tonumber","tostring","type","xpcall","loadstring",
+				"UserSettings",
 
 				"game","workspace","script","Instance","Vector3","UDim2",
 				"Color3","CFrame","Enum","Ray","Axes","BrickColor",
@@ -802,6 +803,9 @@ local executorConfig = {
 
 				"os","clock","date","difftime","execute","exit","getenv",
 				"remove","rename","setlocale","time","tmpname",
+				
+				"UDim2","new","fromScale","fromOffset",
+				"UDim","new",
 
 				"bit32","arshift","band","bnot","bor","btest","bxor",
 				"extract","lrotate","lshift","replace","rrotate","rshift"
@@ -823,7 +827,6 @@ local executorConfig = {
 	funcColor = "rgb(97,161,241)",
 	libColor = "rgb(132,214,247)"
 }
-
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
@@ -1333,7 +1336,6 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				-- экранируем спец символы для HTML
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
 				local tokens = {}
@@ -1342,37 +1344,30 @@ local modules = {
 				while pos <= #code do
 					local c = code:sub(pos, pos)
 
-					-- строки
 					if c == '"' or c == "'" then
 						local closing = code:find(c, pos + 1, true) or (#code + 1)
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
-
-						-- комментарии
 					elseif code:sub(pos, pos+1) == "--" then
-						local closing = code:find("\n", pos) or (#code + 1)
+						local closing = (#code + 1)
 						local com = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
 
-						-- числа
 					elseif c:match("%d") then
 						local num = code:match("^%d+", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 
-						-- идентификаторы (слова)
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
 
-						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
 						end
 
-						-- built-in
 						for _, group in pairs(executorConfig.otherKeywords) do
 							local words, fmt = group[1], group[2]
 							if table.find(words, word) then
@@ -1381,16 +1376,20 @@ local modules = {
 							end
 						end
 
-						-- глобальные функции
-						local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
+						local globalFns = {
+							"assert","collectgarbage","dofile","error","getfenv",
+							"getmetatable","ipairs","load","loadfile","next",
+							"pairs","pcall","print","rawequal","rawget","rawlen",
+							"rawset","require","select","setfenv","setmetatable",
+							"tonumber","tostring","type","xpcall","loadstring",
+							"UserSettings"
+						}
 						if table.find(globalFns, word) then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-
-						-- операторы/прочее
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -5172,5 +5171,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
