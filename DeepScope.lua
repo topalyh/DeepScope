@@ -824,7 +824,7 @@ local executorConfig = {
 	stringColor = "rgb(173,241,149)",
 	numberColor = "rgb(255,198,0)",
 	operatorColor = "rgb(204,204,204)",
-	funcColor = "rgb(97,161,241)",
+	funcColor = "rgb(253,251,172)",
 	libColor = "rgb(132,214,247)"
 }
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
@@ -1340,25 +1340,49 @@ local modules = {
 
 				local tokens = {}
 				local pos = 1
+				local len = #code
 
-				while pos <= #code do
+				while pos <= len do
 					local c = code:sub(pos, pos)
 
+					-- строки
 					if c == '"' or c == "'" then
-						local closing = code:find(c, pos + 1, true) or (#code + 1)
+						local closing = code:find(c, pos + 1, true) or (len + 1)
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
+
+						-- комментарии (фикс без лишних \n)
 					elseif code:sub(pos, pos+1) == "--" then
-						local closing = code:find("\n", pos + 2) or (#code + 1)
-						local com = code:sub(pos, closing)
+						local closing = code:find("\n", pos + 2) or (len + 1)
+						local com = code:sub(pos, closing - 1) -- без \n
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
+
+						-- числа
 					elseif c:match("%d") then
 						local num = code:match("^%d+", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 
+						-- функции (function test(a, b, c))
+					elseif code:sub(pos, pos+8) == "function " or code:sub(pos, pos+13) == "local function " then
+						local isLocal = code:sub(pos, pos+5) == "local "
+						local kw = isLocal and "local function" or "function"
+						local pattern = "^"..kw.."[%s]+([%w_]+)%s*%((.-)%)"
+						local name, args = code:match(pattern, pos)
+						if name then
+							local fullMatch = code:match("^"..kw.."[%s]+[%w_]+%s*%b()", pos)
+							table.insert(tokens,
+								string.format("<font color='%s'>%s</font> <font color='%s'>%s</font>(%s)",
+									executorConfig.keywords[2]:match("rgb%((.-)%)"), kw, -- цвет ключевого
+									executorConfig.funcColor, name, args
+								)
+							)
+							pos = pos + #fullMatch
+						end
+
+						-- слова и прочее
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
@@ -1375,21 +1399,9 @@ local modules = {
 							end
 						end
 
-						local globalFns = {
-							"assert","collectgarbage","dofile","error","getfenv",
-							"getmetatable","ipairs","load","loadfile","next",
-							"pairs","pcall","print","rawequal","rawget","rawlen",
-							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings", "CFrame", "Vector3", "Vector2", "UDim2",
-							"UDim"
-						}
-						if table.find(globalFns, word) then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
-						end
-
 						table.insert(tokens, colored or word)
 						pos = pos + #word
+
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
