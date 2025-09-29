@@ -1336,111 +1336,63 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				-- экранируем HTML
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				local tokens, pos = {}, 1
-
-				-- список ключевых слов
-				local keywords = {
-					"local","function","end","if","then","else","elseif","for","while",
-					"repeat","until","return","break","do","not","and","or","in"
-				}
-
-				-- глобальные функции
-				local globalFns = {
-					"print","warn","pairs","ipairs","next","select","pcall","xpcall",
-					"error","assert","tostring","tonumber","typeof"
-				}
-
-				-- библиотеки
-				local libFns = {
-					math = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
-					string = {"byte","char","find","format","gmatch","gsub","len","lower","match","rep","reverse","sub","upper"},
-					table = {"insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move"},
-					coroutine = {"create","resume","running","status","wrap","yield","isyieldable"},
-					os = {"time","date","clock","difftime"},
-					bit32 = {"arshift","band","bnot","bor","btest","bxor","extract","lrotate","lshift","replace","rrotate","rshift"}
-				}
-
-				-- цвета
-				local kwColor   = "rgb(248,109,124)" -- красный
-				local strColor  = "rgb(173,241,149)" -- зелёный
-				local numColor  = "rgb(255,198,0)"   -- жёлтый
-				local comColor  = "rgb(102,102,102)" -- серый
-				local funcColor = "rgb(132,214,247)" -- голубой
-				local libColor  = "rgb(97,161,241)"  -- синий
-				local dotColor  = "rgb(200,200,200)" -- серый разделитель
+				local tokens = {}
+				local pos = 1
 
 				while pos <= #code do
 					local c = code:sub(pos, pos)
 
-					-- строки
 					if c == '"' or c == "'" then
-						local closing = code:find(c, pos+1, true) or (#code+1)
+						local closing = code:find(c, pos + 1, true) or (#code + 1)
 						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", strColor, str))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
-
-					elseif code:sub(pos,pos+1) == "[[" then
+					elseif code:sub(pos, pos+1) == "[[" then
 						local closing = code:find("%]%]", pos+2) or (#code+1)
 						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", strColor, str))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 2
-
-						-- комментарии
-					elseif code:sub(pos,pos+1) == "--" then
-						local closing = code:find("\n", pos+2) or (#code+1)
+					elseif code:sub(pos, pos+1) == "--" then
+						local closing = code:find("\n", pos + 2) or (#code + 1)
 						local com = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", comColor, com))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
-
-						-- числа (float + экспонента)
-					elseif code:match("^%d+%.?%d*[eE]?[+-]?%d*", pos) then
-						local num = code:match("^%d+%.?%d*[eE]?[+-]?%d*", pos)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", numColor, num))
+					elseif c:match("^%d+%.?%d*[eE]?[+-]?%d*") then
+						local num = code:match("^%d+%.?%d*[eE]?[+-]?%d*+", pos)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-
-						-- слова (ключевые, глобальные, цепочки, вызовы)
-					elseif code:match("^[%a_][%w_]*", pos) then
-						local word = code:match("^[%a_][%w_]*", pos)
-						pos = pos + #word
+					elseif c:match("[%a_]") then
+						local word = code:match("^[%w_]+", pos)
 						local colored = nil
 
-						if table.find(keywords, word) then
-							colored = string.format("<font color='%s'><b>%s</b></font>", kwColor, word)
-						elseif table.find(globalFns, word) then
-							colored = string.format("<font color='%s'>%s</font>", funcColor, word)
+						if table.find(executorConfig.keywords[1], word) then
+							colored = string.format(executorConfig.keywords[2], word)
 						end
 
-						-- цепочки и методы
-						local chain = colored or word
-						while code:sub(pos,pos) == "." or code:sub(pos,pos) == ":" do
-							local sep = code:sub(pos,pos)
-							pos = pos + 1
-							local nextWord = code:match("^[%a_][%w_]*", pos)
-							if not nextWord then break end
-							if sep == "." then
-								chain = chain .. string.format("<font color='%s'>.</font><font color='%s'>%s</font>", dotColor, libColor, nextWord)
-								pos = pos + #nextWord
-							elseif sep == ":" then
-								local args = code:match("^%b()", pos + #nextWord)
-								chain = chain .. string.format("<font color='%s'>:</font><font color='%s'>%s</font>%s", dotColor, funcColor, nextWord, args or "")
-								pos = pos + #nextWord + (args and #args or 0)
+						for _, group in pairs(executorConfig.otherKeywords) do
+							local words, fmt = group[1], group[2]
+							if table.find(words, word) then
+								colored = string.format(fmt, word)
+								break
 							end
 						end
 
-						-- вызовы функций test(a, b, c)
-						if code:sub(pos,pos) == "(" then
-							local args = code:match("^%b()", pos)
-							if args then
-								chain = string.format("<font color='%s'>%s</font>%s", funcColor, chain, args)
-								pos = pos + #args
-							end
+						local globalFns = {
+							"assert","collectgarbage","dofile","error","getfenv",
+							"getmetatable","ipairs","load","loadfile","next",
+							"pairs","pcall","print","rawequal","rawget","rawlen",
+							"rawset","require","select","setfenv","setmetatable",
+							"tonumber","tostring","xpcall","loadstring","typeof",
+							"UserSettings"
+						}
+						if table.find(globalFns, word) then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
-						table.insert(tokens, chain)
-
+						table.insert(tokens, colored or word)
+						pos = pos + #word
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
