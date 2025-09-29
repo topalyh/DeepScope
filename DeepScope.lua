@@ -3044,7 +3044,7 @@ local function createGui()
 		Text = "",
 		AutoButtonColor = false
 	})
-	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.Text)
+	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.ContentText)
 	infoList = placeInfoGui4
 	logList = logGui2
 
@@ -4094,7 +4094,7 @@ function setExecutor()
 				if not countdowns["logMenu"] then
 					resizingExecutor = "Y"
 					startMousePos = getMousePos()
-					startLogSize = executor.Size
+					startExecutorSize = executor.Size
 				end
 			end
 		end
@@ -4105,7 +4105,7 @@ function setExecutor()
 			if not countdowns["logMenu"] then
 				resizingExecutor = "X"
 				startMousePos = getMousePos()
-				startLogSize = executor.Size
+				startExecutorSize = executor.Size
 			end
 		end
 	end)
@@ -4115,7 +4115,7 @@ function setExecutor()
 			if not countdowns["logMenu"] then
 				resizingExecutor = "XY"
 				startMousePos = getMousePos()
-				startLogSize = executor.Size
+				startExecutorSize = executor.Size
 			end
 		end
 	end)
@@ -4184,7 +4184,7 @@ function setExecutor()
 	end)
 end
 newgui.Parent.executor.ScrollingFrame.luau:GetPropertyChangedSignal("Text"):Connect(function()
-	newgui.Parent.executor.ScrollingFrame.luau.Text = modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
+	newgui.Parent.executor.ScrollingFrame.luau.Text = modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.ContentText)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
 	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
