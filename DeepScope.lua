@@ -1330,6 +1330,7 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
+				print(code)
 				code = code:gsub('(".-")', function(str)
 					return string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str)
 				end)
@@ -1345,7 +1346,7 @@ local modules = {
 				code = code:gsub("([%+%-%*/%%%^=<>~]+)", function(op)
 					return string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, op)
 				end)
-				
+
 				code = code:gsub("([%w_]+)(%s*:%s*[%w_]+)(%s*=%s*)", function(a, b, c)
 					return string.format("<font color='rgb(248,109,124)'>%s</font><font color='rgb(0,255,255)'>%s</font>%s", a, b, c)
 				end)
@@ -1412,7 +1413,7 @@ local modules = {
 				end
 			end,
 			downloadFile = function()
-
+				
 			end
 		}
 	}
@@ -2875,7 +2876,7 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	
+
 	local utilsGui4 = createInstance("TextButton", {
 		Parent = utilsGui2,
 		Name = "executor",
@@ -4078,12 +4079,12 @@ function toClipboard(txt)
 end
 function setExecutor()
 	local executor = newgui.Parent.executor
-	
+
 	executor.resizebottom.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if explorerOpened then
 				if not countdowns["logMenu"] then
-					resizingLogMenu = "Y"
+					resizingExecutor = "Y"
 					startMousePos = getMousePos()
 					startLogSize = executor.Size
 				end
@@ -4094,7 +4095,7 @@ function setExecutor()
 	executor.resizeside.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if not countdowns["logMenu"] then
-				resizingLogMenu = "X"
+				resizingExecutor = "X"
 				startMousePos = getMousePos()
 				startLogSize = executor.Size
 			end
@@ -4104,7 +4105,7 @@ function setExecutor()
 	executor.resizeboth.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if not countdowns["logMenu"] then
-				resizingLogMenu = "XY"
+				resizingExecutor = "XY"
 				startMousePos = getMousePos()
 				startLogSize = executor.Size
 			end
@@ -4143,12 +4144,6 @@ function setExecutor()
 			executor.Position = UDim2.new(0, newX, 0, newY)
 		end
 	end)
-	newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
-		modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
-	end)
-	newgui.Parent.executor.run.MouseButton1Click:Connect(function()
-		modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
-	end)
 	executor.resizebottom.MouseEnter:Connect(function()
 		TweenService:Create(executor.resizebottom, TweenInfo.new(0.2), {
 			BackgroundTransparency = 0.5
@@ -4180,7 +4175,12 @@ function setExecutor()
 		}):Play()
 	end)
 end
-
+newgui.Parent.executor.ScrollingFrame.luau.Changed:Connect(function()
+	modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.Text)
+end)
+newgui.Parent.executor.run.MouseButton1Click:Connect(function()
+	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
+end)
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
 		setExplorer()
@@ -5159,7 +5159,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
-
