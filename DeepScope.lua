@@ -1330,46 +1330,34 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				code = code:gsub(
-					'(".-")',
-					"<font color='rgb(173,241,149)'>%1</font>"
-				)
-				code = code:gsub(
-					"('.-')",
-					"<font color='rgb(173,241,149)'>%1</font>"
-				)
-				code = code:gsub(
-					'(`.-`)',
-					"<font color='rgb(173,241,149)'>%1</font>"
-				)
-				code = code:gsub(
-					'([[.-]])',
-					"<font color='rgb(173,241,149)'>%1</font>"
-				)
-				code = code:gsub(
-					"(%-%-.-)\n",
-					"<font color='rgb(102,102,102)'>%1</font>\n"
-				)
-				code = code:gsub(
-					"(%d+)",
-					"<font color='rgb(255,198,0)'>%1</font>"
-				)
-				code = code:gsub(
-					"([%+%-%*/%%%^=<>~]+)",
-					"<font color='rgb(204,204,204)'>%1</font>"
-				)
+				-- строки
+				code = code:gsub('(".-")', "<font color='rgb(173,241,149)'>%1</font>")
+				code = code:gsub("('.-')", "<font color='rgb(173,241,149)'>%1</font>")
+				code = code:gsub("%[%[(.-)%]%]", "<font color='rgb(173,241,149)'>[[%1]]</font>")
 
+				-- комментарии
+				code = code:gsub("(%-%-.-)\n", "<font color='rgb(102,102,102)'>%1</font>\n")
+
+				-- числа
+				code = code:gsub("(%d+)", "<font color='rgb(255,198,0)'>%1</font>")
+
+				-- операторы
+				code = code:gsub("([%+%-%*/%%%^=<>~]+)", "<font color='rgb(204,204,204)'>%1</font>")
+
+				-- типизированные переменные (var: Type = ...)
 				code = code:gsub(
 					"([%w_]+)(%s*:%s*[%w_]+)(%s*=%s*)",
 					"<font color='rgb(248,109,124)'>%1</font><font color='rgb(0,255,255)'>%2</font>%3"
 				)
 
+				-- ключевые слова
 				for _, word in ipairs(executorConfig.keywords[1]) do
 					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])", function(a, b, c)
 						return a .. string.format(executorConfig.keywords[2], b) .. c
 					end)
 				end
 
+				-- built-in
 				for name, group in pairs(executorConfig.otherKeywords) do
 					if name == "enums" then
 						local colors = group[2]
@@ -1388,6 +1376,7 @@ local modules = {
 					end
 				end
 
+				-- глобальные функции
 				local globalFns = {"print", "warn", "pairs", "ipairs", "next", "select", "pcall", "xpcall", "error"}
 				for _, fn in ipairs(globalFns) do
 					code = code:gsub("(%f[%w_])("..fn..")(%s*%b())", function(a, b, c)
@@ -1395,9 +1384,10 @@ local modules = {
 					end)
 				end
 
+				-- библиотеки
 				local libFns = {
 					math = {"abs","acos","asin","atan","atan2","ceil","cos","cosh","deg","exp","floor","fmod","frexp","ldexp","log","log10","max","min","modf","pow","rad","random","randomseed","sin","sinh","sqrt","tan","tanh"},
-					string = {"byte","char","find","format","gmatch","gsub","len","lower","match","rep","reverse","sub","upper",},
+					string = {"byte","char","find","format","gmatch","gsub","len","lower","match","rep","reverse","sub","upper"},
 					table = {"insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move"},
 					coroutine = {"create","resume","running","status","wrap","yield", "isyieldable"},
 					os = {"time","date","clock","difftime"},
@@ -1418,6 +1408,10 @@ local modules = {
 				return code
 			end,
 			runScript = function(codeToExecute)
+				if codeToExecute == "" or codeToExecute == nil then
+					AddLog("game.ReplicatedStorage._DeepScopeCode.Core.Executor:3839: Script is empty.", "DeepScope", "error")
+					return
+				end
 				local executed, err = pcall(function()
 					loadstring(codeToExecute)()
 				end)
