@@ -4557,10 +4557,10 @@ end)
 newgui.utils.MouseButton1Click:Connect(function()
 	if not utilsOpened then
 		utilsOpened = true
-		newgui.utils:TweenSize(newgui.utils.utils:GetAttribute("Size"), "InOut", "Sine", 0.3, true)
+		newgui.utils.utils:TweenSize(newgui.utils.utils:GetAttribute("Size"), "InOut", "Sine", 0.3, true)
 	else
 		utilsOpened = false
-		newgui.utils:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Sine", 0.3, true)
+		newgui.utils.utils:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Sine", 0.3, true)
 	end
 end)
 newgui.utils.utils.executor.MouseButton1Click:Connect(function()
@@ -5159,5 +5159,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
