@@ -4177,6 +4177,7 @@ function setExecutor()
 end
 local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
 luauPole:GetPropertyChangedSignal("Text"):Connect(function()
+	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	if not luauPole:IsFocused() then
 		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
 		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
@@ -4189,7 +4190,7 @@ luauPole.FocusLost:Connect(function()
 	luauPole.Text = modules.other.executor.highlightLuau(luauPole.Text)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
-	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
+	modules.other.executor.runScript(eraseFormatTags(newgui.Parent.executor.ScrollingFrame.luau.ContentText))
 end)
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
@@ -5171,3 +5172,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
