@@ -2844,7 +2844,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
 		Size = UDim2.fromOffset(0, 0),
-		Visible = false,
+		ClipsDescendants = true,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
@@ -5159,6 +5159,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
