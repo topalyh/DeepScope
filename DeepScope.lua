@@ -4190,7 +4190,7 @@ luauPole.FocusLost:Connect(function()
 	luauPole.Text = modules.other.executor.highlightLuau(luauPole.Text)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
-	modules.other.executor.runScript(eraseFormatTags(newgui.Parent.executor.ScrollingFrame.luau.ContentText))
+	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.ContentText)
 end)
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
@@ -5172,4 +5172,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
