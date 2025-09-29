@@ -978,6 +978,9 @@ local function AddLog(text, sourse, type)
 		newTemplate.Text = timeNow.."  game.ReplicatedStorage._DeepScopeCore.Logs:4727: "..textResult.."  -  DeepScope"
 	end
 end
+local function eraseFormatTags(str)
+	return str:gsub("<.->", "")
+end
 local modules = {
 	circle = {
 		GetColor = function(mousePos)
@@ -1409,7 +1412,7 @@ local modules = {
 				end
 			end,
 			downloadFile = function()
-				
+
 			end
 		}
 	}
@@ -4172,8 +4175,18 @@ function setExecutor()
 		}):Play()
 	end)
 end
-newgui.Parent.executor.ScrollingFrame.luau:GetPropertyChangedSignal("Text"):Connect(function()
-	newgui.Parent.executor.ScrollingFrame.luau.Text = modules.other.executor.highlightLuau(newgui.Parent.executor.ScrollingFrame.luau.ContentText)
+local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
+luauPole:GetPropertyChangedSignal("Text"):Connect(function()
+	if not luauPole:IsFocused() then
+		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
+		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
+	end
+end)
+luauPole.Focused:Connect(function()
+	luauPole.Text = eraseFormatTags(luauPole.Text)
+end)
+luauPole.FocusLost:Connect(function()
+	luauPole.Text = modules.other.executor.highlightLuau(luauPole.Text)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
 	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.Text)
