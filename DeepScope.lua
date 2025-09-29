@@ -1359,7 +1359,7 @@ local modules = {
 						local com = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
-					elseif c:match("^%d+%.?%d*[eE]?[+-]?%d*") then
+					elseif c:match("^%d") then
 						local num = code:match("^%d+%.?%d*[eE]?[+-]?%d*+", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
