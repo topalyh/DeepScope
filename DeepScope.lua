@@ -1147,25 +1147,27 @@ local modules = {
 			highlightLuau = function(code)
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				local tokens = {}
+				local out = {}
 				local pos = 1
+				local lastPos = 0
 
 				while pos <= #code do
 					local c = code:sub(pos, pos)
+					local lastpos
 					
 					if c == '"' or c == "'" then
 						local closing = code:find(c, pos + 1, true) or (#code + 1)
 						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
 					elseif c:match("^%-%-.*") then
 						local closing = code:find("\n", pos + 2) or (#code + 1)
 						local com = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
 					elseif c:match("^%d+%.?%d*[eE]?%-?%d*") then
 						local num = code:match("^%d+%.?%d*[eE]?%-?%d*")
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 
 					elseif c:match("[%a_]") then
@@ -1196,25 +1198,31 @@ local modules = {
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 						end
 
-						table.insert(tokens, colored or word)
+						table.insert(out, colored or word)
 						pos = pos + #word
 					else
-						table.insert(tokens, c)
+						table.insert(out, c)
 						pos = pos + 1
 					end
-					code = code:gsub("([%a_][%w_]*)([.:])([%a_][%w_]*)", function(obj, sep, name)
-						local sepColored = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, sep)
-						if sep == "." then
-							local nameColored = string.format("<font color='%s'>%s</font>", executorConfig.propColor, name)
-							return obj .. sepColored .. nameColored
-						else
-							local nameColored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, name)
-							return obj .. sepColored .. nameColored
-						end
-					end)
+					
 				end
-
-				return table.concat(tokens)
+				for startPos, obj, sep, name, endPos in code:gmatch("()([%a_][%w_]*)([.:])([%a_][%w_]*)()") do
+					table.insert(out, code:sub(lastPos, startPos - 1))
+					table.insert(out, obj)
+					table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, sep))
+					if sep == "." then
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.propColor, name))
+					else
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.funcColor, name))
+					end
+					
+					lastPos = endPos
+				end
+				
+				if lastPos <= #code then
+					table.insert(out, code:sub(lastPos))
+				end
+				return table.concat(out)
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
