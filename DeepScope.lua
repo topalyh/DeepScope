@@ -1371,7 +1371,7 @@ local modules = {
 							colored = string.format(executorConfig.keywords[2], word)
 						elseif table.find(executorConfig.otherKeywords.bools[1], word) then
 							colored = string.format(executorConfig.otherKeywords.bools[2], word)
-						elseif table.find({"print","warn","pairs","ipairs"}, word) then
+						elseif table.find(executorConfig.otherKeywords["built-in"][1], word) then
 							colored = "<font color='"..executorConfig.funcColor.."'>"..word.."</font>"
 						end
 
