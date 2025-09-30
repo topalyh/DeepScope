@@ -1339,52 +1339,69 @@ local modules = {
 				-- защищаем спецсимволы HTML
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				-- строки: "..." и '...'
-				code = code:gsub('(".-")', "<font color='rgb(173,241,149)'>%1</font>")
-				code = code:gsub("('.-')", "<font color='rgb(173,241,149)'>%1</font>")
+				local tokens = {}
+				local pos = 1
 
-				-- многострочные строки [[...]]
-				code = code:gsub("%[%[(.-)%]%]", "<font color='rgb(173,241,149)'>[[%1]]</font>")
+				while pos <= #code do
+					local sub = code:sub(pos)
 
-				-- комментарии -- ... до конца строки
-				code = code:gsub("(%-%-.-)\n", "<font color='rgb(102,102,102)'>%1</font>\n")
+					-- строки
+					local str = sub:match('^"[^"\n]*"') or sub:match("^'[^'\n]*'")
+					if str then
+						table.insert(tokens, "<font color='rgb(173,241,149)'>"..str.."</font>")
+						pos = pos + #str
+						-- многострочные строки [[...]]
+					elseif sub:match("^%[%[.-%]%]") then
+						local str = sub:match("^%[%[.-%]%]")
+						table.insert(tokens, "<font color='rgb(173,241,149)'>"..str.."</font>")
+						pos = pos + #str
+						-- комментарии
+					elseif sub:match("^%-%-.*") then
+						local com = sub:match("^%-%-.*")
+						table.insert(tokens, "<font color='rgb(102,102,102)'>"..com.."</font>")
+						pos = pos + #com
+						-- числа (целые, float, экспоненциальные)
+					elseif sub:match("^[%d%.][%d%.eE%-]*") then
+						local num = sub:match("^[%d%.][%d%.eE%-]*")
+						table.insert(tokens, "<font color='rgb(255,198,0)'>"..num.."</font>")
+						pos = pos + #num
+						-- ключевые слова
+					elseif sub:match("^[%a_][%w_]*") then
+						local word = sub:match("^[%a_][%w_]*")
 
-				-- числа: поддержка 1, 1.5, .5, 1e2, 3.14e-10
-				code = code:gsub("(%d+%.?%d*[eE]?%-?%d*)", "<font color='rgb(255,198,0)'>%1</font>")
+						local keywords = {
+							local_=true,function_=true,end_=true,if_=true,then_=true,
+							else_=true,elseif_=true,for_=true,while_=true,repeat_=true,
+							until_=true,return_=true,break_=true,do_=true,not_=true,
+							and_=true,or_=true,self_=true,export_=true
+						}
+						local globals = {
+							print=true,warn=true,pairs=true,ipairs=true,next=true,
+							select=true,pcall=true,xpcall=true,error=true
+						}
 
-				-- операторы
-				code = code:gsub("([%+%-%*/%%%^=<>~]+)", "<font color='rgb(204,204,204)'>%1</font>")
+						if keywords[word.."_"] then
+							table.insert(tokens, "<font color='rgb(248,109,124)'>"..word.."</font>")
+						elseif globals[word] then
+							table.insert(tokens, "<font color='rgb(132,214,247)'>"..word.."</font>")
+						else
+							table.insert(tokens, word)
+						end
 
-				-- ключевые слова
-				local keywords = {
-					"local","function","end","if","then","else","elseif","for","while",
-					"repeat","until","return","break","do","not","and","or"
-				}
-				for _, word in ipairs(keywords) do
-					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])",
-						function(a, b, c)
-							return a.."<font color='rgb(248,109,124)'>"..b.."</font>"..c
-						end)
+						pos = pos + #word
+						-- символы (., :, операторы)
+					else
+						local sym = sub:sub(1,1)
+						if sym:match("[%+%-%*/%%%^=<>~%.%:%(%),]") then
+							table.insert(tokens, "<font color='rgb(204,204,204)'>"..sym.."</font>")
+						else
+							table.insert(tokens, sym)
+						end
+						pos = pos + 1
+					end
 				end
 
-				-- глобальные функции
-				local globalFns = {"print","warn","pairs","ipairs","next","select","pcall","xpcall","error"}
-				for _, fn in ipairs(globalFns) do
-					code = code:gsub("(%f[%w_])("..fn..")(%s*%b())",
-						function(a, b, c)
-							return a.."<font color='rgb(132,214,247)'>"..b.."</font>"..c
-						end)
-				end
-
-				-- цепочки: player.Parent.Name
-				code = code:gsub("([%w_]+)(%.)([%w_]+)",
-					"<font color='rgb(204,204,204)'>%1</font>%2<font color='rgb(97,161,241)'>%3</font>")
-
-				-- методы с :Clone()
-				code = code:gsub("([%w_]+)(:)([%w_]+)(%b())",
-					"<font color='rgb(204,204,204)'>%1</font>%2<font color='rgb(132,214,247)'>%3</font>%4")
-
-				return code
+				return table.concat(tokens)
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
