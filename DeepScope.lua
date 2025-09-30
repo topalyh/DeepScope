@@ -1389,7 +1389,20 @@ local modules = {
 						end
 
 						pos = pos + #word
-						-- символы (., :, операторы)
+					elseif sub:match("^%.[%a_][%w_]*") then
+						local prop = sub:match("^%.([%a_][%w_])*")
+						table.insert(tokens,
+							"<font color-'rgb(204,204,204)'>.</font>"..
+							"<font color='rgb(97,161,241)'>"..prop.."</font>"
+						)
+						pos = pos + #prop + 1
+					elseif sub:match("^:%s*[%a_][%w_]*") then
+						local method = sub:match("^:([%a_][%w_]*)")
+						table.insert(tokens,
+							"<font color-'rgb(204,204,204)'>.</font>"..
+							"<font color='rgb(132,214,247)'>"..method.."</font>"
+						)
+						pos = pos + #method + 1
 					else
 						local sym = sub:sub(1,1)
 						if sym:match("[%+%-%*/%%%^=<>~%.%:%(%),]") then
