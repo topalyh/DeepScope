@@ -945,41 +945,6 @@ _createForces = function(hrp)
 	BodyPos = bp
 	BodyGyro = bg
 end
-local defaultExecutorConfig = {
-	stringColor    = "rgb(173,241,149)",
-	commentColor   = "rgb(102,102,102)",
-	numberColor    = "rgb(255,198,0)",
-	operatorColor  = "rgb(204,204,204)",
-	keywordColor   = "rgb(248,109,124)",
-	builtinColor   = "rgb(132,214,247)",
-	funcColor      = "rgb(97,161,241)",  -- имя функции при вызове
-	propColor      = "rgb(132,214,247)", -- свойства / методы
-	dotColor       = "rgb(204,204,204)", -- точка/двоеточие между частями цепочки
-}
-
--- keywords и builtins (можно расширять)
-local keywords = {
-	"and","break","do","else","elseif","end","false","for","function","if",
-	"in","local","nil","not","or","repeat","return","then","true","until","while"
-}
-local builtins = {
-	"math","string","table","pairs","ipairs","print","warn","pcall","xpcall",
-	"require","type","tonumber","tostring","next","select"
-}
-local keywordSet, builtinSet = {}, {}
-for _,w in ipairs(keywords) do keywordSet[w]=true end
-for _,w in ipairs(builtins) do builtinSet[w]=true end
-
--- HTML-escape
-local function escapeHTML(s)
-	s = s:gsub("&","&amp;"):gsub("<","&lt;"):gsub(">","&gt;")
-	return s
-end
-
--- Вспомогательная обёртка цвета
-local function colwrap(color, text)
-	return ("<font color='%s'>%s</font>"):format(color, text)
-end
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
 	repeat wait() until logList
@@ -1370,193 +1335,67 @@ local modules = {
 			end,
 		},
 		executor = {
-			highlightLuau = function(code, cfg)
-				cfg = cfg or defaultExecutorConfig
+			highlightLuau = function(code)
+				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				-- приведение к строке
-				code = tostring(code or "")
-
-				-- позиция и токены
+				local tokens = {}
 				local pos = 1
-				local n = #code
-				local out = {}
 
-				-- чтение символа
-				local function peek(off) off = off or 0; return code:sub(pos+off, pos+off) end
-				local function nextChar() local c = code:sub(pos,pos); pos = pos + 1; return c end
-				local function substr(i,j) return code:sub(i,j) end
-
-				-- читаем последовательность идентификаторов и точек/двоеточий: player.Parent:Method(...)
-				local function consumeChain()
-					local start = pos
-					local parts = {}
-					-- первая часть — имя
-					local id = code:match("^[%a_][%w_]*", pos)
-					if not id then return nil end
-					pos = pos + #id
-					parts[#parts+1] = {sep="", name = id}
-					while true do
-						local sep = peek()
-						if sep == "." or sep == ":" then
-							pos = pos + 1
-							local nextId = code:match("^[%a_][%w_]*", pos) or ""
-							pos = pos + #nextId
-							parts[#parts+1] = {sep = sep, name = nextId}
-						else
-							break
-						end
-					end
-					return parts
-				end
-
-				-- распознать число (целое, float, экспоненциальный)
-				local function consumeNumber()
-					-- возможные формы: 123, 123.45, .45, 1e10, 1.2e-3
-					local s = code:sub(pos)
-					local num = s:match("^%d+%.?%d*[eE][%+%-]?%d+") or s:match("^%d+%.?%d*") or s:match("^%.%d+")
-					if num then pos = pos + #num; return num end
-					return nil
-				end
-
-				while pos <= n do
-					local c = peek()
-					-- 1) строки: "..." or '...' or long [[...]]
+				while pos <= #code do
+					local c = code:sub(pos, pos)
+					
 					if c == '"' or c == "'" then
-						local quote = c; local i = pos
-						pos = pos + 1
-						local found = false
-						while pos <= n do
-							local ch = nextChar()
-							if ch == "\\" then
-								-- пропустить экранированный символ
-								if pos <= n then pos = pos + 1 end
-							elseif ch == quote then
-								found = true; break
-							end
-						end
-						local raw = substr(i, pos-1)
-						table.insert(out, colwrap(cfg.stringColor, escapeHTML(raw)))
-					elseif c == "[" and code:sub(pos, pos+1) == "["
-						or (c == "-" and code:sub(pos, pos+3) == "--[") then
-						-- long bracket string или long comment
-						if code:sub(pos, pos+1) == "[[" then
-							local i = pos
-							local close = code:find("]]", pos+2, true) or (n+1)
-							pos = close + 2
-							local raw = substr(i, pos-1)
-							table.insert(out, colwrap(cfg.stringColor, escapeHTML(raw)))
-						else
-							-- это может быть комментарий вида --[[...]]
-							if code:sub(pos, pos+3) == "--[[" then
-								local i = pos
-								local close = code:find("]]", pos+4, true) or (n+1)
-								pos = close + 2
-								local raw = substr(i, pos-1)
-								table.insert(out, colwrap(cfg.commentColor, escapeHTML(raw)))
-							else
-								-- обычный inline comment -- до конца строки
-								local i = pos
-								local close = code:find("\n", pos, true) or (n+1)
-								pos = close
-								local raw = substr(i, pos-1)
-								table.insert(out, colwrap(cfg.commentColor, escapeHTML(raw)))
-							end
-						end
-
-					elseif c == "-" and code:sub(pos, pos+1) == "--" then
-						-- inline comment до \n
-						local i = pos
-						local close = code:find("\n", pos, true) or (n+1)
-						pos = close
-						local raw = substr(i, pos-1)
-						table.insert(out, colwrap(cfg.commentColor, escapeHTML(raw)))
-
-					elseif c:match("%s") then
-						-- пробельные символы — копируем как есть
-						local s = code:match("^%s+", pos)
-						pos = pos + #s
-						table.insert(out, s)
-
-					elseif c:match("%d") or (c == "." and code:sub(pos+1,pos+1):match("%d")) then
-						-- число
-						local num = consumeNumber()
-						if num then table.insert(out, colwrap(cfg.numberColor, escapeHTML(num))) end
+						local closing = code:find(c, pos + 1, true) or (#code + 1)
+						local str = code:sub(pos, closing)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
+						pos = closing + 1
+					elseif code:sub(pos, pos+1) == "--" then
+						local closing = code:find("\n", pos + 2) or (#code + 1)
+						local com = code:sub(pos, closing)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
+						pos = closing
+					elseif c:match("%d") then
+						local num = code:match("^%d+", pos)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
+						pos = pos + #num
 
 					elseif c:match("[%a_]") then
-						-- идентификатор или цепочка
-						local savedPos = pos
-						local chain = consumeChain() -- возвращает таблицу частей
-						if not chain then
-							-- если не получилось — съесть один идентификатор
-							local id = code:match("^[%a_][%w_]*", pos)
-							pos = pos + #id
-							table.insert(out, escapeHTML(id))
-						else
-							-- проверим, что после цепочки — скобки вызова функции
-							local after = peek()
-							-- если следующий значимый символ (с пропусками) — '(' -> это вызов
-							local tmpPos = pos
-							local ws = code:match("^%s*", tmpPos) or ""
-							tmpPos = tmpPos + #ws
-							local nextSym = code:sub(tmpPos, tmpPos)
-							local isCall = (nextSym == "(")
+						local word = code:match("^[%w_]+", pos)
+						local colored = nil
 
-							-- постройка строки из частей:
-							for i, part in ipairs(chain) do
-								if i == 1 then
-									-- первая часть — может быть ключевым словом, встроенной библиотекой или переменной
-									local name = part.name
-									if keywordSet[name] then
-										table.insert(out, colwrap(cfg.keywordColor, escapeHTML(name)))
-									elseif builtinSet[name] then
-										table.insert(out, colwrap(cfg.builtinColor, escapeHTML(name)))
-									else
-										table.insert(out, escapeHTML(name))
-									end
-								else
-									-- sep '.' или ':'
-									table.insert(out, colwrap(cfg.dotColor, escapeHTML(part.sep)))
-									-- имя свойства/метода (будем подсвечивать как propColor)
-									table.insert(out, colwrap(cfg.propColor, escapeHTML(part.name)))
-								end
-							end
+						if table.find(executorConfig.keywords[1], word) then
+							colored = string.format(executorConfig.keywords[2], word)
+						end
 
-							-- если это вызов функции — подсветим имя последней части как функция (перекроет предыдущую)
-							if isCall then
-								-- заменим последнюю вставленную части на funcColor (если есть)
-								-- найти индекс последнего вставленного элемента (например последний part)
-								-- самый простой путь — собрать заново: восстановим from savedPos .. pos-1
-								-- но чтобы не усложнять — мы проверим есть ли '(' и подсветим '(' и далее проигнорируем
-								-- подсветка имени функции (для случая obj:Func(...)) — просто перекрасим последнюю prop
-								-- простая корректировка: если chain длина >1, перекрасим последний токен
-								if #chain > 1 then
-									-- находим последний элемент в out и заменяем (оно было propColor)
-									-- безопасно: последний элемент сейчас — именно part.name вставка
-									local lastIndex = #out
-									out[lastIndex] = colwrap(cfg.funcColor, escapeHTML(chain[#chain].name))
-								else
-									-- single name function call e.g. print(...)
-									-- заменим последний элемент (имя)
-									local lastIndex = #out
-									out[lastIndex] = colwrap(cfg.funcColor, escapeHTML(chain[1].name))
-								end
+						for _, group in pairs(executorConfig.otherKeywords) do
+							local words, fmt = group[1], group[2]
+							if table.find(words, word) then
+								colored = string.format(fmt, word)
+								break
 							end
 						end
 
-					elseif c:match("[%p]") then
-						-- операторы и пунктуация: сгруппируем подряд и покрасим в operatorColor,
-						-- но не закрывающие/открывающие скобки лучше оставить как есть (это не обяз.)
-						local op = code:match("^[%p]+", pos)
-						-- разделяем многоточия/скобки от букв и цифр — но чаще всего можно покрасить все пунктуации
-						pos = pos + #op
-						table.insert(out, colwrap(cfg.operatorColor, escapeHTML(op)))
+						local globalFns = {
+							"assert","collectgarbage","dofile","error","getfenv",
+							"getmetatable","ipairs","load","loadfile","next",
+							"pairs","pcall","print","rawequal","rawget","rawlen",
+							"rawset","require","select","setfenv","setmetatable",
+							"tonumber","tostring","xpcall","loadstring","typeof",
+							"UserSettings"
+						}
+						if table.find(globalFns, word) then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+						end
+
+						table.insert(tokens, colored or word)
+						pos = pos + #word
 					else
-						-- fallback — просто скопировать символ
-						table.insert(out, escapeHTML(nextChar()))
+						table.insert(tokens, c)
+						pos = pos + 1
 					end
 				end
 
-				return table.concat(out)
+				return table.concat(tokens)
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
