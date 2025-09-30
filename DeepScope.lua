@@ -16,9 +16,24 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
+local waxwritefile, waxreadfile = writefile, readfile
 if not RunService:IsStudio() then
 	cloneref = missing("function", cloneref, function(...) return ... end)
 	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
+	writefile = missing("function", waxwritefile) and function(file, data, safe)
+		if safe == true then return pcall(waxwritefile, file, data) end
+		waxwritefile(file, data)
+	end
+	readfile = missing("function", waxreadfile) and function(file, safe)
+		if safe == true then return pcall(waxreadfile, file) end
+		return waxreadfile(file)
+	end
+	isfile = missing("function", isfile, readfile and function(file)
+		local success, result = pcall(function()
+			return readfile(file)
+		end)
+		return success and result ~= nil and result ~= ""
+	end)
 end
 repeat wait() until LocalPlayer.Character
 local suffixes = {
@@ -186,7 +201,7 @@ local icons = {
 		GamePassService = {91.5, 19.5},
 		GuiService = {91.5, 55.5},
 		HapticService = {1.5, 109.5},
-		HttpService = {109.5, 127.5},
+		HttpService = {109.5, 127.5-(18*2)},
 		PathFindingService = {163.5, 37.5},
 		KeyframeSequenceProvider = {73.5, 73.5},
 		LogService = {55.5, 109.5},
@@ -210,213 +225,6 @@ local icons = {
 		dropdown_openedhover = {217.5, 217.5},
 		delete = {163.5, 217.5},
 		delete_locked = {163.5, 199.5}
-	},
-	layoutOrders = {
-		["Accessory"] = 32;
-		["Accoutrement"] = 32;
-		["AdService"] = 73;
-		["Animation"] = 60;
-		["AnimationController"] = 60;
-		["AnimationTrack"] = 60;
-		["Animator"] = 60;
-		["ArcHandles"] = 56;
-		["AssetService"] = 72;
-		["Attachment"] = 34;
-		["Backpack"] = 20;
-		["BadgeService"] = 75;
-		["BallSocketConstraint"] = 89;
-		["BillboardGui"] = 64;
-		["BinaryStringValue"] = 4;
-		["BindableEvent"] = 67;
-		["BindableFunction"] = 66;
-		["BlockMesh"] = 8;
-		["BloomEffect"] = 90;
-		["BlurEffect"] = 90;
-		["BodyAngularVelocity"] = 14;
-		["BodyForce"] = 14;
-		["BodyGyro"] = 14;
-		["BodyPosition"] = 14;
-		["BodyThrust"] = 14;
-		["BodyVelocity"] = 14;
-		["BoolValue"] = 4;
-		["BoxHandleAdornment"] = 54;
-		["BrickColorValue"] = 4;
-		["Camera"] = 5;
-		["CFrameValue"] = 4;
-		["CharacterMesh"] = 60;
-		["Chat"] = 33;
-		["ClickDetector"] = 41;
-		["CollectionService"] = 30;
-		["Color3Value"] = 4;
-		["ColorCorrectionEffect"] = 90;
-		["ConeHandleAdornment"] = 54;
-		["Configuration"] = 58;
-		["ContentProvider"] = 72;
-		["ContextActionService"] = 41;
-		["CoreGui"] = 46;
-		["CoreScript"] = 18;
-		["CornerWedgePart"] = 1;
-		["CustomEvent"] = 4;
-		["CustomEventReceiver"] = 4;
-		["CylinderHandleAdornment"] = 54;
-		["CylinderMesh"] = 8;
-		["CylindricalConstraint"] = 89;
-		["Debris"] = 30;
-		["Decal"] = 7;
-		["Dialog"] = 62;
-		["DialogChoice"] = 63;
-		["DoubleConstrainedValue"] = 4;
-		["Explosion"] = 36;
-		["FileMesh"] = 8;
-		["Fire"] = 61;
-		["Flag"] = 38;
-		["FlagStand"] = 39;
-		["FloorWire"] = 4;
-		["Folder"] = 70;
-		["ForceField"] = 37;
-		["Frame"] = 48;
-		["GamePassService"] = 19;
-		["Glue"] = 34;
-		["GuiButton"] = 52;
-		["GuiMain"] = 47;
-		["GuiService"] = 47;
-		["Handles"] = 53;
-		["HapticService"] = 84;
-		["Hat"] = 45;
-		["HingeConstraint"] = 89;
-		["Hint"] = 33;
-		["HopperBin"] = 22;
-		["HttpService"] = 76;
-		["Humanoid"] = 9;
-		["ImageButton"] = 52;
-		["ImageLabel"] = 49;
-		["InsertService"] = 72;
-		["IntConstrainedValue"] = 4;
-		["IntValue"] = 4;
-		["JointInstance"] = 34;
-		["JointsService"] = 34;
-		["Keyframe"] = 60;
-		["KeyframeSequence"] = 60;
-		["KeyframeSequenceProvider"] = 60;
-		["Lighting"] = 13;
-		["LineHandleAdornment"] = 54;
-		["LocalScript"] = 18;
-		["LogService"] = 87;
-		["MarketplaceService"] = 46;
-		["Message"] = 33;
-		["Model"] = 2;
-		["ModuleScript"] = 71;
-		["Motor"] = 34;
-		["Motor6D"] = 34;
-		["MoveToConstraint"] = 89;
-		["NegateOperation"] = 78;
-		["NetworkClient"] = 16;
-		["NetworkReplicator"] = 29;
-		["NetworkServer"] = 15;
-		["NumberValue"] = 4;
-		["ObjectValue"] = 4;
-		["Pants"] = 44;
-		["ParallelRampPart"] = 1;
-		["Part"] = 1;
-		["ParticleEmitter"] = 69;
-		["PartPairLasso"] = 57;
-		["PathfindingService"] = 37;
-		["Platform"] = 35;
-		["Player"] = 12;
-		["PlayerGui"] = 46;
-		["Players"] = 21;
-		["PlayerScripts"] = 82;
-		["PointLight"] = 13;
-		["PointsService"] = 83;
-		["Pose"] = 60;
-		["PrismaticConstraint"] = 89;
-		["PrismPart"] = 1;
-		["PyramidPart"] = 1;
-		["RayValue"] = 4;
-		["ReflectionMetadata"] = 86;
-		["ReflectionMetadataCallbacks"] = 86;
-		["ReflectionMetadataClass"] = 86;
-		["ReflectionMetadataClasses"] = 86;
-		["ReflectionMetadataEnum"] = 86;
-		["ReflectionMetadataEnumItem"] = 86;
-		["ReflectionMetadataEnums"] = 86;
-		["ReflectionMetadataEvents"] = 86;
-		["ReflectionMetadataFunctions"] = 86;
-		["ReflectionMetadataMember"] = 86;
-		["ReflectionMetadataProperties"] = 86;
-		["ReflectionMetadataYieldFunctions"] = 86;
-		["RemoteEvent"] = 80;
-		["RemoteFunction"] = 79;
-		["ReplicatedFirst"] = 72;
-		["ReplicatedStorage"] = 72;
-		["RightAngleRampPart"] = 1;
-		["RocketPropulsion"] = 14;
-		["RodConstraint"] = 89;
-		["RopeConstraint"] = 89;
-		["Rotate"] = 34;
-		["RotateP"] = 34;
-		["RotateV"] = 34;
-		["RunService"] = 66;
-		["ScreenGui"] = 47;
-		["Script"] = 6;
-		["ScrollingFrame"] = 48;
-		["Seat"] = 35;
-		["Selection"] = 55;
-		["SelectionBox"] = 54;
-		["SelectionPartLasso"] = 57;
-		["SelectionPointLasso"] = 57;
-		["SelectionSphere"] = 54;
-		["ServerScriptService"] = 0;
-		["ServerStorage"] = 74;
-		["Shirt"] = 43;
-		["ShirtGraphic"] = 40;
-		["SkateboardPlatform"] = 35;
-		["Sky"] = 28;
-		["SlidingBallConstraint"] = 89;
-		["Smoke"] = 59;
-		["Snap"] = 34;
-		["Sound"] = 11;
-		["SoundService"] = 31;
-		["Sparkles"] = 42;
-		["SpawnLocation"] = 25;
-		["SpecialMesh"] = 8;
-		["SphereHandleAdornment"] = 54;
-		["SpotLight"] = 13;
-		["SpringConstraint"] = 89;
-		["StarterCharacterScripts"] = 82;
-		["StarterGear"] = 20;
-		["StarterGui"] = 46;
-		["StarterPack"] = 20;
-		["StarterPlayer"] = 88;
-		["StarterPlayerScripts"] = 82;
-		["Status"] = 2;
-		["StringValue"] = 4;
-		["SunRaysEffect"] = 90;
-		["SurfaceGui"] = 64;
-		["SurfaceLight"] = 13;
-		["SurfaceSelection"] = 55;
-		["Team"] = 24;
-		["Teams"] = 23;
-		["TeleportService"] = 81;
-		["Terrain"] = 65;
-		["TerrainRegion"] = 65;
-		["TestService"] = 68;
-		["TextBox"] = 51;
-		["TextButton"] = 51;
-		["TextLabel"] = 50;
-		["Texture"] = 10;
-		["TextureTrail"] = 4;
-		["Tool"] = 17;
-		["TouchTransmitter"] = 37;
-		["TrussPart"] = 1;
-		["UnionOperation"] = 77;
-		["UserInputService"] = 84;
-		["Vector3Value"] = 4;
-		["VehicleSeat"] = 35;
-		["VelocityMotor"] = 34;
-		["WedgePart"] = 1;
-		["Weld"] = 34;
-		["Workspace"] = 19;
 	}
 }
 local add_objects = {
@@ -825,7 +633,7 @@ local executorConfig = {
 	numberColor = "rgb(255,198,0)",
 	operatorColor = "rgb(204,204,204)",
 	funcColor = "rgb(253,251,172)",
-	libColor = "rgb(132,214,247)"
+	libColor = "rgb(132,214,247)",
 }
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -1354,8 +1162,8 @@ local modules = {
 						local com = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
-					elseif c:match("%d") then
-						local num = code:match("^%d+", pos)
+					elseif c:match("^%d+%.?%d*[eE]?%-?%d*") then
+						local num = code:match("^%d+%.?%d*[eE]?%-?%d*")
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 
@@ -1384,11 +1192,12 @@ local modules = {
 							"UserSettings"
 						}
 						if table.find(globalFns, word) then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 						end
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
+						elseif c:match("")
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -3488,8 +3297,8 @@ local function setExplorer()
 
 			for _, frame in ipairs(templates) do
 				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
-					local y = frame.AbsolutePosition.Y - 32
-					local h = frame.AbsoluteSize.Y + 32
+					local y = frame.AbsolutePosition.Y + 32
+					local h = frame.AbsoluteSize.Y - 32
 
 					local onScreen = (y + h > absPos) and (y < absPos + absSize)
 					frame.mainframe.Visible = onScreen
