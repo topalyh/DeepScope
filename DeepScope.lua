@@ -1197,7 +1197,6 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-						elseif c:match("")
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -4979,3 +4978,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
