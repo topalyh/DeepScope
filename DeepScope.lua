@@ -1392,14 +1392,14 @@ local modules = {
 					elseif sub:match("^%.[%a_][%w_]*") then
 						local prop = sub:match("^%.([%a_][%w_])*")
 						table.insert(tokens,
-							"<font color-'rgb(204,204,204)'>.</font>"..
+							"<font color='rgb(204,204,204)'>.</font>"..
 							"<font color='rgb(97,161,241)'>"..prop.."</font>"
 						)
 						pos = pos + #prop + 1
 					elseif sub:match("^:%s*[%a_][%w_]*") then
 						local method = sub:match("^:([%a_][%w_]*)")
 						table.insert(tokens,
-							"<font color-'rgb(204,204,204)'>.</font>"..
+							"<font color='rgb(204,204,204)'>:</font>"..
 							"<font color='rgb(132,214,247)'>"..method.."</font>"
 						)
 						pos = pos + #method + 1
