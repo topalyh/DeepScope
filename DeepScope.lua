@@ -1336,65 +1336,50 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
+				-- экранируем спецсимволы
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
 				local tokens = {}
 				local pos = 1
 
 				while pos <= #code do
-					local c = code:sub(pos, pos)
+					local sub = code:sub(pos)
 
-					if c == '"' or c == "'" then
-						local closing = code:find(c, pos + 1, true) or (#code + 1)
-						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
-						pos = closing + 1
-					elseif code:sub(pos, pos+1) == "[[" then
-						local closing = code:find("%]%]", pos+2) or (#code+1)
-						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
-						pos = closing + 2
-					elseif code:sub(pos, pos+1) == "--" then
-						local closing = code:find("\n", pos + 2) or (#code + 1)
-						local com = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
-						pos = closing
-					elseif c:match("^%d") then
-						local num = code:match("^%d+%.?%d*[eE]?[+-]?%d*+", pos)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
+					-- строка (одинарные, двойные, [[ ]])
+					local str = sub:match('^"([^"\\]*(\\.[^"\\]*)*)"')
+						or sub:match("^'([^'\\]*(\\.[^'\\]*)*)'")
+						or sub:match("^%[%[(.-)%]%]")
+					if str then
+						table.insert(tokens, "<font color='"..executorConfig.stringColor.."'>"..sub:sub(1, #str+2).."</font>")
+						pos = pos + #str + 2
+						-- комментарий
+					elseif sub:sub(1,2) == "--" then
+						local com = sub:match("^%-%-.-\n") or sub
+						table.insert(tokens, "<font color='"..executorConfig.commentColor.."'>"..com.."</font>")
+						pos = pos + #com
+						-- число (целое, с точкой, с e/E)
+					elseif sub:match("^%d") then
+						local num = sub:match("^%d+%.?%d*[eE]?%-?%d*")
+						table.insert(tokens, "<font color='"..executorConfig.numberColor.."'>"..num.."</font>")
 						pos = pos + #num
-					elseif c:match("[%a_]") then
-						local word = code:match("^[%w_]+", pos)
-						local colored = nil
+						-- идентификаторы (слова, функции, методы)
+					elseif sub:match("^[%a_][%w_]*") then
+						local word = sub:match("^[%a_][%w_]*")
 
+						local colored = word
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
+						elseif table.find(executorConfig.otherKeywords.bools[1], word) then
+							colored = string.format(executorConfig.otherKeywords.bools[2], word)
+						elseif table.find({"print","warn","pairs","ipairs"}, word) then
+							colored = "<font color='"..executorConfig.funcColor.."'>"..word.."</font>"
 						end
 
-						for _, group in pairs(executorConfig.otherKeywords) do
-							local words, fmt = group[1], group[2]
-							if table.find(words, word) then
-								colored = string.format(fmt, word)
-								break
-							end
-						end
-
-						local globalFns = {
-							"assert","collectgarbage","dofile","error","getfenv",
-							"getmetatable","ipairs","load","loadfile","next",
-							"pairs","pcall","print","rawequal","rawget","rawlen",
-							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings"
-						}
-						if table.find(globalFns, word) then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
-						end
-
-						table.insert(tokens, colored or word)
+						table.insert(tokens, colored)
 						pos = pos + #word
 					else
-						table.insert(tokens, c)
+						-- всё остальное (операторы, скобки, пробелы)
+						table.insert(tokens, sub:sub(1,1))
 						pos = pos + 1
 					end
 				end
