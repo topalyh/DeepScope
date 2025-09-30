@@ -1336,55 +1336,55 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				-- экранируем спецсимволы
+				-- защищаем спецсимволы HTML
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				local tokens = {}
-				local pos = 1
+				-- строки: "..." и '...'
+				code = code:gsub('(".-")', "<font color='rgb(173,241,149)'>%1</font>")
+				code = code:gsub("('.-')", "<font color='rgb(173,241,149)'>%1</font>")
 
-				while pos <= #code do
-					local sub = code:sub(pos)
+				-- многострочные строки [[...]]
+				code = code:gsub("%[%[(.-)%]%]", "<font color='rgb(173,241,149)'>[[%1]]</font>")
 
-					-- строка (одинарные, двойные, [[ ]])
-					local str = sub:match('^"([^"\\]*(\\.[^"\\]*)*)"')
-						or sub:match("^'([^'\\]*(\\.[^'\\]*)*)'")
-						or sub:match("^%[%[(.-)%]%]")
-					if str then
-						table.insert(tokens, "<font color='"..executorConfig.stringColor.."'>"..sub:sub(1, #str+2).."</font>")
-						pos = pos + #str + 2
-						-- комментарий
-					elseif sub:sub(1,2) == "--" then
-						local com = sub:match("^%-%-.-\n") or sub
-						table.insert(tokens, "<font color='"..executorConfig.commentColor.."'>"..com.."</font>")
-						pos = pos + #com
-						-- число (целое, с точкой, с e/E)
-					elseif sub:match("^%d") then
-						local num = sub:match("^%d+%.?%d*[eE]?%-?%d*")
-						table.insert(tokens, "<font color='"..executorConfig.numberColor.."'>"..num.."</font>")
-						pos = pos + #num
-						-- идентификаторы (слова, функции, методы)
-					elseif sub:match("^[%a_][%w_]*") then
-						local word = sub:match("^[%a_][%w_]*")
+				-- комментарии -- ... до конца строки
+				code = code:gsub("(%-%-.-)\n", "<font color='rgb(102,102,102)'>%1</font>\n")
 
-						local colored = word
-						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format(executorConfig.keywords[2], word)
-						elseif table.find(executorConfig.otherKeywords.bools[1], word) then
-							colored = string.format(executorConfig.otherKeywords.bools[2], word)
-						elseif table.find(executorConfig.otherKeywords["built-in"][1], word) then
-							colored = "<font color='"..executorConfig.funcColor.."'>"..word.."</font>"
-						end
+				-- числа: поддержка 1, 1.5, .5, 1e2, 3.14e-10
+				code = code:gsub("(%d+%.?%d*[eE]?%-?%d*)", "<font color='rgb(255,198,0)'>%1</font>")
 
-						table.insert(tokens, colored)
-						pos = pos + #word
-					else
-						-- всё остальное (операторы, скобки, пробелы)
-						table.insert(tokens, sub:sub(1,1))
-						pos = pos + 1
-					end
+				-- операторы
+				code = code:gsub("([%+%-%*/%%%^=<>~]+)", "<font color='rgb(204,204,204)'>%1</font>")
+
+				-- ключевые слова
+				local keywords = {
+					"local","function","end","if","then","else","elseif","for","while",
+					"repeat","until","return","break","do","not","and","or"
+				}
+				for _, word in ipairs(keywords) do
+					code = code:gsub("(%f[%w_])("..word..")(%f[^%w_])",
+						function(a, b, c)
+							return a.."<font color='rgb(248,109,124)'>"..b.."</font>"..c
+						end)
 				end
 
-				return table.concat(tokens)
+				-- глобальные функции
+				local globalFns = {"print","warn","pairs","ipairs","next","select","pcall","xpcall","error"}
+				for _, fn in ipairs(globalFns) do
+					code = code:gsub("(%f[%w_])("..fn..")(%s*%b())",
+						function(a, b, c)
+							return a.."<font color='rgb(132,214,247)'>"..b.."</font>"..c
+						end)
+				end
+
+				-- цепочки: player.Parent.Name
+				code = code:gsub("([%w_]+)(%.)([%w_]+)",
+					"<font color='rgb(204,204,204)'>%1</font>%2<font color='rgb(97,161,241)'>%3</font>")
+
+				-- методы с :Clone()
+				code = code:gsub("([%w_]+)(:)([%w_]+)(%b())",
+					"<font color='rgb(204,204,204)'>%1</font>%2<font color='rgb(132,214,247)'>%3</font>%4")
+
+				return code
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
