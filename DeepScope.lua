@@ -634,6 +634,7 @@ local executorConfig = {
 	operatorColor = "rgb(204,204,204)",
 	funcColor = "rgb(253,251,172)",
 	libColor = "rgb(132,214,247)",
+	propColor = "rgb(0,139,219)"
 }
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -1157,13 +1158,13 @@ local modules = {
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
-					elseif code:sub(pos, pos+1) == "--" then
+					elseif c:match("^%-%-.*") then
 						local closing = code:find("\n", pos + 2) or (#code + 1)
 						local com = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
 					elseif c:match("^%d+%.?%d*[eE]?%-?%d*") then
-						local num = code:match("^%d+%.?%d*[eE]?%-?%d*", pos)
+						local num = code:match("^%d+%.?%d*[eE]?%-?%d*")
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 
@@ -1201,6 +1202,16 @@ local modules = {
 						table.insert(tokens, c)
 						pos = pos + 1
 					end
+					code = code:gsub("([%a_][%w_]*)([.:])([%a_][%w_]*)", function(obj, sep, name)
+						local sepColored = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, sep)
+						if sep == "." then
+							local nameColored = string.format("<font color='%s'>%s</font>", executorConfig.propColor, name)
+							return obj .. sepColored .. nameColored
+						else
+							local nameColored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, name)
+							return obj .. sepColored .. nameColored
+						end
+					end)
 				end
 
 				return table.concat(tokens)
@@ -4978,5 +4989,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
