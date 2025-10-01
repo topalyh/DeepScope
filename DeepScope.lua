@@ -1166,8 +1166,8 @@ local modules = {
 						local com = code:sub(pos, closing)
 						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
-					elseif c:match("%d") then
-						local num = code:match("^%d+%.?%d*[eE]?%-?%d*")
+					elseif c:match("%d+") then
+						local num = code:match("^%d+")
 						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 					elseif c:match("[%a_]") then
@@ -4982,4 +4982,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
