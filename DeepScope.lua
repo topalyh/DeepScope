@@ -795,6 +795,22 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
+-- helper: экранирует HTML для безопасного вывода в RichText
+local function esc(s)
+	s = s:gsub("&", "&amp;")
+	s = s:gsub("<", "&lt;")
+	s = s:gsub(">", "&gt;")
+	return s
+end
+
+-- Проверка принадлежности значению в массиве
+local function inList(list, v)
+	for _, x in ipairs(list) do
+		if x == v then return true end
+	end
+	return false
+end
+
 local modules = {
 	circle = {
 		GetColor = function(mousePos)
@@ -1147,100 +1163,123 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				-- экранируем HTML
-				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
-
-				local tokens = {}
+				-- Если код может содержать уже теги — лучше работать с "сырым" кодом и экранировать при вставке.
 				local pos = 1
+				local len = #code
+				local out = {}
 
-				while pos <= #code do
+				while pos <= len do
 					local sub = code:sub(pos)
 
-					-- строки ( "..." , '...' , [[...]] )
-					local str = sub:match('^"([^"\n]*)"') or sub:match("^'([^'\n]*)'") or sub:match("^%[%[(.-)%]%]")
-					if str then
-						local full = sub:match('^"[^"\n]*"') or sub:match("^'[^'\n]*'") or sub:match("^%[%[.-%]%]")
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, full))
+					-- 1) Строки: "..." или '...' (без захвата перевода строки) или [[...]]
+					local sDouble = sub:match('^"([^"\n]*)"')
+					if sDouble then
+						local full = ('"%s"'):format(sDouble)
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, esc(full)))
 						pos = pos + #full
+						
 					end
 
-					-- комментарии (однострочные и блочные)
-					if sub:match("^%-%-") then
-						local block = sub:match("^%-%-%[%[(.-)%]%]") -- --[[ ... ]]
-						if block then
-							local full = sub:match("^%-%-%[%[.-%]%]")
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, full))
+					local sSingle = sub:match("^'([^'\n]*)'")
+					if sSingle then
+						local full = ("'%s'"):format(sSingle)
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, esc(full)))
+						pos = pos + #full
+						
+					end
+
+					local sLong = sub:match("^%[%[(.-)%]%]")
+					if sLong then
+						local full = ("[[%s]]"):format(sLong)
+						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, esc(full)))
+						pos = pos + #full
+						
+					end
+
+					-- 2) Комментарии: --[[...]] или --...<eol>
+					if sub:sub(1,2) == "--" then
+						local long = sub:match("^%-%-%[%[(.-)%]%]")
+						if long then
+							local full = ("--[[%s]]"):format(long)
+							table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, esc(full)))
 							pos = pos + #full
+							
 						else
-							local line = sub:match("^(%-%-.*)\n?") or sub
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, line))
-							pos = pos + #line
-						end
-					end
-
-					-- числа (целые, float, экспоненты)
-					local num = sub:match("^%d+%.?%d*[eE]?[+-]?%d*")
-					if num then
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
-						pos = pos + #num
-					end
-
-					-- идентификаторы (ключевые слова, функции, переменные, Enum)
-					local word = sub:match("^[%a_][%w_]*")
-					if word then
-						local colored = nil
-
-						-- ключевые слова
-						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format(executorConfig.keywords[2], word)
-						end
-
-						-- другие группы (bool, built-in и т.д.)
-						for _, group in pairs(executorConfig.otherKeywords) do
-							local words, fmt = group[1], group[2]
-							if table.find(words, word) then
-								colored = string.format(fmt, word)
-								break
+							-- берём до конца строки (включая \n если есть)
+							local line = sub:match("^(%-%-.-)\n") or sub:match("^(%-%-.*)$")
+							if line then
+								table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, esc(line)))
+								pos = pos + #line
 							end
 						end
+					end
 
-						-- глобальные функции
-						local globalFns = {"print","warn","pairs","ipairs","next","select","pcall","xpcall","error","require","loadstring"}
-						if table.find(globalFns, word) then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+					-- 3) Числа: целые, дробные, экспоненты
+					local num = sub:match("^%d+%.?%d*[eE]?[%+%-]?%d*")
+					if num and #num > 0 then
+						-- убедимся, что это действительно число (не часть идентификатора)
+						-- если после него буква -> это не число (например name1)
+						local nextChar = sub:sub(#num+1,#num+1)
+						if nextChar:match("%a") then
+							-- не число — fallthrough как слово
+						else
+							table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, esc(num)))
+							pos = pos + #num
+							
 						end
-
-						-- если "function имя"
-						if word == "function" or word == "local" then
-							local fnDecl = sub:match("^(function%s+[%w_]+)") or sub:match("^(local%s+function%s+[%w_]+)")
-							if fnDecl then
-								local fnName = fnDecl:match("function%s+([%w_]+)") or fnDecl:match("local%s+function%s+([%w_]+)")
-								if fnName then
-									colored = fnDecl:gsub(fnName, string.format("<font color='%s'>%s</font>", executorConfig.funcColor, fnName))
-									pos = pos + #fnDecl
-									table.insert(tokens, colored)
+					end
+					-- 4) Идентификаторы (имена, ключевые слова, enums, функции)
+					local id = sub:match("^[%a_][%w_]*")
+					if id then
+						local lowered = id -- если нужен lowercase-сравнение, делай lower()
+						local inserted = nil
+						-- ключевые слова
+						if executorConfig.keywords and executorConfig.keywords[1] and inList(executorConfig.keywords[1], id) then
+							inserted = string.format(executorConfig.keywords[2], esc(id))
+						else
+							-- otherKeywords — ожидаем формат { {list}, "<format>" } или специальные группы
+							for name, group in pairs(executorConfig.otherKeywords or {}) do
+								local words, fmt = group[1], group[2]
+								if type(words) == "table" and inList(words, id) then
+									inserted = string.format(fmt, esc(id))
+									break
 								end
 							end
+							-- глобальные функции
+							local globals = {"print","warn","pairs","ipairs","next","select","pcall","xpcall","error","require","loadstring"}
+							if not inserted and inList(globals, id) then
+								inserted = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, esc(id))
+							end
 						end
-
-						table.insert(tokens, colored or word)
-						pos = pos + #word
+						-- прoверка на Enum.Category.Value => мы оставляем идентификатор как есть,
+						-- дальнейшие символы . or : будут обработаны отдельно
+						table.insert(out, inserted or esc(id))
+						pos = pos + #id
+						
 					end
-
-					-- цепочки типа player.Parent.Name
-					local chain = sub:match("^%.([%a_][%w_]*)")
-					if chain then
-						table.insert(tokens, string.format(".<font color='%s'>%s</font>", executorConfig.propColor, chain))
-						pos = pos + #chain + 1
+					-- 5) цепочки property или вызовы методов: .Name  или :Fire() 
+					-- (обрабатываем одиночную точку/двоеточие + имя)
+					local dotChain = sub:match("^[.:][%a_][%w_]*")
+					if dotChain then
+						local symbol = dotChain:sub(1,1)
+						local name = dotChain:sub(2)
+						if symbol == "." then
+							table.insert(out, "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, esc(name)))
+						else
+							-- метод: :Method
+							table.insert(out, ":" .. string.format("<font color='%s'>%s</font>", executorConfig.funcColor, esc(name)))
+						end
+						pos = pos + #dotChain
+						
 					end
-
-					-- всё остальное (символы, пробелы)
-					table.insert(tokens, sub:sub(1,1))
+					-- 6) операторы/скобки/прочее — просто вставляем один символ (с экранированием)
+					local ch = sub:sub(1,1)
+					table.insert(out, esc(ch))
 					pos = pos + 1
-					
+
 				end
 
-				return table.concat(tokens)
+				return table.concat(out)
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
