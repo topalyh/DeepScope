@@ -698,6 +698,7 @@ local initMessages = {
 	"Have a nice day {player}!",
 	"Enjoying DeepScope? {player}"
 }
+local code = [[]]
 local currentUIColor = Color3.fromRGB(163, 162, 165)
 local usingSlider = {
 	enabled = false
@@ -1173,7 +1174,6 @@ local modules = {
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
-
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
 						end
@@ -1204,24 +1204,8 @@ local modules = {
 						table.insert(out, c)
 						pos = pos + 1
 					end
-					
 				end
-				for startPos, obj, sep, name, endPos in code:gmatch("()([%a_][%w_]*)([.:])([%a_][%w_]*)()") do
-					table.insert(out, code:sub(lastPos, startPos - 1))
-					table.insert(out, obj)
-					table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, sep))
-					if sep == "." then
-						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.propColor, name))
-					else
-						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.funcColor, name))
-					end
-					
-					lastPos = endPos
-				end
-				
-				if lastPos <= #code then
-					table.insert(out, code:sub(lastPos))
-				end
+				code = table.concat(out)
 				return table.concat(out)
 			end,
 			runScript = function(codeToExecute)
@@ -1237,7 +1221,9 @@ local modules = {
 				end
 			end,
 			downloadFile = function()
-
+				local fileName = "DeepScopeCode"..os.time()..".txt"
+				local source = code
+				writefile(fileName, source)
 			end
 		}
 	}
