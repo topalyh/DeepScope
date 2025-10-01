@@ -1147,38 +1147,55 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
+				-- экранируем HTML
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
-				local out = {}
+				local tokens = {}
 				local pos = 1
-				local lastPos = 0
 
 				while pos <= #code do
-					local c = code:sub(pos, pos)
-					local lastpos
-					
-					if c == '"' or c == "'" then
-						local closing = code:find(c, pos + 1, true) or (#code + 1)
-						local str = code:sub(pos, closing)
-						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
-						pos = closing + 1
-					elseif c:match("^%-%-.*") then
-						local closing = code:find("\n", pos + 2) or (#code + 1)
-						local com = code:sub(pos, closing)
-						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
-						pos = closing
-					elseif c:match("^%d+%.?%d*[eE]?%-?%d*") then
-						local num = code:match("%d+%.?%d*[eE]?%-?%d*")
-						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
-						pos = pos + #num
+					local sub = code:sub(pos)
 
-					elseif c:match("[%a_]") then
-						local word = code:match("^[%w_]+", pos)
+					-- строки ( "..." , '...' , [[...]] )
+					local str = sub:match('^"([^"\n]*)"') or sub:match("^'([^'\n]*)'") or sub:match("^%[%[(.-)%]%]")
+					if str then
+						local full = sub:match('^"[^"\n]*"') or sub:match("^'[^'\n]*'") or sub:match("^%[%[.-%]%]")
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, full))
+						pos = pos + #full
+					end
+
+					-- комментарии (однострочные и блочные)
+					if sub:match("^%-%-") then
+						local block = sub:match("^%-%-%[%[(.-)%]%]") -- --[[ ... ]]
+						if block then
+							local full = sub:match("^%-%-%[%[.-%]%]")
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, full))
+							pos = pos + #full
+						else
+							local line = sub:match("^(%-%-.*)\n?") or sub
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, line))
+							pos = pos + #line
+						end
+					end
+
+					-- числа (целые, float, экспоненты)
+					local num = sub:match("^%d+%.?%d*[eE]?[+-]?%d*")
+					if num then
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
+						pos = pos + #num
+					end
+
+					-- идентификаторы (ключевые слова, функции, переменные, Enum)
+					local word = sub:match("^[%a_][%w_]*")
+					if word then
 						local colored = nil
+
+						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
 						end
 
+						-- другие группы (bool, built-in и т.д.)
 						for _, group in pairs(executorConfig.otherKeywords) do
 							local words, fmt = group[1], group[2]
 							if table.find(words, word) then
@@ -1187,27 +1204,43 @@ local modules = {
 							end
 						end
 
-						local globalFns = {
-							"assert","collectgarbage","dofile","error","getfenv",
-							"getmetatable","ipairs","load","loadfile","next",
-							"pairs","pcall","print","rawequal","rawget","rawlen",
-							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings"
-						}
+						-- глобальные функции
+						local globalFns = {"print","warn","pairs","ipairs","next","select","pcall","xpcall","error","require","loadstring"}
 						if table.find(globalFns, word) then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
-						table.insert(out, colored or word)
+						-- если "function имя"
+						if word == "function" or word == "local" then
+							local fnDecl = sub:match("^(function%s+[%w_]+)") or sub:match("^(local%s+function%s+[%w_]+)")
+							if fnDecl then
+								local fnName = fnDecl:match("function%s+([%w_]+)") or fnDecl:match("local%s+function%s+([%w_]+)")
+								if fnName then
+									colored = fnDecl:gsub(fnName, string.format("<font color='%s'>%s</font>", executorConfig.funcColor, fnName))
+									pos = pos + #fnDecl
+									table.insert(tokens, colored)
+								end
+							end
+						end
+
+						table.insert(tokens, colored or word)
 						pos = pos + #word
-					else
-						table.insert(out, c)
-						pos = pos + 1
 					end
+
+					-- цепочки типа player.Parent.Name
+					local chain = sub:match("^%.([%a_][%w_]*)")
+					if chain then
+						table.insert(tokens, string.format(".<font color='%s'>%s</font>", executorConfig.propColor, chain))
+						pos = pos + #chain + 1
+					end
+
+					-- всё остальное (символы, пробелы)
+					table.insert(tokens, sub:sub(1,1))
+					pos = pos + 1
+					
 				end
-				code = table.concat(out)
-				return table.concat(out)
+
+				return table.concat(tokens)
 			end,
 			runScript = function(codeToExecute)
 				if codeToExecute == "" or codeToExecute == nil then
