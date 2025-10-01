@@ -576,7 +576,8 @@ local executorConfig = {
 			"local", "function", "end", "if", "then",
 			"else", "elseif", "for", "while", "repeat",
 			"until", "return", "break", "do", "not",
-			"and", "or", "in"
+			"and", "or", "in", "export", "self",
+			"type"
 		},
 		"<font color='rgb(248,109,124)'><b>%s</b></font>"
 	},
@@ -591,7 +592,7 @@ local executorConfig = {
 				"getmetatable","ipairs","load","loadfile","next",
 				"pairs","pcall","print","rawequal","rawget","rawlen",
 				"rawset","require","select","setfenv","setmetatable",
-				"tonumber","tostring","type","xpcall","loadstring",
+				"tonumber","tostring","xpcall","loadstring",
 				"UserSettings",
 
 				"game","workspace","script","Instance","Vector3","UDim2",
@@ -775,7 +776,7 @@ local function AddLog(text, sourse, type)
 		Parent = gui,
 		PaddingLeft = UDim.new(0, 5)
 	})
-	local timeNow = os.date("%X", os.clock())
+	local timeNow = os.date("%H:%M:%S")
 	local ok, textResult = pcall(function()
 		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
@@ -1166,10 +1167,11 @@ local modules = {
 						local com = code:sub(pos, closing)
 						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
-					elseif c:match("%d+") then
-						local num = code:match("^%d+")
+					elseif c:match("^%d+%.?%d*[eE]?%-?%d*") then
+						local num = code:match("%d+%.?%d*[eE]?%-?%d*")
 						table.insert(out, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
+
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
@@ -4982,5 +4984,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
