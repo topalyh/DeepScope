@@ -1867,7 +1867,7 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-					elseif c:match("^(Enum%.[%w_]+%.[%w_]+)") then
+					elseif code:match("^(Enum%.[%w_]+%.[%w_]+)") then
 						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w+])")
 						local full = enum.."."..category.."."..value
 						table.insert(tokens, string.format(
@@ -1877,14 +1877,15 @@ local modules = {
 							executorConfig.propColor, value
 						))
 						pos = pos + #full
-					elseif c:match("^[%a_][%w_]*%.[%a_][%w_]*") then
+					elseif code:match("^[%a_][%w_]*%.[%a_][%w_]*") then
 						local obj, prop = c:match("^([%a_][%w_]*)%.([%a_][%w_]*)")
+						local full = obj.."."..prop
 						table.insert(tokens, string.format(
 							"<font color='%s'>%s</font>.<font color='%s'>%s</font>",
 							executorConfig.operatorColor, obj,
 							executorConfig.propColor, prop
 						))
-						pos = pos + #obj + #prop + 1
+						pos = pos + #full
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
@@ -1929,7 +1930,7 @@ local modules = {
 							"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
 							"fromRotationBetweenVectors","char","len","offset","codes",
 							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
-							"math","clamp"
+							"math","clamp","gcinfo"
 							}, word) then
 							if afterWord == "(" or afterWord == "{" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
@@ -5794,4 +5795,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
