@@ -1955,10 +1955,12 @@ local modules = {
 			end,
 			Update = function(code, label, linesGui)
 				local lines = getLineAmount(code)
+				local size = linesGui.TextBounds.X + 10
 				linesGui.Text = lines
-				linesGui.Size = UDim2.fromOffset(linesGui.TextBounds.X, 1e6)
-				label.Parent.Position = UDim2.fromOffset(linesGui.TextBounds.X, 0)
-				label.Parent.Size = UDim2.new(1, -linesGui.TextBounds.X, 1, -30)
+				linesGui.Size = UDim2.fromOffset(size, 1e6)
+				linesGui.Parent.Size = UDim2.new(0, size, 1, -30)
+				label.Parent.Position = UDim2.fromOffset(size, 0)
+				label.Parent.Size = UDim2.new(1, -size, 1, -30)
 				label.Parent:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
 					local y = label.Parent.CanvasPosition.Y
 					linesGui.Position = UDim2.fromOffset(0, -y)
@@ -3482,6 +3484,7 @@ local function createGui()
 		Size = UDim2.new(0, 0, 1, -30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
+		ClipsDescendants = true,
 	})
 	local executorGui5 = createInstance("TextLabel", {
 		Parent = executorGui4,
@@ -4756,6 +4759,7 @@ luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	if not luauPole:IsFocused() then
 		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
+		modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	end
 end)
@@ -4764,7 +4768,6 @@ luauPole.Focused:Connect(function()
 end)
 luauPole.FocusLost:Connect(function()
 	luauPole.Text = modules.other.executor.highlightLuau(luauPole.Text)
-	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
 	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.ContentText)
@@ -5749,4 +5752,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
