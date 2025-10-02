@@ -1483,7 +1483,6 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
-
 local modules = {
 	circle = {
 		GetColor = function(mousePos)
@@ -1868,6 +1867,24 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
+					elseif c:match("^(Enum%.[%w_]+%.[%w_]+)") then
+						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w+])")
+						local full = enum.."."..category.."."..value
+						table.insert(tokens, string.format(
+							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
+							executorConfig.libColor, enum,
+							executorConfig.libColor, category,
+							executorConfig.propColor, value
+						))
+						pos = pos + #full
+					elseif c:match("^[%a_][%w_]*%.[%a_][%w_]*") then
+						local obj, prop = c:match("^([%a_][%w_]*)%.([%a_][%w_]*)")
+						table.insert(tokens, string.format(
+							"<font color='%s'>%s</font>.<font color='%s'>%s</font>",
+							executorConfig.operatorColor, obj,
+							executorConfig.propColor, prop
+						))
+						pos = pos + #obj + #prop + 1
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
@@ -3627,7 +3644,7 @@ local function createGui()
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.fromScale(0.85, 1),
-		Size = UDim2.fromScale(0.85, 0.188),
+		Size = UDim2.new(0.85, 0, 0, 30),
 		FontFace = Font.new(fonts.FiraSans),
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 14,
