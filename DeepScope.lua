@@ -1154,35 +1154,44 @@ local modules = {
 
 				local tokens = {}
 				local pos = 1
+				local len = #code
 
-				while pos <= #code do
+				while pos <= len do
 					local c = code:sub(pos, pos)
 
+					-- строки
 					if c == '"' or c == "'" then
-						local closing = code:find(c, pos + 1, true) or (#code + 1)
+						local closing = code:find(c, pos + 1, true) or (len + 1)
+						if closing > len then closing = len end
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
+
+						-- комментарии
 					elseif code:sub(pos, pos+1) == "--" then
-						local closing = code:find("\n", pos + 2) or (#code + 1)
+						local closing = code:find("\n", pos + 2) or (len + 1)
+						if closing > len then closing = len end
 						local com = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
+
+						-- числа
 					elseif c:match("%d") then
-						local num = code:match("^%d+%.?%d*[eE]?%-?%d+", pos)
+						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
 
+						-- слова / идентификаторы
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
-						local afterWord = code:sub(pos + #word, pos + #word) -- символ после слова
+						local afterWord = code:sub(pos + #word, pos + #word)
 
-						-- 1. ключевые слова
+						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
 
-							-- 2. глобальные функции
+							-- глобальные функции
 						elseif table.find({
 							"assert","collectgarbage","dofile","error","getfenv",
 							"getmetatable","ipairs","load","loadfile","next",
@@ -1191,19 +1200,18 @@ local modules = {
 							"tonumber","tostring","xpcall","loadstring","typeof",
 							"UserSettings"
 							}, word) then
-							-- если глобалка и сразу скобки → точно функция
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
 
-							-- 3. пользовательская функция (myFunc())
+							-- юзер-функция (func())
 						elseif afterWord == "(" then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
-						-- 4. otherKeywords
+						-- otherKeywords
 						if not colored then
 							for _, group in pairs(executorConfig.otherKeywords) do
 								local words, fmt = group[1], group[2]
@@ -1214,9 +1222,13 @@ local modules = {
 							end
 						end
 
-						-- результат
 						table.insert(tokens, colored or word)
 						pos = pos + #word
+
+						-- всё остальное (символы)
+					else
+						table.insert(tokens, c)
+						pos = pos + 1
 					end
 				end
 
