@@ -3644,7 +3644,7 @@ local function createGui()
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.fromScale(0.85, 1),
-		Size = UDim2.new(0.85, 0, 0, 30),
+		Size = UDim2.new(1, -35, 0, 30),
 		FontFace = Font.new(fonts.FiraSans),
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 14,
@@ -5794,3 +5794,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
