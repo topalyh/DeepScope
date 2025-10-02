@@ -1867,7 +1867,7 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-					elseif c:match("^Enum%.[%w_]+%.[%w_]+", pos) then
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
 						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						local full = enum.."."..category.."."..value
 						table.insert(tokens, string.format(
@@ -1877,7 +1877,7 @@ local modules = {
 							executorConfig.propColor, value
 							))
 						pos = pos + #full
-					elseif c:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
+					elseif code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
 						local full = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
 						local parts = {}
 						for part in full:gmatch("[^%.]+") do
@@ -5798,3 +5798,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
