@@ -1911,7 +1911,8 @@ local modules = {
 							"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
 							"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
 							"fromRotationBetweenVectors","char","len","offset","codes",
-							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize"
+							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
+							"math","clamp"
 							}, word) then
 							if afterWord == "(" or afterWord == "{" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
@@ -3624,7 +3625,8 @@ local function createGui()
 		Parent = executorGui1,
 		Name = "codeLimit",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromScale(0, 0.813),
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.fromScale(0.85, 1),
 		Size = UDim2.fromScale(0.85, 0.188),
 		FontFace = Font.new(fonts.FiraSans),
 		TextColor3 = Color3.new(1, 1, 1),
@@ -4822,7 +4824,7 @@ local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
 luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
-	newgui.Parent.executor.codeLimit.Text = format(#luauPole.ContentText, false, true).."/200K"
+	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
 	if not luauPole:IsFocused() then
 		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
 		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
@@ -4834,6 +4836,7 @@ luauPole.Focused:Connect(function()
 end)
 luauPole.FocusLost:Connect(function()
 	luauPole.Text = modules.other.executor.highlightLuau(luauPole.Text)
+	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 end)
 newgui.Parent.executor.run.MouseButton1Click:Connect(function()
 	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.ContentText)
@@ -5774,4 +5777,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
