@@ -1159,13 +1159,31 @@ local modules = {
 						elseif afterWord == "(" then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							print("user-function | "..word)
-						elseif table.find({
+						end
+						if table.find({
 							"assert","collectgarbage","dofile","error","getfenv",
 							"getmetatable","ipairs","load","loadfile","next",
 							"pairs","pcall","print","rawequal","rawget","rawlen",
 							"rawset","require","select","setfenv","setmetatable",
 							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings","Vector2","Vector3"
+							"UserSettings","Vector2","Vector3","Enum","UDim",
+							"fromOffset","fromScale","new","game","table",
+							"insert","remove","concat","sort","unpack",
+							"pack","clear","find","create","clone",
+							"move","string","byte","char","find",
+							"format","gmatch","gsub","len","lower",
+							"match","rep","reverse","sub","upper",
+							"create","resume","running","status","wrap",
+							"yield","isyieldable","time","date","clock",
+							"difftime","arshift","band","bnot","bor",
+							"btest","bxor","extract","lrotate","lshift",
+							"replace","rrotate","rshift","abs","acos",
+							"asin","atan","atan2","ceil","cos",
+							"cosh","deg","exp","floor","fmod",
+							"frexp","ldexp","log","log10","max",
+							"min","modf","pow","rad","random",
+							"randomseed","sin","sinh","sqrt","tan",
+							"tanh"
 							}, word) then
 							print("global-function | "..word)
 							if afterWord == "(" then
