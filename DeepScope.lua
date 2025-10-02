@@ -1836,11 +1836,16 @@ local modules = {
 		},
 		executor = {
 			highlightLuau = function(code)
-				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
-
 				local tokens = {}
 				local pos = 1
 				local len = #code
+				
+				if len > 200000 then
+					AddLog("Code overflow, limit is 200000.", "DS Executor", "warn")
+					return
+				end
+				
+				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
 				while pos <= len do
 					local c = code:sub(pos, pos)
@@ -3615,6 +3620,20 @@ local function createGui()
 		Text = "",
 		AutoButtonColor = false
 	})
+	local executorGui16 = createInstance("TextLabel", {
+		Parent = executorGui1,
+		Name = "codeLimit",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(0, 0.813),
+		Size = UDim2.fromScale(0.85, 0.188),
+		FontFace = Font.new(fonts.FiraSans),
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = "0/200K",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
 	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
 	infoList = placeInfoGui4
@@ -4279,6 +4298,50 @@ local function setColorMode()
 		newgui.Parent.colorpicker.sliders.value.Visible = true
 	end
 end
+local function format(number, useCommas, useShort, demicals)
+	demicals = demicals or 1
+	if type(number) ~= "number" then
+		error("Expected number, got " .. typeof(number))
+	end
+
+	local absNumber = math.round(tonumber(tostring(number):format("%.0f", number)))
+
+	if useShort then
+		if absNumber < 1000 then
+			return tostring(number)
+		end
+
+		local tier = math.round(math.log10(absNumber) / 3)
+		if tier >= #suffixes then
+			return string.format("%.0f", number)
+		end
+
+		local suffix = ""
+		local scaled = 0
+		local succ, err = pcall(function()
+			suffix = suffixes[tier + 1]:upper()
+			scaled = number / (10 ^ (tier * 3))
+		end)
+
+		if scaled % 1 == 0 then
+			return string.format("%d%s", scaled, suffix)
+		else
+			return string.format(`%.{demicals}f%s`, scaled, suffix)
+		end
+	end
+
+	if useCommas then
+		local formatted = string.format("%.0f", math.round(number))
+		local k
+		while true do
+			formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+			if k == 0 then break end
+		end
+		return formatted
+	end
+
+	return math.round(number)
+end
 local function setColorPicker(color, gui)
 	pickerOpened = true
 	local picker = newgui.Parent.colorpicker
@@ -4758,10 +4821,12 @@ end
 local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
 luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
+	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
+	newgui.Parent.executor.codeLimit.Text = format(#luauPole.Text, false, true).."/200K"
 	if not luauPole:IsFocused() then
 		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
-		modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
+		modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 	end
 end)
 luauPole.Focused:Connect(function()
@@ -4876,50 +4941,6 @@ newgui.uicolor.MouseButton1Click:Connect(function()
 		setColorPicker(currentUIColor)
 	end
 end)
-local function format(number, useCommas, useShort, demicals)
-	demicals = demicals or 1
-	if type(number) ~= "number" then
-		error("Expected number, got " .. typeof(number))
-	end
-
-	local absNumber = math.round(tonumber(tostring(number):format("%.0f", number)))
-
-	if useShort then
-		if absNumber < 1000 then
-			return tostring(number)
-		end
-
-		local tier = math.round(math.log10(absNumber) / 3)
-		if tier >= #suffixes then
-			return string.format("%.0f", number)
-		end
-
-		local suffix = ""
-		local scaled = 0
-		local succ, err = pcall(function()
-			suffix = suffixes[tier + 1]:upper()
-			scaled = number / (10 ^ (tier * 3))
-		end)
-
-		if scaled % 1 == 0 then
-			return string.format("%d%s", scaled, suffix)
-		else
-			return string.format(`%.{demicals}f%s`, scaled, suffix)
-		end
-	end
-
-	if useCommas then
-		local formatted = string.format("%.0f", math.round(number))
-		local k
-		while true do
-			formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
-			if k == 0 then break end
-		end
-		return formatted
-	end
-
-	return math.round(number)
-end
 local updateConn = nil
 newgui.placeinfo.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = true
@@ -5753,7 +5774,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
-
