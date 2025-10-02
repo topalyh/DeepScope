@@ -588,41 +588,6 @@ local executorConfig = {
 			{"nil", "false", "true"},
 			"<font color='rgb(255,198,0)'><b>%s</b></font>"
 		},
-		["built-in"] = {
-			{
-				"assert","collectgarbage","dofile","error","getfenv",
-				"getmetatable","ipairs","load","loadfile","next",
-				"pairs","pcall","print","rawequal","rawget","rawlen",
-				"rawset","require","select","setfenv","setmetatable",
-				"tonumber","tostring","xpcall","loadstring",
-				"UserSettings",
-
-				"game","workspace","script","Instance","Vector3","UDim2",
-				"Color3","CFrame","Enum","Ray","Axes","BrickColor",
-
-				"table","insert","remove","concat","sort","unpack","pack","clear","find","create","clone","move",
-
-				"math","abs","acos","asin","atan","atan2","ceil","cos","cosh",
-				"deg","exp","floor","fmod","frexp","ldexp","log","log10",
-				"max","min","modf","pow","rad","random","randomseed",
-				"sin","sinh","sqrt","tan","tanh",
-
-				"string","byte","char","find","format","gmatch","gsub",
-				"len","lower","match","rep","reverse","sub","upper",
-
-				"coroutine","create","resume","running","status","wrap","yield",
-
-				"os","clock","date","difftime","execute","exit","getenv",
-				"remove","rename","setlocale","time","tmpname",
-
-				"UDim2","new","fromScale","fromOffset",
-				"UDim","new",
-
-				"bit32","arshift","band","bnot","bor","btest","bxor",
-				"extract","lrotate","lshift","replace","rrotate","rshift"
-			},
-			"<font color='rgb(132,214,247)'>%s</font>"
-		},
 		enums = {
 			{},
 			{
@@ -1190,8 +1155,10 @@ local modules = {
 						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
+							print("keyword-function | "..word)
 						elseif afterWord == "(" then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+							print("user-function | "..word)
 						elseif table.find({
 							"assert","collectgarbage","dofile","error","getfenv",
 							"getmetatable","ipairs","load","loadfile","next",
@@ -1200,6 +1167,7 @@ local modules = {
 							"tonumber","tostring","xpcall","loadstring","typeof",
 							"UserSettings","Vector2","Vector3"
 							}, word) then
+							print("global-function | "..word)
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
