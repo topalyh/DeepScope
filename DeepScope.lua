@@ -1867,24 +1867,27 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-					elseif code:match("^(Enum%.[%w_]+%.[%w_]+)") then
-						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w+])")
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
+						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						local full = enum.."."..category.."."..value
 						table.insert(tokens, string.format(
 							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
 							executorConfig.libColor, enum,
 							executorConfig.libColor, category,
 							executorConfig.propColor, value
-						))
+							))
 						pos = pos + #full
-					elseif code:match("^[%a_][%w_]*%.[%a_][%w_]*") then
-						local obj, prop = c:match("^([%a_][%w_]*)%.([%a_][%w_]*)")
-						local full = obj.."."..prop
-						table.insert(tokens, string.format(
-							"<font color='%s'>%s</font>.<font color='%s'>%s</font>",
-							executorConfig.operatorColor, obj,
-							executorConfig.propColor, prop
-						))
+					elseif code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
+						local full = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
+						local parts = {}
+						for part in full:gmatch("[^%.]+") do
+							table.insert(parts, part)
+						end
+						local result = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, parts[1])
+						for i = 2, #parts do
+							result = result .. "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, parts[i])
+						end
+						table.insert(tokens, result)
 						pos = pos + #full
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
