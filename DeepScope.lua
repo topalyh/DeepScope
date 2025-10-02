@@ -1169,7 +1169,7 @@ local modules = {
 							}, word) then
 							print("global-function | "..word)
 							if afterWord == "(" then
-								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
