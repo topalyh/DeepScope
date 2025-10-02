@@ -4822,7 +4822,7 @@ local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
 luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
-	newgui.Parent.executor.codeLimit.Text = format(#luauPole.Text, false, true).."/200K"
+	newgui.Parent.executor.codeLimit.Text = format(#luauPole.ContentText, false, true).."/200K"
 	if not luauPole:IsFocused() then
 		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
 		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
@@ -5774,3 +5774,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
