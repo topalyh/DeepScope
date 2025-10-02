@@ -583,6 +583,148 @@ local executorConfig = {
 		},
 		"<font color='rgb(248,109,124)'><b>%s</b></font>"
 	},
+	buildinKeywords = {
+		{
+			"assert","collectgarbage","dofile","error","getfenv",
+			"getmetatable","ipairs","load","loadfile","next",
+			"pairs","pcall","print","rawequal","rawget","rawlen",
+			"rawset","require","select","setfenv","setmetatable",
+			"tonumber","tostring","xpcall","loadstring","typeof",
+			"UserSettings","Vector2","Vector3","Enum","UDim",
+			"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
+			"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
+			"fromOffset","fromScale","new","game","table",
+			"insert","remove","concat","sort","unpack",
+			"pack","clear","find","create","clone",
+			"move","string","byte","char","find",
+			"format","gmatch","gsub","len","lower",
+			"match","rep","reverse","sub","upper",
+			"create","resume","running","status","wrap",
+			"yield","isyieldable","time","date","clock",
+			"difftime","arshift","band","bnot","bor",
+			"btest","bxor","extract","lrotate","lshift",
+			"replace","rrotate","rshift","abs","acos",
+			"asin","atan","atan2","ceil","cos",
+			"cosh","deg","exp","floor","fmod",
+			"frexp","ldexp","log","log10","max",
+			"min","modf","pow","rad","random",
+			"randomseed","sin","sinh","sqrt","tan",
+			"tanh","spawn","Delay","Spawn","game",
+			"Rect","Font","Instance","TweenInfo","workspace",
+			"Workspace","tick","time","zero","one",
+			"yAxis","xAxis","FromNormalId","zAxis","FromAxis",
+			"fromAxis","fromNormalId","wait","task","CFrame",
+			"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
+			"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
+			"fromRotationBetweenVectors","char","len","offset","codes",
+			"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
+			"AccessModifierType","AccessoryType","ActionOnAutoResumeSync","ActionOnStopSync","ActionType",
+			"ActuatorRelativeTo","ActuatorType","AdAvailabilityResult","AdEventType","AdFormat",
+			"AdShape","AdTeleportMethod","AdUIEventType","AdUIType","AdUnitStatus",
+			"AdornCullingMode","AdornShading","AlignType","AlphaMode","AnalyticsCustomFieldKeys",
+			"AnalyticsEconomyAction","AnalyticsEconomyFlowType","AnalyticsEconomyTransactionType","AnalyticsLogLevel","AnalyticsProgressionStatus",
+			"AnalyticsProgressionType","AnimationClipFromVideoStatus","AnimationPriority","AnimatorRetargetingMode","AnnotationChannelContentPreference",
+			"AnnotationEditingMode","AnnotationPlaceContentPreference","AnnotationRequestStatus","AnnotationRequestType","AppLifecycleManagerState",
+			"AppShellActionType","AppShellFeature","AppUpdateStatus","ApplyStrokeMode","AspectType",
+			"AssetCreatorType","AssetFetchStatus","AssetType","AssetTypeVerification","AudioApiRollout",
+			"AudioCaptureMode","AudioChannelLayout","AudioFilterType","AudioSimulationFidelity","AudioSubType",
+			"AudioWindowSize","AuthorityMode","AutoIndentRule","AutomaticSize","AvatarAssetType",
+			"AvatarChatServiceFeature","AvatarContextMenuOption","AvatarGenerationError","AvatarItemType","AvatarPromptResult",
+			"AvatarSettingsAccessoryLimitMethod","AvatarSettingsAccessoryMode","AvatarSettingsAnimationClipsMode","AvatarSettingsAnimationPacksMode","AvatarSettingsAppearanceMode",
+			"AvatarSettingsBuildMode","AvatarSettingsClothingMode","AvatarSettingsCollisionMode","AvatarSettingsCustomAccessoryMode","AvatarSettingsCustomBodyType",
+			"AvatarSettingsCustomClothingMode","AvatarSettingsHitAndTouchDetectionMode","AvatarSettingsJumpMode","AvatarSettingsLegacyCollisionMode","AvatarSettingsScaleMode",
+			"AvatarThumbnailCustomizationType","AvatarUnificationMode","Axis","BenefitType","BinType",
+			"BodyPart","BodyPartR15","BorderMode","BorderStrokePosition","BreakReason",
+			"BreakpointRemoveReason","BulkMoveMode","BundleType","Button","ButtonStyle",
+			"CageType","CameraMode","CameraPanMode","CameraSpeedAdjustBinding","CameraType",
+			"CaptureGalleryPermission","CaptureType","CatalogCategoryFilter","CatalogSortAggregation","CatalogSortType",
+			"CellBlock","CellMaterial","CellOrientation","CenterDialogType","CharacterControlMode",
+			"ChatCallbackType","ChatColor","ChatMode","ChatPrivacyMode","ChatRestrictionStatus",
+			"ChatStyle","ChatVersion","ClientAnimatorThrottlingMode","CloseReason","CollaboratorStatus",
+			"CollisionFidelity","CommandPermission","CompileTarget","CompletionAcceptanceBehavior","CompletionItemKind",
+			"CompletionItemTag","CompletionTriggerKind","ComputerCameraMovementMode","ComputerMovementMode","ConfigSnapshotErrorState",
+			"ConnectionError","ConnectionState","ContentSourceType","ContextActionPriority","ContextActionResult",
+			"ControlMode","CoreGuiType","CreateAssetResult","CreateOutfitFailure","CreatorType",
+			"CreatorTypeFilter","CurrencyType","CustomCameraMode","DataStoreRequestType","DebuggerEndReason",
+			"DebuggerExceptionBreakMode","DebuggerFrameType","DebuggerPauseReason","DebuggerStatus","DevCameraOcclusionMode",
+			"DevComputerCameraMovementMode","DevComputerMovementMode","DevTouchCameraMovementMode","DevTouchMovementMode","DeveloperMemoryTag",
+			"DeviceFeatureType","DeviceForm","DeviceLevel","DeviceType","DialogBehaviorType",
+			"DialogPurpose","DialogTone","DisplaySize","DominantAxis","DraftStatusCode",
+			"DragDetectorDragStyle","DragDetectorPermissionPolicy","DragDetectorResponseStyle","DraggerCoordinateSpace","DraggerMovementMode",
+			"DraggingScrollBar","EasingDirection","EasingStyle","EditableStatus","ElasticBehavior",
+			"EnviromentalPhysicsThrottle","ExperienceAuthScope","ExperienceStateRecordingLoadMode","ExperienceStateRecordingLoadSourceType","ExperienceStateRecordingPlaybackMode",
+			"ExplosionType","FACSDataLod","FacialAgeEstimationResultType","FacialAnimationStreamingState","FacsActionUnit",
+			"FeatureRestrictionAbuseVector","FieldOfViewMode","FillDirection","FilterErrorType","FilterResult",
+			"FinishRecordingOperation","FluidFidelity","FluidForces","Font","FontSize",
+			"FontStyle","FontWeight","ForceLimitMode","FormFactor","FrameStyle",
+			"FramerateManagerMode","FriendRequestEvent","FriendStatus","FunctionalTestResult","GameAvatarType",
+			"GamepadType","GearGenreSetting","GearType","Genre","GraphicsMode",
+			"GraphicsOptimizationMode","GuiState","GuiType","HandRigDescriptionSide","HandlesStyle",
+			"HapticEffectType","HighlightDepthMode","HorizontalAlignment","HoverAnimateSpeed","HttpCachePolicy",
+			"HttpCompression","HttpContentType","HttpError","HttpRequestType","HumanoidCollisionType",
+			"HumanoidDisplayDistanceType","HumanoidHealthDisplayType","HumanoidRigType","HumanoidStateType","IKCollisionsMode",
+			"IKControlConstraintSupport","IKControlType","IXPLoadingStatus","ImageAlphaType","ImageCombineType",
+			"InOut","InfoType","InitialDockState","InputActionType","InputType",
+			"IntermediateMeshGenerationResult","InterpolationThrottlingMode","InviteState","ItemLineAlignment","JoinSource",
+			"JointCreationMode","KeyCode","KeyInterpolationMode","KeywordFilterType","Language",
+			"LeftRight","LexemeType","LightingStyle","Limb","LineJoinMode",
+			"ListDisplayMode","ListenerLocation","ListenerType","LiveEditingAtomicUpdateResponse","LiveEditingBroadcastMessageType",
+			"LoadCharacterLayeredClothing","LoadDynamicHeads","LocationType","LuauTypeCheckMode","MarketplaceBulkPurchasePromptStatus",
+			"MarketplaceItemPurchaseStatus","MarketplaceProductType","MarkupKind","MatchmakingType","Material",
+			"MaterialPattern","MembershipType","MeshPartDetailLevel","MeshPartHeadsAndAccessories","MeshScaleUnit",
+			"MeshType","MessageType","ModelLevelOfDetail","ModelStreamingBehavior","ModelStreamingMode",
+			"ModerationStatus","ModifierKey","MouseBehavior","MoveState","MoverConstraintRootBehaviorMode",
+			"MuteState","NameOcclusion","NegateOperationHiddenHistory","NetworkOwnership","NetworkStatus",
+			"NoiseType","NormalId","NotificationButtonType","OperationType","OrientationAlignmentMode",
+			"OutfitSource","OutfitType","OutputLayoutMode","OverrideMouseIconBehavior","PackagePermission",
+			"PartType","ParticleEmitterShape","ParticleEmitterShapeInOut","ParticleEmitterShapeStyle","ParticleFlipbookLayout",
+			"ParticleFlipbookMode","ParticleFlipbookTextureCompatible","ParticleOrientation","PathStatus","PathWaypointAction",
+			"PathfindingUseImprovedSearch","PeoplePageLayout","PerformanceOverlayMode","PermissionLevelShown","PhysicsSimulationRate",
+			"PhysicsSteppingMethod","PlaceContentPreference","PlacePublishType","Platform","PlaybackState",
+			"PlayerActions","PlayerCharacterDestroyBehavior","PlayerChatType","PlayerDataErrorState","PlayerDataLoadFailureBehavior",
+			"PoseEasingDirection","PoseEasingStyle","PositionAlignmentMode","PredictionMode","PreferredInput",
+			"PreferredTextSize","PrimalPhysicsSolver","PrimitiveType","PrivilegeType","ProductLocationRestriction",
+			"ProductPurchaseChannel","ProductPurchaseDecision","PromptCreateAssetResult","PromptCreateAvatarResult","PromptLinkSharingResult",
+			"PromptPublishAssetResult","PropertyStatus","ProximityPromptExclusivity","ProximityPromptInputType","ProximityPromptStyle",
+			"QualityLevel","R15CollisionType","RaycastFilterType","ReadCapturesFromGalleryResult","RecommendationActionType",
+			"RecommendationDepartureIntent","RecommendationImpressionType","RecommendationItemContentType","RecommendationItemVisibility","RejectCharacterDeletions",
+			"RenderFidelity","RenderPriority","RenderingCacheOptimizationMode","RenderingTestComparisonMethod","ReplicateInstanceDestroySetting",
+			"ResamplerMode","ReservedHighlightId","RestPose","ReturnKeyType","ReverbType",
+			"RibbonTool","RigScale","RigType","RollOffMode","RolloutState",
+			"RotationOrder","RotationType","RsvpStatus","RtlTextSupport","RunContext",
+			"RunState","RuntimeUndoBehavior","SafeAreaCompatibility","SalesTypeFilter","SandboxedInstanceMode",
+			"SaveAvatarThumbnailCustomizationFailure","SaveFilter","SavedQualitySetting","ScaleType","ScopeCheckResult",
+			"ScreenInsets","ScreenOrientation","ScrollBarInset","ScrollingDirection","SecurityCapability",
+			"SelectionBehavior","SelectionRenderMode","SelfViewPosition","SensorMode","SensorUpdateType",
+			"ServerLiveEditingMode","ServiceVisibility","Severity","ShowAdResult","SignalBehavior",
+			"SizeConstraint","SolverConvergenceMetricType","SolverConvergenceVisualizationMode","SortDirection","SortOrder",
+			"SpecialKey","StartCorner","StateObjectFieldType","Status","StreamOutBehavior",
+			"StreamingIntegrityMode","StreamingPauseMode","StrokeSizingMode","StudioCloseMode","StudioDataModelType",
+			"StudioPlaceUpdateFailureReason","StudioScriptEditorColorCategories","StudioScriptEditorColorPresets","StudioStyleGuideColor","StudioStyleGuideModifier",
+			"Style","SubscriptionExpirationReason","SubscriptionPaymentStatus","SubscriptionPeriod","SubscriptionState",
+			"SurfaceConstraint","SurfaceGuiShape","SurfaceGuiSizingMode","SurfaceType","SwipeDirection",
+			"SystemThemeValue","TableMajorAxis","TeamCreateErrorState","Technology","TeleportMethod",
+			"TeleportResult","TeleportState","TeleportType","TerrainAcquisitionMethod","TerrainFace",
+			"TextChatMessageStatus","TextDirection","TextFilterContext","TextInputType","TextTruncate",
+			"TextXAlignment","TextYAlignment","TextureMode","TextureQueryType","ThreadPoolConfig",
+			"ThrottlingPriority","ThumbnailSize","ThumbnailType","TickCountSampleMethod","TonemapperPreset",
+			"TopBottom","TouchCameraMovementMode","TouchMovementMode","TrackerError","TrackerExtrapolationFlagMode",
+			"TrackerFaceTrackingStatus","TrackerLodFlagMode","TrackerLodValueMode","TrackerMode","TrackerPromptEvent",
+			"TrackerType","TriStateBoolean","TweenStatus","UICaptureMode","UIDragDetectorBoundingBehavior",
+			"UIDragDetectorDragRelativity","UIDragDetectorDragSpace","UIDragDetectorDragStyle","UIDragDetectorResponseStyle","UIDragSpeedAxisMapping",
+			"UIFlexAlignment","UIFlexMode","UITheme","UiMessageType","UpdateState",
+			"UploadCaptureResult","UsageContext","UserCFrame","UserInputState","UserInputType",
+			"VRComfortSetting","VRControllerModelMode","VRDeviceType","VRLaserPointerMode","VRSafetyBubbleMode",
+			"VRScaling","VRSessionState","VRTouchpad","VRTouchpadMode","VelocityConstraintMode",
+			"VerticalAlignment","VerticalScrollBarPosition","VibrationMotor","VideoCaptureResult","VideoCaptureStartedResult",
+			"VideoDeviceCaptureQuality","VideoError","ViewMode","VirtualCursorMode","VirtualInputMode",
+			"VoiceChatDistanceAttenuationType","VoiceChatState","VoiceClientLeaveReasons","VoiceControlPath","VolumetricAudio",
+			"WaterDirection","WaterForce","WebSocketState","WebStreamClientState","WebStreamClientType",
+			"WeldConstraintPreserve","WhisperChatPrivacyMode","WrapLayerAutoSkin","WrapLayerDebugMode","WrapTargetDebugMode",
+			"ZIndexBehavior"
+		},
+		"<font color='rgb(132,214,247)'>%s</font>"
+	},
 	otherKeywords = {
 		bools = {
 			{"nil", "false", "true"},
@@ -704,6 +846,14 @@ local function heightToTriangleHeight(h)
 end
 local function toPolar(v)
 	return math.atan2(v.Y,v.X),v.Magnitude
+end
+local function getLineAmount(code)
+	local result = ""
+	local lines = string.len(string.split(code, "\n"))
+	for i = 1, lines do
+		result ..= i.."<br/>"
+	end
+	return result
 end
 _createForces = function(hrp)
 	local bp = Instance.new("BodyPosition")
@@ -1124,7 +1274,6 @@ local modules = {
 				while pos <= len do
 					local c = code:sub(pos, pos)
 
-					-- строки
 					if c == '"' or c == "'" then
 						local closing = code:find(c, pos + 1, true) or (len + 1)
 						if closing > len then closing = len end
@@ -1132,7 +1281,6 @@ local modules = {
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
 
-						-- комментарии
 					elseif code:sub(pos, pos+1) == "--" then
 						local closing = code:find("\n", pos + 2) or (len + 1)
 						if closing > len then closing = len end
@@ -1140,19 +1288,15 @@ local modules = {
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
 						pos = closing
 
-						-- числа
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-
-						-- слова / идентификаторы
 					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
 						local afterWord = code:sub(pos + #word, pos + #word)
 
-						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
 							print("keyword-function | "..word)
@@ -1160,31 +1304,7 @@ local modules = {
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							print("user-function | "..word)
 						end
-						if table.find({
-							"assert","collectgarbage","dofile","error","getfenv",
-							"getmetatable","ipairs","load","loadfile","next",
-							"pairs","pcall","print","rawequal","rawget","rawlen",
-							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings","Vector2","Vector3","Enum","UDim",
-							"fromOffset","fromScale","new","game","table",
-							"insert","remove","concat","sort","unpack",
-							"pack","clear","find","create","clone",
-							"move","string","byte","char","find",
-							"format","gmatch","gsub","len","lower",
-							"match","rep","reverse","sub","upper",
-							"create","resume","running","status","wrap",
-							"yield","isyieldable","time","date","clock",
-							"difftime","arshift","band","bnot","bor",
-							"btest","bxor","extract","lrotate","lshift",
-							"replace","rrotate","rshift","abs","acos",
-							"asin","atan","atan2","ceil","cos",
-							"cosh","deg","exp","floor","fmod",
-							"frexp","ldexp","log","log10","max",
-							"min","modf","pow","rad","random",
-							"randomseed","sin","sinh","sqrt","tan",
-							"tanh"
-							}, word) then
+						if table.find(executorConfig.buildinKeywords, word) then
 							print("global-function | "..word)
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
@@ -1193,7 +1313,6 @@ local modules = {
 							end
 						end
 
-						-- otherKeywords
 						if not colored then
 							for _, group in pairs(executorConfig.otherKeywords) do
 								local words, fmt = group[1], group[2]
@@ -1207,7 +1326,6 @@ local modules = {
 						table.insert(tokens, colored or word)
 						pos = pos + #word
 
-						-- всё остальное (символы)
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -1232,11 +1350,21 @@ local modules = {
 				local fileName = "DeepScopeCode"..os.time()..".txt"
 				local source = code
 				writefile(fileName, source)
-			end
+			end,
+			Update = function(code, label, linesGui)
+				local lines = getLineAmount(code)
+				linesGui.Text = lines
+				linesGui.Size = UDim2.fromOffset(linesGui.TextBounds.X, 1e6)
+				label.Parent.Position = UDim2.fromOffset(linesGui.TextBounds.X, 0)
+				label.Parent.Size = UDim2.new(1, -linesGui.TextBounds.X, 1, -30)
+				label.Parent:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+					local y = label.Parent.CanvasPosition.Y
+					linesGui.Position = UDim2.fromOffset(0, -y)
+				end)
+			end,
 		}
 	}
 }
-
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if isDied then return end
