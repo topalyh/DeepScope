@@ -1420,7 +1420,7 @@ local function toPolar(v)
 end
 local function getLineAmount(code)
 	local result = ""
-	local lines = string.len(string.split(code, "\n"))
+	local lines = #string.split(code, "\n")
 	for i = 1, lines do
 		result ..= i.."<br/>"
 	end
@@ -5749,3 +5749,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
