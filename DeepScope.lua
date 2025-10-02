@@ -1190,25 +1190,21 @@ local modules = {
 						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
-
-							-- глобальные функции
+						elseif afterWord == "(" then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						elseif table.find({
 							"assert","collectgarbage","dofile","error","getfenv",
 							"getmetatable","ipairs","load","loadfile","next",
 							"pairs","pcall","print","rawequal","rawget","rawlen",
 							"rawset","require","select","setfenv","setmetatable",
 							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings"
+							"UserSettings","Vector2","Vector3"
 							}, word) then
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
-
-							-- юзер-функция (func())
-						elseif afterWord == "(" then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
 						-- otherKeywords
