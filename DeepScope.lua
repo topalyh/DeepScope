@@ -1,5 +1,7 @@
+print("Loading DS...")
 if DS_LOADED then return end
 pcall(function() getgenv().DS_LOADED = true end)
+print("Loaded!")
 local function createInstance(name, tbl)
 	local any = Instance.new(name)
 	for i, v in tbl do
@@ -17,22 +19,25 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local waxwritefile, waxreadfile = writefile, readfile
-cloneref = missing("function", cloneref, function(...) return ... end)
-everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
-writefile = missing("function", waxwritefile) and function(file, data, safe)
-if safe == true then return pcall(waxwritefile, file, data) end
-	waxwritefile(file, data)
-end
-readfile = missing("function", waxreadfile) and function(file, safe)
-if safe == true then return pcall(waxreadfile, file) end
-	return waxreadfile(file)
-end
-isfile = missing("function", isfile, readfile and function(file)
-	local success, result = pcall(function()
-		return readfile(file)
+if not RunService:IsStudio() then
+	cloneref = missing("function", cloneref, function(...) return ... end)
+	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
+	writefile = missing("function", waxwritefile) and function(file, data, safe)
+		if safe == true then return pcall(waxwritefile, file, data) end
+		waxwritefile(file, data)
+	end
+	readfile = missing("function", waxreadfile) and function(file, safe)
+		if safe == true then return pcall(waxreadfile, file) end
+		return waxreadfile(file)
+	end
+	isfile = missing("function", isfile, readfile and function(file)
+		local success, result = pcall(function()
+			return readfile(file)
+		end)
+		return success and result ~= nil and result ~= ""
 	end)
-	return success and result ~= nil and result ~= ""
-end)
+end
+repeat wait() until LocalPlayer.Character
 local suffixes = {
 	"",
 	"k",
@@ -4992,4 +4997,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
