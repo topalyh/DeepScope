@@ -1955,7 +1955,8 @@ local modules = {
 			end,
 			Update = function(code, label, linesGui)
 				local lines = getLineAmount(code)
-				local size = linesGui.TextBounds.X + 10
+				local padding = 12
+				local size = linesGui.TextBounds.X + padding
 				linesGui.Text = lines
 				linesGui.Size = UDim2.fromOffset(size, 1e6)
 				linesGui.Parent.Size = UDim2.new(0, size, 1, -30)
@@ -5752,5 +5753,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
