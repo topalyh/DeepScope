@@ -1870,7 +1870,7 @@ local modules = {
 
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
-						elseif afterWord == "(" or afterWord == "[" or afterWord == "{" then
+						elseif afterWord == "(" or afterWord == "{" then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 						if table.find({
@@ -1908,7 +1908,7 @@ local modules = {
 							"fromRotationBetweenVectors","char","len","offset","codes",
 							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize"
 							}, word) then
-							if afterWord == "(" or afterWord == "[" or afterWord == "{" then
+							if afterWord == "(" or afterWord == "{" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
@@ -1955,7 +1955,7 @@ local modules = {
 			end,
 			Update = function(code, label, linesGui)
 				local lines = getLineAmount(code)
-				local padding = 12
+				local padding = 15
 				local size = linesGui.TextBounds.X + padding
 				linesGui.Text = lines
 				linesGui.Size = UDim2.fromOffset(size, 1e6)
@@ -5753,6 +5753,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
