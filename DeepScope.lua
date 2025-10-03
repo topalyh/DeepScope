@@ -1911,8 +1911,9 @@ local modules = {
 						local colored = nil
 
 						-- Enums
-						local enumFull, enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
-						print(enumFull, Enum, category, value)
+						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
+						local enumFull = enum.."."..category.."."..value
+						print(enum, category, value)
 						if enumFull then
 							colored = string.format(
 								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
