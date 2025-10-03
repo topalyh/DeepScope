@@ -600,7 +600,7 @@ local executorConfig = {
 	propColor = Color3.fromRGB(0,139,219),
 	keywordColor = Color3.fromRGB(248,109,124),
 	boolsColor = Color3.fromRGB(255,198,0),
-	font = Font.new(fonts.BuilderMono),
+	font = fonts.BuilderMono,
 	TextSize = 15,
 }
 local function toRGB(color, bold)
@@ -5260,4 +5260,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
