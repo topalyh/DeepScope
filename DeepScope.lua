@@ -1317,7 +1317,7 @@ local executorConfig = {
 	operatorColor = "rgb(204,204,204)",
 	funcColor = "rgb(253,251,172)",
 	libColor = "rgb(132,214,247)",
-	propColor = "rgb(0,67,162)"
+	propColor = "rgb(0,139,219)"
 }
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -1876,12 +1876,12 @@ local modules = {
 				local tokens = {}
 				local pos = 1
 				local len = #code
-				
+
 				if len > 200000 then
 					AddLog("Code overflow, limit is 200000.", "DS Executor", "warn")
 					return
 				end
-				
+
 				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
 
 				while pos <= len do
@@ -1905,6 +1905,24 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
+					elseif c:match("[%a_]") then
+						local word = code:match("^[%w_]+", pos)
+						local afterWord = code:sub(pos + #word, pos + #word)
+						local colored = nil
+						if table.find(executorConfig.keywords[1], word) then
+							colored = string.format(executorConfig.keywords[2], word)
+						elseif table.find(globalfuncs, word) then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+						elseif afterWord == "(" then
+							if afterWord == "(" then
+								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+							else
+								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
+							end
+						end
+
+						table.insert(tokens, colored or word)
+						pos = pos + #word
 					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
 						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						local full = enum.."."..category.."."..value
@@ -1927,31 +1945,6 @@ local modules = {
 						end
 						table.insert(tokens, result)
 						pos = pos + #full
-					end
-					if c:match("[%a_]") then
-						local word = code:match("^[%w_]+", pos)
-						local afterWord = code:sub(pos + #word, pos + #word)
-						local colored = nil
-
-						-- ключевые слова
-						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format(executorConfig.keywords[2], word)
-
-							-- глобальные функции
-						elseif table.find(globalfuncs, word) then
-							if afterWord == "(" then
-								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
-							else
-								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
-							end
-
-							-- юзер-функции
-						elseif afterWord == "(" then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
-						end
-
-						table.insert(tokens, colored or word)
-						pos = pos + #word
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -3672,7 +3665,7 @@ if makefolder and isfolder and writefile and isfile then
 		if not isfolder(folderName) then
 			makefolder(folderName)
 		end
-		
+
 	end)
 end
 local function makeFakeScripts()
@@ -5804,4 +5797,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
