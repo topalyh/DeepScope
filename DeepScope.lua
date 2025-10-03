@@ -660,6 +660,10 @@ local initMessages = {
 	"Enjoying DeepScope? {player}"
 }
 local code = [[]]
+local defaultSaves = {
+	["UIColor"] = {163,162,165},
+}
+local saves = {}
 local currentUIColor = Color3.fromRGB(163, 162, 165)
 local usingSlider = {
 	enabled = false
@@ -2957,10 +2961,25 @@ local function getMousePos()
 end
 if makefolder and isfolder and writefile and isfile then
 	pcall(function()
-		local folderName = "DeepScope"
-		local savesFileName = "saves.json"
-		if not isfolder(folderName) then
-			makefolder(folderName)
+		local folders = {
+			"DeepScopeCore"
+		}
+		local files = {
+			"DeepScopeCore/Saves.json"
+		}
+		for _, v in ipairs(folders) do
+			if not isfolder(v) then
+				makefolder(v)
+			end
+		end
+
+		for _, v in ipairs(files) do
+			if not isfile(v) then
+				local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
+				if isJSON then
+					writefile(v, game:GetService("HttpService"):JSONEncode({}))
+				end
+			end
 		end
 	end)
 end
