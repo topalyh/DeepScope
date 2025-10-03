@@ -1848,14 +1848,17 @@ local modules = {
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
 						pos = closing + 1
-
-					elseif code:sub(pos, pos+1) == "--" then
-						local closing = code:find("\n", pos + 2) or (len + 1)
-						if closing > len then closing = len end
-						local com = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, com))
-						pos = closing
-
+					elseif c:match("^%-%-") then
+						local block = c:match("^%-%-%[%[(.-)%]%]")
+						if block then
+							local full = c:match("^%-%-%[%[.-%]%]")
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, full))
+							pos = pos + #full
+						else
+							local line = c:match("^(%-%-.*)\n?") or c
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, line))
+							pos = pos + #line
+						end
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
@@ -1902,7 +1905,19 @@ local modules = {
 							"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
 							"fromRotationBetweenVectors","char","len","offset","codes",
 							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
-							"math","clamp","gcinfo"
+							"math","clamp","gcinfo","Brickcolor","bit32",
+							"buffer","Content","CatalogSearchParams","DateTime","now",
+							"fromUnixTimestamp","fromIsoDate","fromLocalTime","fromUniversalTime","fromUnixTimestampMillis",
+							"debug","info","traceback","profileend","dumpcodesize",
+							"profilebegin","getmemorycategory","setmemorycategory","resetmemorycategory","DockWidgetPluginGuiInfo",
+							"ElapsedTime","elapsedTime","Faces","File","FloatCurveKey",
+							"Game","newproxy","next","OverlapParams","plugin",
+							"PhysicalProperties","Path2DControlPoint","PathWaypoint","printidentity","Random",
+							"RaycastParams","Ray","Region3","RotationCurveKey","rawget",
+							"rawlen","rawset","rawequal","select","settings",
+							"shared","Secret","setfenv","SharedTable","SecurityCapabilities",
+							"Stats","stats","unpack","vector","Vector3int16",
+							"Vector2int16","Version","version","Wait","ypcall"
 							}, word) then
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
@@ -3478,6 +3493,7 @@ local function createGui()
 		ZIndex = 2,
 		FontFace = Font.new("rbxassetid://16658246179"),
 		Text = [[print("Hello DeepScope!")]],
+		TextTransparency = 1,
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
 		RichText = true,
@@ -3642,7 +3658,7 @@ local function createGui()
 		Parent = executorGui16,
 		PaddingRight = UDim.new(0, 35)
 	})
-	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
+	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -5778,4 +5794,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
