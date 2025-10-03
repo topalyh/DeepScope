@@ -1905,7 +1905,7 @@ local modules = {
 							"math","clamp","gcinfo"
 							}, word) then
 							if afterWord == "(" then
-								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
@@ -3461,6 +3461,24 @@ local function createGui()
 		Size = UDim2.fromOffset(1e6, 1e6),
 		FontFace = Font.new("rbxassetid://16658246179"),
 		Text = [[print("Hello DeepScope!")]],
+		TextTransparency = 1,
+		TextColor3 = Color3.fromRGB(204, 204, 204),
+		TextSize = 15,
+		RichText = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local executorGui3_2 = createInstance("TextLabel", {
+		Parent = executorGui3,
+		Name = "visual",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 2,
+		FontFace = Font.new("rbxassetid://16658246179"),
+		Text = [[print("Hello DeepScope!")]],
+		TextTransparency = 1,
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
 		RichText = true,
@@ -4823,21 +4841,7 @@ luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
-	if not luauPole:IsFocused() then
-		luauPole.Text = modules.other.executor.highlightLuau(luauPole.ContentText)
-		newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
-		modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
-	end
-end)
-luauPole.Focused:Connect(function()
-	luauPole.Text = eraseFormatTags(luauPole.Text)
-end)
-luauPole.FocusLost:Connect(function()
-	luauPole.Text = modules.other.executor.highlightLuau(luauPole.Text)
-	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
-end)
-newgui.Parent.executor.run.MouseButton1Click:Connect(function()
-	modules.other.executor.runScript(newgui.Parent.executor.ScrollingFrame.luau.ContentText)
+	luauPole.visual.Text = modules.other.executor.highlightLuau(luauPole.Text)
 end)
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
