@@ -1397,6 +1397,42 @@ local logConfig = {
 	stringFormat = "%s - %s  -  %s",
 	messages = 0,
 }
+local globalfuncs = {
+	"assert","collectgarbage","dofile","error","getfenv",
+	"getmetatable","ipairs","load","loadfile","next",
+	"pairs","pcall","print","rawequal","rawget","rawlen",
+	"rawset","require","select","setfenv","setmetatable",
+	"tonumber","tostring","xpcall","loadstring","typeof",
+	"UserSettings","Vector2","Vector3","Enum","UDim",
+	"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
+	"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
+	"fromOffset","fromScale","new","game","table",
+	"insert","remove","concat","sort","unpack",
+	"pack","clear","find","create","clone",
+	"move","string","byte","char","find",
+	"format","gmatch","gsub","len","lower",
+	"match","rep","reverse","sub","upper",
+	"create","resume","running","status","wrap",
+	"yield","isyieldable","time","date","clock",
+	"difftime","arshift","band","bnot","bor",
+	"btest","bxor","extract","lrotate","lshift",
+	"replace","rrotate","rshift","abs","acos",
+	"asin","atan","atan2","ceil","cos",
+	"cosh","deg","exp","floor","fmod",
+	"frexp","ldexp","log","log10","max",
+	"min","modf","pow","rad","random",
+	"randomseed","sin","sinh","sqrt","tan",
+	"tanh","spawn","Delay","Spawn","game",
+	"Rect","Font","Instance","TweenInfo","workspace",
+	"Workspace","tick","time","zero","one",
+	"yAxis","xAxis","FromNormalId","zAxis","FromAxis",
+	"fromAxis","fromNormalId","wait","task","CFrame",
+	"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
+	"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
+	"fromRotationBetweenVectors","char","len","offset","codes",
+	"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
+	"math","clamp","gcinfo"
+}
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
@@ -1891,70 +1927,26 @@ local modules = {
 						end
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif code:match("[%a_]") then
+					elseif c:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
-						local colored = nil
 						local afterWord = code:sub(pos + #word, pos + #word)
+						local colored = nil
 
+						-- ключевые слова
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
-						end
 
-						if not colored and (afterWord == "(" or afterWord == "{") then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
-						end
-
-						if not colored and table.find({
-							"assert","collectgarbage","dofile","error","getfenv",
-							"getmetatable","ipairs","load","loadfile","next",
-							"pairs","pcall","print","rawequal","rawget","rawlen",
-							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings","Vector2","Vector3","Enum","UDim",
-							"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
-							"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
-							"fromOffset","fromScale","new","game","table",
-							"insert","remove","concat","sort","unpack",
-							"pack","clear","find","create","clone",
-							"move","string","byte","char","find",
-							"format","gmatch","gsub","len","lower",
-							"match","rep","reverse","sub","upper",
-							"create","resume","running","status","wrap",
-							"yield","isyieldable","time","date","clock",
-							"difftime","arshift","band","bnot","bor",
-							"btest","bxor","extract","lrotate","lshift",
-							"replace","rrotate","rshift","abs","acos",
-							"asin","atan","atan2","ceil","cos",
-							"cosh","deg","exp","floor","fmod",
-							"frexp","ldexp","log","log10","max",
-							"min","modf","pow","rad","random",
-							"randomseed","sin","sinh","sqrt","tan",
-							"tanh","spawn","Delay","Spawn","game",
-							"Rect","Font","Instance","TweenInfo","workspace",
-							"Workspace","tick","time","zero","one",
-							"yAxis","xAxis","FromNormalId","zAxis","FromAxis",
-							"fromAxis","fromNormalId","wait","task","CFrame",
-							"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
-							"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
-							"fromRotationBetweenVectors","char","len","offset","codes",
-							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
-							"math","clamp","gcinfo"
-							}, word) then
-							if afterWord == "(" or afterWord == "{" then
+							-- глобальные функции
+						elseif table.find(globalfuncs, word) then
+							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
-						end
 
-						if not colored then
-							for _, group in pairs(executorConfig.otherKeywords) do
-								local words, fmt = group[1], group[2]
-								if table.find(words, word) then
-									colored = string.format(fmt, word)
-									break
-								end
-							end
+							-- юзер-функции
+						elseif afterWord == "(" then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
 						table.insert(tokens, colored or word)
@@ -5811,5 +5803,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
