@@ -1909,35 +1909,18 @@ local modules = {
 						local word = code:match("^[%w_]+", pos)
 						local afterWord = code:sub(pos + #word, pos + #word)
 						local colored = nil
-						local chain = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
-						if chain then
-							local parts, result = {}, ""
-							for part in chain:gmatch("[^%.]+") do
-								table.insert(parts, part)
-							end
-							result = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, parts[1])
-							for i = 2, #parts do
-								result = result .. "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, parts[i])
-							end
-							table.insert(tokens, result)
-							pos = pos + #chain
-						end
 
-						-- Keywords
+						if afterWord == "(" then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+						end
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
-
-							-- Global functions
 						elseif table.find(globalfuncs, word) then
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
-
-							-- User-defined functions
-						elseif afterWord == "(" then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
 						table.insert(tokens, colored or word)
@@ -3932,7 +3915,7 @@ local function createEntryForInstance(node, parentGui)
 		Parent = nil,
 		Name = "template",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(228, 16),
+		Size = UDim2.fromOffset(228, 24),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
@@ -3942,7 +3925,7 @@ local function createEntryForInstance(node, parentGui)
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, 16)
+		Size = UDim2.new(1, 0, 0, 24)
 	})
 	local explorerGui6 = createInstance("UIListLayout", {
 		Parent = explorerGui5,
@@ -3967,7 +3950,7 @@ local function createEntryForInstance(node, parentGui)
 		Parent = explorerGui5,
 		Name = "dropdownbutton",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(29, 29),
+		Size = UDim2.fromOffset(20, 20),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0
 	})
@@ -3986,7 +3969,7 @@ local function createEntryForInstance(node, parentGui)
 		Name = "icon",
 		BackgroundTransparency = 1,
 		LayoutOrder = 1,
-		Size = UDim2.fromOffset(14, 14),
+		Size = UDim2.fromOffset(17, 17),
 		Image = "rbxassetid://765660635",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -3999,7 +3982,7 @@ local function createEntryForInstance(node, parentGui)
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
 		LayoutOrder = 2,
-		Size = UDim2.fromOffset(0, 14),
+		Size = UDim2.fromOffset(0, 17),
 		FontFace = Font.new(fonts.FiraSans),
 		Text = "hi",
 		TextColor3 = Color3.new(1, 1, 1),
@@ -4029,7 +4012,7 @@ local function createEntryForInstance(node, parentGui)
 		Parent = template,
 		Name = "dropdown",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(16, 16),
+		Position = UDim2.fromOffset(24, 24),
 		Size = UDim2.fromScale(1, 0),
 		Visible = false
 	})
@@ -4078,7 +4061,7 @@ local function createEntryForInstance(node, parentGui)
 		dropdown:Destroy()
 	end
 	templates[newTemplate] = newTemplate
-	newTemplate.Size = UDim2.new(1, 0, 0, 32)
+	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
 end
 
