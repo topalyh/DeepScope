@@ -5168,6 +5168,7 @@ registerCommand("flyfling", function(args)
 	runCommand("fly "..tonumber(args[1]) or flySpeed)
 	runCommand("walkfling")
 end)
+saveData()
 while true do
 	task.wait()
 	if selectedplr ~= "nobody" then
@@ -5259,3 +5260,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
