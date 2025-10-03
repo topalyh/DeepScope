@@ -616,6 +616,7 @@ local function toRGB(color, bold)
 	return string.format(result, r, g, b, "%s")
 end
 local function toJSONRGB(color)
+	print(color)
 	local r = math.floor(color.R * 255)
 	local g = math.floor(color.G * 255)
 	local b = math.floor(color.B * 255)
@@ -845,7 +846,7 @@ local function saveData()
 			Number = toJSONRGB(executorConfig.numberColor),
 			Function = toJSONRGB(executorConfig.funcColor),
 			Keywords = toJSONRGB(executorConfig.keywordColor),
-			Bools = toJSONRGB(executorConfig.bools),
+			Bools = toJSONRGB(executorConfig.boolsColor),
 			Comment = toJSONRGB(executorConfig.commentColor),
 			BuildIn = toJSONRGB(executorConfig.libColor)
 		},
@@ -3213,7 +3214,7 @@ end)
 local explorerData = {}
 local nodesBuilt = {}
 local templates = {}
-saveData()
+
 local function buildExplorerData(instance)
 	if not instance or not instance.Parent and instance ~= game then
 		return nil
@@ -5258,4 +5259,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
