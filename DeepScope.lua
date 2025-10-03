@@ -624,9 +624,9 @@ local function toJSONRGB(color)
 	local result = str:format(r, g, b)
 	return result
 end
-local function toJSONFont(id)
-	local str = "font[%d]"
-	return str:format(id)
+local function toJSONFont(asset)
+	local str = "font[%s]"
+	return str:format(asset)
 end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -5260,5 +5260,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
