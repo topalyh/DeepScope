@@ -600,7 +600,7 @@ local executorConfig = {
 	propColor = Color3.fromRGB(0,139,219),
 	keywordColor = Color3.fromRGB(248,109,124),
 	boolsColor = Color3.fromRGB(255,198,0),
-	font = fonts.BuilderMono,
+	font = Font.new(fonts.BuilderMono),
 	TextSize = 15,
 }
 local function toRGB(color, bold)
@@ -616,7 +616,6 @@ local function toRGB(color, bold)
 	return string.format(result, r, g, b, "%s")
 end
 local function toJSONRGB(color)
-	print(color)
 	local r = math.floor(color.R * 255)
 	local g = math.floor(color.G * 255)
 	local b = math.floor(color.B * 255)
@@ -624,9 +623,10 @@ local function toJSONRGB(color)
 	local result = str:format(r, g, b)
 	return result
 end
-local function toJSONFont(asset)
+local function toJSONFont(font)
+	local font = font.Family
 	local str = "font[%s]"
-	return str:format(asset)
+	return str:format(font)
 end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -828,6 +828,38 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
+
+local function prettyJSON(tbl, indent)
+	indent = indent or 0
+	local padding = string.rep("  ", indent)
+	local nextPad = string.rep("  ", indent + 1)
+
+	if typeof(tbl) == "table" then
+		local isArray = (#tbl > 0)
+		local result = {}
+		if isArray then
+			table.insert(result, "[")
+			for i, v in ipairs(tbl) do
+				table.insert(result, nextPad .. prettyJSON(v, indent + 1) .. (i < #tbl and "," or ""))
+			end
+			table.insert(result, padding .. "]")
+		else
+			table.insert(result, "{")
+			local count, total = 0, 0
+			for _ in pairs(tbl) do total += 1 end
+			for k, v in pairs(tbl) do
+				count += 1
+				local key = game.HttpService:JSONEncode(k)
+				table.insert(result, nextPad .. key .. ": " .. prettyJSON(v, indent + 1) .. (count < total and "," or ""))
+			end
+			table.insert(result, padding .. "}")
+		end
+		return table.concat(result, "\n")
+	else
+		return game.HttpService:JSONEncode(tbl)
+	end
+end
+
 local function saveData()
 	local data = {}
 	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
@@ -5168,7 +5200,6 @@ registerCommand("flyfling", function(args)
 	runCommand("fly "..tonumber(args[1]) or flySpeed)
 	runCommand("walkfling")
 end)
-saveData()
 while true do
 	task.wait()
 	if selectedplr ~= "nobody" then
@@ -5260,6 +5291,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
