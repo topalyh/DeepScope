@@ -585,719 +585,6 @@ local executorConfig = {
 		},
 		"<font color='rgb(248,109,124)'><b>%s</b></font>"
 	},
-	enumValues = {
-		value = {
-			"Allow","Deny","Unknown","Hat","Hair",
-			"Face","Neck","Shoulder","Front","Back",
-			"Waist","TShirt","Shirt","Pants","Jacket",
-			"Sweater","Shorts","LeftShoe","RightShoe","DressSkirt",
-			"Eyebrow","Eyelash","DontResume","KeepStudio","KeepLocal",
-			"AlwaysAsk","KeepLocalFiles","DeleteLocalFiles","Nothing","Pause",
-			"Lose","Draw","Win","Attachment0","Attachment1",
-			"World","None","Motor","Servo","IsAvailable",
-			"DeviceIneligible","ExperienceIneligible","InternalError","NoFill","PlayerIneligible",
-			"PublisherIneligible","RewardedAdLoaded","RewardedAdGrant","RewardedAdUnloaded","VideoLoaded",
-			"VideoRemoved","UserCompletedVideo","RewardedVideo","HorizontalRectangle","Undefined",
-			"PortalForward","InGameMenuBackButton","UIBackButton","AdLabelClicked","VolumeButtonClicked",
-			"FullscreenButtonClicked","PlayButtonClicked","PauseButtonClicked","CloseButtonClicked","WhyThisAdClicked",
-			"PlayEventTriggered","PauseEventTriggered","None","Image","Video",
-			"Inactive","Active","Automatic","Never","Default",
-			"Shaded","XRay","XRayShaded","AlwaysOnTop","PrimaryAxisParallel",
-			"PrimaryAxisPerpendicular","PrimaryAxisLookAt","AllAxes","Parallel","Perpendicular",
-			"Overlay","Transparency","TintMask","CustomField01","CustomField02",
-			"CustomField03","Default","Acquire","Spend","Sink",
-			"Source","IAP","Shop","Gameplay","ContextualPurchase",
-			"TimedReward","Onboarding","Trace","Debug","Information",
-			"Warning","Error","Fatal","Default","Begin",
-			"Complete","Abandon","Fail","Custom","Start",
-			"Fail","Complete","Initializing","Pending","Processing",
-			"ErrorGeneric","Success","ErrorVideoTooLong","ErrorNoPersonDetected","ErrorVideoUnstable",
-			"Timeout","Cancelled","ErrorMultiplePeople","ErrorUploadingVideo","Core",
-			"Idle","Movement","Action","Action2","Action3",
-			"Action4","Default","Disabled","Enabled","None",
-			"All","Unknown","None","PlacingNew","WritingNew",
-			"None","All","MentionsAndReplies","Unknown","Success",
-			"Loading","ErrorInternalFailure","ErrorNotFound","ErrorModerated","Unknown",
-			"Create","Resolve","Delete","Edit","Detached",
-			"Active","Inactive","Hidden","None","OpenApp",
-			"TapChatTab","TapConversationEntry","TapAvatarTab","ReadConversation","TapGamePageTab",
-			"TapHomePageTab","GamePageLoaded","HomePageLoaded","AvatarEditorPageLoaded","None",
-			"Chat","AvatarEditor","GamePage","HomePage","More",
-			"Landing","Unknown","NotSupported","Failed","NotAvailable",
-			"Available","AvailableBoundChannel","AvailableBetaProgram","Contextual","Border",
-			"FitWithinMaxSize","ScaleWithParentSize","User","Group","Success",
-			"Failure","None","Loading","TimedOut","Image",
-			"TShirt","Audio","Mesh","Lua","Hat",
-			"Place","Model","Shirt","Pants","Decal",
-			"Head","Face","Gear","Badge","Animation",
-			"Torso","RightArm","LeftArm","LeftLeg","RightLeg",
-			"Package","GamePass","Plugin","MeshPart","HairAccessory",
-			"FaceAccessory","NeckAccessory","ShoulderAccessory","FrontAccessory","BackAccessory",
-			"WaistAccessory","ClimbAnimation","DeathAnimation","FallAnimation","IdleAnimation",
-			"JumpAnimation","RunAnimation","SwimAnimation","WalkAnimation","PoseAnimation",
-			"EmoteAnimation","Video","TShirtAccessory","ShirtAccessory","PantsAccessory",
-			"JacketAccessory","SweaterAccessory","ShortsAccessory","LeftShoeAccessory","RightShoeAccessory",
-			"DressSkirtAccessory","FontFamily","EyebrowAccessory","EyelashAccessory","MoodAnimation",
-			"DynamicHead","EarAccessory","EyeAccessory","Default","ClientOnly",
-			"Always","Disabled","Automatic","Enabled","Mono",
-			"Stereo","Quad","Surround_5","Surround_5_1","Surround_7_1",
-			"Surround_7_1_4","Peak","LowShelf","HighShelf","Lowpass12dB",
-			"Lowpass24dB","Lowpass48dB","Highpass12dB","Highpass24dB","Highpass48dB",
-			"Bandpass","Notch","Lowpass6dB","None","Automatic",
-			"Music","SoundEffect","Small","Medium","Large",
-			"Server","Automatic","Off","Absolute","Relative",
-			"None","X","Y","XY","TShirt",
-			"Hat","Shirt","Pants","Head","Face",
-			"Gear","Torso","RightArm","LeftArm","LeftLeg",
-			"RightLeg","HairAccessory","FaceAccessory","NeckAccessory","ShoulderAccessory",
-			"FrontAccessory","BackAccessory","WaistAccessory","ClimbAnimation","FallAnimation",
-			"IdleAnimation","JumpAnimation","RunAnimation","SwimAnimation","WalkAnimation",
-			"MoodAnimation","EmoteAnimation","TShirtAccessory","ShirtAccessory","PantsAccessory",
-			"JacketAccessory","SweaterAccessory","ShortsAccessory","LeftShoeAccessory","RightShoeAccessory",
-			"DressSkirtAccessory","EyebrowAccessory","EyelashAccessory","DynamicHead","None",
-			"UniverseAudio","UniverseVideo","PlaceAudio","PlaceVideo","UserAudioEligible",
-			"UserAudio","UserVideoEligible","UserVideo","UserBanned","UserVerifiedForVoice",
-			"Friend","Chat","Emote","InspectMenu","None",
-			"Unknown","DownloadFailed","Canceled","Offensive","Timeout",
-			"JobNotFound","Asset","Bundle","Success","PermissionDenied",
-			"Failed","Scale","Remove","PreviewScale","PreviewRemove",
-			"PlayerChoice","CustomLimit","PlayerChoice","CustomClips","PlayerChoice",
-			"StandardR15","StandardR6","PlayerChoice","CustomParts","CustomBody",
-			"PlayerChoice","CustomBuild","PlayerChoice","CustomLimit","Default",
-			"SingleCollider","Legacy","PlayerChoice","CustomAccessories","AvatarReference",
-			"BundleId","PlayerChoice","CustomClothing","UseParts","UseCollider",
-			"JumpHeight","JumpPower","R6Colliders","InnerBoxColliders","PlayerChoice",
-			"CustomScale","Closeup","FullBody","Default","Disabled",
-			"Enabled","X","Y","Z","DeveloperProduct",
-			"AvatarAsset","AvatarBundle","Script","GameTool","Grab",
-			"Clone","Hammer","Head","Torso","LeftArm",
-			"RightArm","LeftLeg","RightLeg","Head","UpperTorso",
-			"LowerTorso","LeftFoot","LeftLowerLeg","LeftUpperLeg","RightFoot",
-			"RightLowerLeg","RightUpperLeg","LeftHand","LeftLowerArm","LeftUpperArm",
-			"RightHand","RightLowerArm","RightUpperArm","RootPart","Unknown",
-			"Outline","Middle","Inset","Outer","Center",
-			"Inner","Other","Error","SpecialBreakpoint","UserBreakpoint",
-			"Requested","ScriptChanged","ScriptRemoved","FireAllEvents","FireCFrameChanged",
-			"BodyParts","Animations","Shoes","DynamicHead","DynamicHeadAvatar",
-			"Jump","Dismount","Custom","RobloxButtonDefault","RobloxButton",
-			"RobloxRoundButton","RobloxRoundDefaultButton","RobloxRoundDropdownButton","Inner","Outer",
-			"Classic","LockFirstPerson","Classic","EdgeBump","None",
-			"RmbScroll","AltScroll","Fixed","Attach","Watch",
-			"Track","Follow","Custom","Scriptable","Orbital",
-			"ReadAndUpload","Screenshot","Video","None","Featured",
-			"Collectibles","CommunityCreations","Premium","Recommended","Past12Hours",
-			"PastDay","Past3Days","PastWeek","PastMonth","AllTime",
-			"Relevance","PriceHighToLow","PriceLowToHigh","MostFavorited","RecentlyCreated",
-			"Bestselling","Solid","VerticalWedge","CornerWedge","InverseCornerWedge",
-			"HorizontalWedge","Empty","Grass","Sand","Brick",
-			"Granite","Asphalt","Iron","Aluminum","Gold",
-			"WoodPlank","WoodLog","Gravel","CinderBlock","MossyStone",
-			"Cement","RedPlastic","BluePlastic","Water","NegZ",
-			"X","Z","NegX","UnsolicitedDialog","PlayerInitiatedDialog",
-			"ModalDialog","QuitDialog","Default","Legacy","NoCharacterController",
-			"LuaCharacterController","OnCreatingChatWindow","OnClientSendingMessage","OnClientFormattingMessage","OnServerReceivingMessage",
-			"Blue","Green","Red","White","Menu",
-			"TextAndMenu","AllUsers","NoOne","Friends","Unknown",
-			"NotRestricted","Restricted","Classic","Bubble","ClassicAndBubble",
-			"LegacyChatService","TextChatService","Default","Disabled","Enabled",
-			"Unknown","RobloxMaintenance","DeveloperShutdown","DeveloperUpdate","ServerEmpty",
-			"OutOfMemory","None","Editing3D","Scripting","PrivateScripting",
-			"Default","Hull","Box","PreciseConvexDecomposition","Plugin",
-			"LocalUser","Client","CoreScript","Studio","CoreScriptRaw",
-			"Insert","Replace","ReplaceOnEnterInsertOnTab","InsertOnEnterReplaceOnTab","Text",
-			"Method","Function","Constructor","Field","Variable",
-			"Class","Interface","Module","Property","Unit",
-			"Value","Enum","Keyword","Snippet","Color",
-			"File","Reference","Folder","EnumMember","Constant",
-			"Struct","Event","Operator","TypeParameter","Deprecated",
-			"IncorrectIndexType","PluginPermissions","CommandLinePermissions","RobloxPermissions","AddParens",
-			"PutCursorInParens","TypeCorrect","ClientServerBoundaryViolation","Invalidated","PutCursorBeforeEnd",
-			"Invoked","TriggerCharacter","TriggerForIncompleteCompletions","Default","Classic",
-			"Follow","Orbital","CameraToggle","Default","KeyboardMouse",
-			"ClickToMove","None","LoadFailed","OK","Unknown",
-			"DisconnectErrors","DisconnectBadhash","DisconnectSecurityKeyMismatch","DisconnectProtocolMismatch","DisconnectReceivePacketError",
-			"DisconnectReceivePacketStreamError","DisconnectSendPacketError","DisconnectIllegalTeleport","DisconnectDuplicatePlayer","DisconnectDuplicateTicket",
-			"DisconnectTimeout","DisconnectLuaKick","DisconnectOnRemoteSysStats","DisconnectHashTimeout","DisconnectCloudEditKick",
-			"DisconnectPlayerless","DisconnectNewSecurityKeyMismatch","DisconnectEvicted","DisconnectDevMaintenance","DisconnectRobloxMaintenance",
-			"DisconnectRejoin","DisconnectConnectionLost","DisconnectIdle","DisconnectRaknetErrors","DisconnectWrongVersion",
-			"DisconnectBySecurityPolicy","DisconnectBlockedIP","DisconnectClientFailure","DisconnectClientRequest","DisconnectPrivateServerKickout",
-			"DisconnectModeratedGame","ServerShutdown","ReplicatorTimeout","PlayerRemoved","DisconnectOutOfMemoryKeepPlayingLeave",
-			"DisconnectRomarkEndOfTest","DisconnectCollaboratorPermissionRevoked","DisconnectCollaboratorUnderage","NetworkInternal","NetworkSend",
-			"NetworkTimeout","NetworkMisbehavior","NetworkSecurity","ReplacementReady","ServerEmpty",
-			"PhantomFreeze","AndroidAnticheatKick","AndroidEmulatorKick","AndroidRootedKick","ScreentimeLockoutKick",
-			"PlacelaunchErrors","PlacelaunchDisabled","PlacelaunchError","PlacelaunchGameEnded","PlacelaunchGameFull",
-			"PlacelaunchUserLeft","PlacelaunchRestricted","PlacelaunchUnauthorized","PlacelaunchFlooded","PlacelaunchHashExpired",
-			"PlacelaunchHashException","PlacelaunchPartyCannotFit","PlacelaunchHttpError","PlacelaunchUserPrivacyUnauthorized","PlacelaunchCreatorBan",
-			"PlacelaunchCustomMessage","PlacelaunchOtherError","TeleportErrors","TeleportFailure","TeleportGameNotFound",
-			"TeleportGameEnded","TeleportGameFull","TeleportUnauthorized","TeleportFlooded","TeleportIsTeleporting",
-			"Connected","Disconnected","None","Uri","Object",
-			"Low","Medium","High","Sink","Pass",
-			"Classic","MouseLockSwitch","PlayerList","Health","Backpack",
-			"Chat","All","EmotesMenu","SelfView","Captures",
-			"Success","PermissionDenied","UploadFailed","Unknown","InvalidName",
-			"OutfitLimitReached","Other","User","Group","User",
-			"Group","All","Default","Robux","Tix",
-			"Default","Classic","Follow","GetAsync","SetIncrementAsync",
-			"UpdateAsync","GetSortedAsync","SetIncrementSortedAsync","OnUpdate","ListAsync",
-			"GetVersionAsync","RemoveVersionAsync","ClientRequest","Timeout","InvalidHost",
-			"Disconnected","ServerShutdown","ServerProtocolMismatch","ConfigurationFailed","RpcError",
-			"Never","Always","Unhandled","C","Lua",
-			"Unknown","Requested","Breakpoint","Exception","SingleStep",
-			"Entrypoint","Success","Timeout","ConnectionLost","InvalidResponse",
-			"InternalError","InvalidState","RpcError","InvalidArgument","ConnectionClosed",
-			"Zoom","Invisicam","UserChoice","Classic","Follow",
-			"Orbital","CameraToggle","UserChoice","KeyboardMouse","ClickToMove",
-			"Scriptable","UserChoice","Classic","Follow","Orbital",
-			"UserChoice","Thumbstick","DPad","Thumbpad","ClickToMove",
-			"Scriptable","DynamicThumbstick","Internal","HttpCache","Instances",
-			"Signals","LuaHeap","Script","PhysicsCollision","BaseParts",
-			"GraphicsSolidModels","GraphicsMeshParts","GraphicsParticles","GraphicsParts","GraphicsSpatialHash",
-			"GraphicsTerrain","GraphicsTexture","GraphicsTextureCharacter","Sounds","StreamingSounds",
-			"TerrainVoxels","Gui","Animation","Navigation","GeometryCSG",
-			"GraphicsSlimModels","DeviceCapture","Console","Phone","Tablet",
-			"Desktop","VR","Low","Medium","High",
-			"Unknown","Desktop","Tablet","Phone","SinglePlayer",
-			"MultiplePlayers","Quest","Help","Shop","Neutral",
-			"Friendly","Enemy","Small","Medium","Large",
-			"Width","Height","OK","DraftOutdated","ScriptRemoved",
-			"DraftCommitted","TranslateLine","TranslatePlane","TranslatePlaneOrLine","TranslateLineOrPlane",
-			"TranslateViewPlane","RotateAxis","RotateTrackball","Scriptable","BestForDevice",
-			"Nobody","Everybody","Scriptable","Geometric","Physical",
-			"Custom","Object","World","Geometric","Physical",
-			"None","Horizontal","Vertical","In","Out",
-			"InOut","Linear","Sine","Back","Quad",
-			"Quart","Quint","Bounce","Elastic","Exponential",
-			"Circular","Cubic","Unknown","Allowed","Disallowed",
-			"WhenScrollable","Always","Never","DefaultAuto","Disabled",
-			"Always","Skip2","Skip4","Skip8","Skip16",
-			"DefaultScope","CreatorAssetsCreate","NewReplay","ContiguousSlice","NoncontiguousSlice",
-			"S3Url","File","Undefined","Stopped","Playing",
-			"Rewinding","NoCraters","Craters","LOD0","LOD1",
-			"LODCount","Complete","Cancel","Error","None",
-			"Audio","Video","Place","Server","ChinRaiserUpperLip",
-			"ChinRaiser","FlatPucker","Funneler","LowerLipSuck","LipPresser",
-			"LipsTogether","MouthLeft","MouthRight","Pucker","UpperLipSuck",
-			"LeftCheekPuff","LeftDimpler","LeftLipCornerDown","LeftLowerLipDepressor","LeftLipCornerPuller",
-			"LeftLipStretcher","LeftUpperLipRaiser","RightCheekPuff","RightDimpler","RightLipCornerDown",
-			"RightLowerLipDepressor","RightLipCornerPuller","RightLipStretcher","RightUpperLipRaiser","JawDrop",
-			"JawLeft","JawRight","Corrugator","LeftBrowLowerer","LeftOuterBrowRaiser",
-			"LeftNoseWrinkler","LeftInnerBrowRaiser","RightBrowLowerer","RightOuterBrowRaiser","RightInnerBrowRaiser",
-			"RightNoseWrinkler","EyesLookDown","EyesLookLeft","EyesLookUp","EyesLookRight",
-			"LeftCheekRaiser","LeftEyeUpperLidRaiser","LeftEyeClosed","RightCheekRaiser","RightEyeUpperLidRaiser",
-			"RightEyeClosed","TongueDown","TongueOut","TongueUp","ExperienceChat",
-			"Communication","Vertical","Diagonal","MaxAxis","Horizontal",
-			"Vertical","BackslashNotEscapingAnything","BadBespokeFilter","BadName","IncompleteOr",
-			"IncompleteParenthesis","InvalidDoubleStar","InvalidTilde","PropertyBadOperator","PropertyDoesNotExist",
-			"PropertyInvalidField","PropertyInvalidValue","PropertyUnsupportedFields","PropertyUnsupportedProperty","UnexpectedNameIndex",
-			"UnexpectedToken","UnfinishedBinaryOperator","UnfinishedQuote","UnknownBespokeFilter","WildcardInProperty",
-			"Accepted","Rejected","Cancel","Commit","Append",
-			"Automatic","UseCollisionGeometry","UsePreciseGeometry","Default","Experimental",
-			"Legacy","Arial","ArialBold","SourceSans","SourceSansBold",
-			"SourceSansLight","SourceSansItalic","Bodoni","Garamond","Cartoon",
-			"Code","Highway","SciFi","Arcade","Fantasy",
-			"Antique","SourceSansSemibold","Gotham","GothamMedium","GothamBold",
-			"GothamBlack","AmaticSC","Bangers","Creepster","DenkOne",
-			"Fondamento","FredokaOne","GrenzeGotisch","IndieFlower","JosefinSans",
-			"Jura","Kalam","LuckiestGuy","Merriweather","Michroma",
-			"Nunito","Oswald","PatrickHand","PermanentMarker","Roboto",
-			"RobotoCondensed","RobotoMono","Sarpanch","SpecialElite","TitilliumWeb",
-			"Ubuntu","BuilderSans","BuilderSansMedium","BuilderSansBold","BuilderSansExtraBold",
-			"Arimo","ArimoBold","Unknown","Size8","Size9",
-			"Size10","Size11","Size12","Size14","Size18",
-			"Size24","Size36","Size48","Size28","Size32",
-			"Size42","Size60","Size96","Normal","Italic",
-			"Thin","ExtraLight","Light","Regular","Medium",
-			"SemiBold","Bold","ExtraBold","Heavy","Magnitude",
-			"PerAxis","Symmetric","Brick","Plate","Custom",
-			"Custom","ChatBlue","RobloxSquare","RobloxRound","ChatGreen",
-			"ChatRed","DropShadow","Automatic","On","Off",
-			"Issue","Revoke","Accept","Deny","Unknown",
-			"NotFriend","Friend","FriendRequestSent","FriendRequestReceived","Passed",
-			"Warning","Error","R6","R15","PlayerChoice",
-			"Unknown","PS4","PS5","XboxOne","AllGenres",
-			"MatchingGenreOnly","MeleeWeapons","RangedWeapons","Explosives","PowerUps",
-			"NavigationEnhancers","MusicalInstruments","SocialItems","BuildingTools","Transport",
-			"All","TownAndCity","Fantasy","SciFi","Ninja",
-			"Scary","Pirate","Adventure","Sports","Funny",
-			"WildWest","War","SkatePark","Tutorial","Automatic",
-			"Direct3D11","OpenGL","Metal","Vulkan","NoGraphics",
-			"Performance","Balanced","Quality","Idle","Hover",
-			"Press","NonInteractable","Core","Custom","PlayerNameplates",
-			"CustomBillboards","CoreBillboards","None","Left","Right",
-			"Resize","Movement","Custom","UIHover","UIClick",
-			"UINotification","GameplayExplosion","GameplayCollision","AlwaysOnTop","Occluded",
-			"Center","Left","Right","VerySlow","Slow",
-			"Medium","Fast","VeryFast","None","Full",
-			"DataOnly","Default","InternalRedirectRefresh","None","Gzip",
-			"ApplicationJson","ApplicationXml","ApplicationUrlEncoded","TextPlain","TextXml",
-			"OK","InvalidUrl","DnsResolve","ConnectFail","OutOfMemory",
-			"TimedOut","TooManyRedirects","InvalidRedirect","NetFail","Aborted",
-			"SslConnectFail","SslVerificationFail","Unknown","ConnectionClosed","ServerProtocolError",
-			"CreatorEnvironmentsNotSupportedByService","Default","MarketplaceService","Players","Chat",
-			"Avatar","Analytics","Localization","OuterBox","InnerBox",
-			"Viewer","Subject","None","DisplayWhenDamaged","AlwaysOn",
-			"AlwaysOff","R6","R15","FallingDown","Ragdoll",
-			"GettingUp","Jumping","Swimming","Freefall","Flying",
-			"Landed","Running","RunningNoPhysics","StrafingNoPhysics","Climbing",
-			"Seated","PlatformStanding","Dead","Physics","None",
-			"NoCollisions","OtherMechanismsAnchored","IncludeContactedMechanisms","Default","Disabled",
-			"Enabled","Transform","Position","Rotation","LookAt",
-			"None","Pending","Initialized","ErrorInvalidUser","ErrorConnection",
-			"ErrorJsonParse","ErrorTimedOut","Default","LockCanvasAlpha","LockCanvasColor",
-			"BlendSourceOver","Overwrite","Add","Multiply","AlphaBlend",
-			"Edge","Inset","Center","Asset","Product",
-			"GamePass","Subscription","Bundle","Top","Bottom",
-			"Left","Right","Float","Bool","Direction1D",
-			"Direction2D","Direction3D","ViewportPosition","NoInput","Constant",
-			"Sin","HighQualityMesh","Default","Disabled","Enabled",
-			"Placed","Accepted","Declined","Missed","Automatic",
-			"Start","Center","End","Stretch","CreatedItemAttribution",
-			"All","Surface","None","Unknown","Backspace",
-			"Tab","Clear","Return","Pause","Escape",
-			"Space","QuotedDouble","Hash","Dollar","Percent",
-			"Ampersand","Quote","LeftParenthesis","RightParenthesis","Asterisk",
-			"Plus","Comma","Minus","Period","Slash",
-			"Zero","One","Two","Three","Four",
-			"Five","Six","Seven","Eight","Nine",
-			"Colon","Semicolon","LessThan","Equals","GreaterThan",
-			"Question","At","LeftBracket","BackSlash","RightBracket",
-			"Caret","Underscore","Backquote","A","B",
-			"C","D","E","F","G",
-			"H","I","J","K","L",
-			"M","N","O","P","Q",
-			"R","S","T","U","V",
-			"W","X","Y","Z","LeftCurly",
-			"Pipe","RightCurly","Tilde","Delete","KeypadZero",
-			"KeypadOne","KeypadTwo","KeypadThree","KeypadFour","KeypadFive",
-			"KeypadSix","KeypadSeven","KeypadEight","KeypadNine","KeypadPeriod",
-			"KeypadDivide","KeypadMultiply","KeypadMinus","KeypadPlus","KeypadEnter",
-			"KeypadEquals","Up","Down","Right","Left",
-			"Insert","Home","End","PageUp","PageDown",
-			"F1","F2","F3","F4","F5",
-			"F6","F7","F8","F9","F10",
-			"F11","F12","F13","F14","F15",
-			"NumLock","CapsLock","ScrollLock","RightShift","LeftShift",
-			"RightControl","LeftControl","RightAlt","LeftAlt","RightMeta",
-			"LeftMeta","LeftSuper","RightSuper","Mode","Compose",
-			"Help","Print","SysReq","Break","Menu",
-			"Power","Euro","Undo","ButtonX","ButtonY",
-			"ButtonA","ButtonB","ButtonR1","ButtonL1","ButtonR2",
-			"ButtonL2","ButtonR3","ButtonL3","ButtonStart","ButtonSelect",
-			"DPadLeft","DPadRight","DPadUp","DPadDown","Thumbstick1",
-			"Thumbstick2","MouseLeftButton","MouseRightButton","MouseMiddleButton","MousePosition",
-			"World0","World1","World2","World3","World4",
-			"World5","World6","World7","World8","World9",
-			"World10","World11","World12","World13","World14",
-			"World15","World16","World17","World18","World19",
-			"World20","World21","World22","World23","World24",
-			"World25","World26","World27","World28","World29",
-			"World30","World31","World32","World33","World34",
-			"World35","World36","World37","World38","World39",
-			"World40","World41","World42","World43","World44",
-			"World45","World46","World47","World48","World49",
-			"World50","World51","World52","World53","World54",
-			"World55","World56","World57","World58","World59",
-			"World60","World61","World62","World63","World64",
-			"World65","World66","World67","World68","World69",
-			"World70","World71","World72","World73","World74",
-			"World75","World76","World77","World78","World79",
-			"World80","World81","World82","World83","World84",
-			"World85","World86","World87","World88","World89",
-			"World90","World91","World92","World93","World94",
-			"World95","MouseBackButton","MouseNoButton","MouseX","MouseY",
-			"Constant","Linear","Cubic","Include","Exclude",
-			"Default","Left","Center","Right","Eof",
-			"Name","QuotedString","Number","And","Or",
-			"Equal","TildeEqual","GreaterThan","GreaterThanEqual","LessThan",
-			"LessThanEqual","Colon","Dot","LeftParenthesis","RightParenthesis",
-			"Star","DoubleStar","ReservedSpecial","Realistic","Soft",
-			"Head","Torso","LeftArm","RightArm","LeftLeg",
-			"RightLeg","Unknown","Round","Bevel","Miter",
-			"Horizontal","Vertical","Default","None","Character",
-			"Camera","Camera","CFrame","ObjectPosition","ObjectCFrame",
-			"Success","FailureGuidNotFound","FailureHashMismatch","FailureOperationIllegal","Normal",
-			"Warning","Error","Default","Disabled","Enabled",
-			"Default","Disabled","Enabled","Character","Camera",
-			"ObjectPosition","NoCheck","Nonstrict","Strict","Completed",
-			"Aborted","Error","Success","SystemError","AlreadyOwned",
-			"InsufficientRobux","QuantityLimitExceeded","QuotaExceeded","NotForSale","NotAvailableForPurchaser",
-			"PriceMismatch","SoldOut","PurchaserIsSeller","InsufficientMembership","PlaceInvalid",
-			"AvatarAsset","AvatarBundle","PlainText","Markdown","Default",
-			"XboxOnly","PlayStationOnly","Plastic","SmoothPlastic","Neon",
-			"Wood","WoodPlanks","Marble","Slate","Concrete",
-			"Granite","Brick","Pebble","Cobblestone","Rock",
-			"Sandstone","Basalt","CrackedLava","Limestone","Pavement",
-			"CorrodedMetal","DiamondPlate","Foil","Metal","Grass",
-			"LeafyGrass","Sand","Fabric","Snow","Mud",
-			"Ground","Asphalt","Salt","Ice","Glacier",
-			"Glass","ForceField","Air","Water","Cardboard",
-			"Carpet","CeramicTiles","ClayRoofTiles","RoofShingles","Leather",
-			"Plaster","Rubber","Regular","Organic","None",
-			"BuildersClub","TurboBuildersClub","OutrageousBuildersClub","Premium","DistanceBased",
-			"Level00","Level01","Level02","Level03","Level04",
-			"Default","Disabled","Enabled","Stud","Meter",
-			"CM","MM","Foot","Inch","Head",
-			"Torso","Wedge","Sphere","Cylinder","FileMesh",
-			"Brick","Prism","Pyramid","ParallelRamp","RightAngleRamp",
-			"CornerWedge","MessageOutput","MessageInfo","MessageWarning","MessageError",
-			"Automatic","StreamingMesh","Disabled","Default","Legacy",
-			"Improved","Default","Atomic","Persistent","PersistentPerPlayer",
-			"Nonatomic","ReviewedApproved","ReviewedRejected","NotReviewed","NotApplicable",
-			"Invalid","Shift","Ctrl","Alt","Meta",
-			"Default","LockCenter","LockCurrentPosition","Stopped","Coasting",
-			"Pushing","Stopping","AirFree","Default","Disabled",
-			"Enabled","Unmuted","Muted","NoOcclusion","EnemyOcclusion",
-			"OccludeAll","None","NegatedUnion","NegatedIntersection","Automatic",
-			"Manual","OnContact","Unknown","Connected","Disconnected",
-			"SimplexGabor","Right","Top","Back","Left",
-			"Bottom","Front","Primary","Secondary","Null",
-			"Union","Subtraction","Intersection","Primitive","OneAttachment",
-			"TwoAttachment","All","Created","Purchased","All",
-			"Avatar","DynamicHead","Shoes","Horizontal","Vertical",
-			"None","ForceShow","ForceHide","None","NoAccess",
-			"Revoked","UseView","Edit","Own","Ball",
-			"Block","Cylinder","Wedge","CornerWedge","Box",
-			"Sphere","Cylinder","Disc","Outward","Inward",
-			"InAndOut","Volume","Surface","None","Grid2x2",
-			"Grid4x4","Grid8x8","Custom","Loop","OneShot",
-			"PingPong","Random","NotCompatible","Compatible","Unknown",
-			"FacingCamera","FacingCameraWorldUp","VelocityParallel","VelocityPerpendicular","Success",
-			"NoPath","ClosestNoPath","ClosestOutOfRange","FailStartNotEmpty","FailFinishNotEmpty",
-			"Walk","Jump","Custom","Default","Disabled",
-			"Enabled","Card","List","Overdraw","Transparent",
-			"Decals","Lights","Game","RobloxGame","RobloxScript",
-			"Studio","Roblox","Fixed240Hz","Fixed120Hz","Fixed60Hz",
-			"Default","Fixed","Adaptive","None","All",
-			"MentionsAndReplies","Unknown","None","Publish","Save",
-			"Windows","OSX","IOS","Android","XBoxOne",
-			"PS4","PS3","XBox360","WiiU","NX",
-			"Ouya","AndroidTV","Chromecast","Linux","SteamOS",
-			"WebOS","DOS","BeOS","UWP","PS5",
-			"MetaOS","None","Begin","Delayed","Playing",
-			"Paused","Completed","Cancelled","CharacterForward","CharacterBackward",
-			"CharacterLeft","CharacterRight","CharacterJump","Default","Disabled",
-			"Enabled","All","Team","Whisper","LoadFailed",
-			"FlushFailed","ReleaseFailed","None","Failure","FallbackToDefault",
-			"Kick","In","Out","InOut","Linear",
-			"Constant","Elastic","Cubic","Bounce","CubicV2",
-			"OneAttachment","TwoAttachment","Automatic","On","Off",
-			"KeyboardAndMouse","Gamepad","Touch","Medium","Large",
-			"Larger","Largest","Default","Experimental","Disabled",
-			"Null","Ball","Cylinder","Block","Wedge",
-			"CornerWedge","Owner","Admin","Member","Visitor",
-			"Banned","AvatarShop","AllowedGames","AllGames","InExperience",
-			"ExperienceDetailsPage","AdReward","CommerceProduct","NotProcessedYet","PurchaseGranted",
-			"Success","PermissionDenied","Timeout","UploadFailed","NoUserInput",
-			"UnknownFailure","UGCValidationFailed","ModeratedName","PurchaseFailure","TokenInvalid",
-			"Success","PermissionDenied","Timeout","UploadFailed","NoUserInput",
-			"InvalidHumanoidDescription","UGCValidationFailed","ModeratedName","MaxOutfits","PurchaseFailure",
-			"UnknownFailure","TokenInvalid","Success","PlayerLeft","InvalidLaunchData",
-			"Success","PermissionDenied","Timeout","UploadFailed","NoUserInput",
-			"UnknownFailure","Ok","Warning","Error","OnePerButton",
-			"OneGlobally","AlwaysShow","Keyboard","Gamepad","Touch",
-			"Default","Custom","Automatic","Level01","Level02",
-			"Level03","Level04","Level05","Level06","Level07",
-			"Level08","Level09","Level10","Level11","Level12",
-			"Level13","Level14","Level15","Level16","Level17",
-			"Level18","Level19","Level20","Level21","OuterBox",
-			"InnerBox","Exclude","Include","Success","NeedPermission",
-			"AddReaction","RemoveReaction","Share","Report","Comment",
-			"Play","Purchase","Neutral","Positive","Negative",
-			"View","NotViewable","Static","Dynamic","Interactive",
-			"Private","Public","Default","Disabled","Enabled",
-			"Automatic","Precise","Performance","First","Input",
-			"Camera","Character","Last","Default","Disabled",
-			"Enabled","psnr","diff","Default","Disabled",
-			"Enabled","Default","Pixelated","Standard","Selection",
-			"Hover","Active","Default","RotationsReset","Custom",
-			"Default","Done","Go","Next","Search",
-			"Send","NoReverb","GenericReverb","PaddedCell","Room",
-			"Bathroom","LivingRoom","StoneRoom","Auditorium","ConcertHall",
-			"Cave","Arena","Hangar","CarpettedHallway","Hallway",
-			"StoneCorridor","Alley","Forest","City","Mountains",
-			"Quarry","Plain","ParkingLot","SewerPipe","UnderWater",
-			"Select","Scale","Rotate","Move","Transform",
-			"ColorPicker","MaterialPicker","Group","Ungroup","None",
-			"PivotEditor","Default","Rthro","RthroNarrow","R15",
-			"Custom","None","Inverse","Linear","LinearSquare",
-			"InverseTapered","Default","Disabled","Enabled","XYZ",
-			"XZY","YZX","YXZ","ZXY","ZYX",
-			"MovementRelative","CameraRelative","None","Going","NotGoing",
-			"Default","Disabled","Enabled","Legacy","Server",
-			"Client","Plugin","Stopped","Running","Paused",
-			"Aggregate","Snapshot","Hybrid","None","FullscreenExtension",
-			"All","Collectibles","Premium","Default","Experimental",
-			"BadThumbnailType","BadYRotDeg","BadFieldOfViewDeg","BadDistanceScale","Other",
-			"Throttled","SaveWorld","SaveGame","SaveAll","Automatic",
-			"QualityLevel1","QualityLevel2","QualityLevel3","QualityLevel4","QualityLevel5",
-			"QualityLevel6","QualityLevel7","QualityLevel8","QualityLevel9","QualityLevel10",
-			"Stretch","Slice","Tile","Fit","Crop",
-			"ConsentAccepted","InvalidScopes","Timeout","NoUserInput","BackendError",
-			"UnexpectedError","InvalidArgument","ConsentDenied","None","DeviceSafeInsets",
-			"CoreUISafeInsets","TopbarSafeInsets","LandscapeLeft","LandscapeRight","LandscapeSensor",
-			"Portrait","Sensor","None","ScrollBar","Always",
-			"X","Y","XY","RunClientScript","RunServerScript",
-			"AccessOutsideWrite","AssetRequire","LoadString","ScriptGlobals","CreateInstances",
-			"Basic","Audio","DataStore","Network","Physics",
-			"UI","CSG","Chat","Animation","Avatar",
-			"Input","Environment","RemoteEvent","LegacySound","Players",
-			"CapabilityControl","Escape","Stop","Outlines","BoundingBoxes",
-			"Both","LastPosition","TopLeft","TopRight","BottomLeft",
-			"BottomRight","Floor","Ladder","OnRead","Manual",
-			"Uninitialized","Enabled","Disabled","Always","Off",
-			"WithChildren","Error","Warning","Information","Hint",
-			"ShowCompleted","AdNotReady","AdAlreadyShowing","InternalError","ShowInterrupted",
-			"InsufficientMemory","Default","Immediate","Deferred","AncestryDeferred",
-			"RelativeXY","RelativeXX","RelativeYY","IterationBased","AlgorithmAgnostic",
-			"Disabled","PerIsland","PerEdge","Ascending","Descending",
-			"Name","Custom","LayoutOrder","Insert","Home",
-			"End","PageUp","PageDown","ChatHotkey","TopLeft",
-			"TopRight","BottomLeft","BottomRight","Boolean","CFrame",
-			"Color3","Float","Instance","Random","Vector2",
-			"Vector3","INVALID","Poison","Confusion","Default",
-			"LowMemory","Opportunistic","Default","Disabled","MinimumRadiusPause",
-			"PauseOutsideLoadedArea","Default","Disabled","ClientPhysicsPause","FixedSize",
-			"ScaledSize","None","CloseStudio","CloseDoc","LogOut",
-			"Edit","PlayClient","PlayServer","Standalone","None",
-			"Other","TeamCreateConflict","Default","Operator","Number",
-			"String","Comment","Keyword","Builtin","Method",
-			"Property","Nil","Bool","Function","Local",
-			"Self","LuauKeyword","FunctionName","TODO","Background",
-			"SelectionText","SelectionBackground","FindSelectionBackground","MatchingWordBackground","Warning",
-			"Error","Info","Hint","Whitespace","ActiveLine",
-			"DebuggerCurrentLine","DebuggerErrorLine","Ruler","Bracket","Type",
-			"MenuPrimaryText","MenuSecondaryText","MenuSelectedText","MenuBackground","MenuSelectedBackground",
-			"MenuScrollbarBackground","MenuScrollbarHandle","MenuBorder","DocViewCodeBackground","AICOOverlayText",
-			"AICOOverlayButtonBackground","AICOOverlayButtonBackgroundHover","AICOOverlayButtonBackgroundPressed","IndentationRuler","RobloxDefault",
-			"Extra1","Extra2","Custom","MainBackground","Titlebar",
-			"Dropdown","Tooltip","Notification","ScrollBar","ScrollBarBackground",
-			"TabBar","Tab","FilterButtonDefault","FilterButtonHover","FilterButtonChecked",
-			"FilterButtonAccent","FilterButtonBorder","FilterButtonBorderAlt","RibbonTab","RibbonTabTopBar",
-			"Button","MainButton","RibbonButton","ViewPortBackground","InputFieldBackground",
-			"Item","TableItem","CategoryItem","GameSettingsTableItem","GameSettingsTooltip",
-			"EmulatorBar","EmulatorDropDown","ColorPickerFrame","CurrentMarker","Border",
-			"DropShadow","Shadow","Light","Dark","Mid",
-			"MainText","SubText","TitlebarText","BrightText","DimmedText",
-			"LinkText","WarningText","ErrorText","InfoText","SensitiveText",
-			"ScriptSideWidget","ScriptBackground","ScriptText","ScriptSelectionText","ScriptSelectionBackground",
-			"ScriptFindSelectionBackground","ScriptMatchingWordSelectionBackground","ScriptOperator","ScriptNumber","ScriptString",
-			"ScriptComment","ScriptKeyword","ScriptBuiltInFunction","ScriptWarning","ScriptError",
-			"ScriptInformation","ScriptHint","ScriptWhitespace","ScriptRuler","DocViewCodeBackground",
-			"DebuggerCurrentLine","DebuggerErrorLine","DiffFilePathText","DiffTextHunkInfo","DiffTextNoChange",
-			"DiffTextAddition","DiffTextDeletion","DiffTextSeparatorBackground","DiffTextNoChangeBackground","DiffTextAdditionBackground",
-			"DiffTextDeletionBackground","DiffLineNum","DiffLineNumSeparatorBackground","DiffLineNumNoChangeBackground","DiffLineNumAdditionBackground",
-			"DiffLineNumDeletionBackground","DiffFilePathBackground","DiffFilePathBorder","ChatIncomingBgColor","ChatIncomingTextColor",
-			"ChatOutgoingBgColor","ChatOutgoingTextColor","ChatModeratedMessageColor","Separator","ButtonBorder",
-			"ButtonText","InputFieldBorder","CheckedFieldBackground","CheckedFieldBorder","CheckedFieldIndicator",
-			"HeaderSection","Midlight","StatusBar","DialogButton","DialogButtonText",
-			"DialogButtonBorder","DialogMainButton","DialogMainButtonText","InfoBarWarningBackground","InfoBarWarningText",
-			"ScriptEditorCurrentLine","ScriptMethod","ScriptProperty","ScriptNil","ScriptBool",
-			"ScriptFunction","ScriptLocal","ScriptSelf","ScriptLuauKeyword","ScriptFunctionName",
-			"ScriptTodo","ScriptBracket","AttributeCog","AICOOverlayText","AICOOverlayButtonBackground",
-			"AICOOverlayButtonBackgroundHover","AICOOverlayButtonBackgroundPressed","OnboardingCover","OnboardingHighlight","OnboardingShadow",
-			"BreakpointMarker","DiffLineNumHover","DiffLineNumSeparatorBackgroundHover","Default","Selected",
-			"Pressed","Disabled","Hover","AlternatingSupports","BridgeStyleSupports",
-			"NoSupports","ProductInactive","ProductDeleted","SubscriberCancelled","SubscriberRefunded",
-			"Lapsed","Paid","Refunded","Month","NeverSubscribed",
-			"SubscribedWillRenew","SubscribedWillNotRenew","SubscribedRenewalPaymentPending","Expired","None",
-			"Hinge","SteppingMotor","Motor","Flat","CurvedHorizontally",
-			"FixedSize","PixelsPerStud","Smooth","Glue","Weld",
-			"Studs","Inlet","Universal","Hinge","Motor",
-			"SteppingMotor","SmoothNoOutlines","Right","Left","Up",
-			"Down","None","error","light","dark",
-			"systemLight","systemDark","RowMajor","ColumnMajor","PlaceSizeTooLarge",
-			"PlaceSizeApproachingLimit","PlaceUploadFailing","NoError","Voxel","Compatibility",
-			"ShadowMap","Future","Legacy","Unified","TeleportToSpawnByName",
-			"TeleportToPlaceInstance","TeleportToPrivateServer","TeleportPartyAsync","TeleportToVIPServer","TeleportToInstanceBack",
-			"TeleportUnknown","Success","Failure","GameNotFound","GameEnded",
-			"GameFull","Unauthorized","Flooded","IsTeleporting","RequestedFromServer",
-			"Started","WaitingForServer","Failed","InProgress","ToPlace",
-			"ToInstance","ToReservedServer","ToVIPServer","ToInstanceBack","None",
-			"Legacy","Template","Generate","Import","Convert",
-			"EditAddTool","EditSeaLevelTool","EditReplaceTool","RegionFillTool","RegionPasteTool",
-			"Other","Top","Side","Bottom","Unknown",
-			"Success","Sending","TextFilterFailed","Floodchecked","InvalidPrivacySettings",
-			"InvalidTextChannelPermissions","MessageTooLong","ModerationTimeout","Auto","LeftToRight",
-			"RightToLeft","PublicChat","PrivateChat","Default","NoSuggestions",
-			"Number","Email","Phone","Password","PasswordShown",
-			"Username","OneTimePassword","None","AtEnd","SplitWord",
-			"Left","Right","Center","Top","Center",
-			"Bottom","Stretch","Wrap","Static","NonHumanoid",
-			"NonHumanoidOrphaned","Humanoid","HumanoidOrphaned","PerCore4","PerCore3",
-			"PerCore2","PerCore1","Auto","Threads1","Threads2",
-			"Threads3","Threads4","Threads8","Threads16","Extreme",
-			"ElevatedOnServer","Default","Size48x48","Size180x180","Size420x420",
-			"Size60x60","Size100x100","Size150x150","Size352x352","HeadShot",
-			"AvatarBust","AvatarThumbnail","Fast","Benchmark","Precise",
-			"Default","Retro","Top","Center","Bottom",
-			"Default","Classic","Follow","Orbital","Default",
-			"Thumbstick","DPad","Thumbpad","ClickToMove","DynamicThumbstick",
-			"Ok","NoService","InitFailed","NoVideo","VideoError",
-			"VideoNoPermission","VideoUnsupported","NoAudio","AudioError","AudioNoPermission",
-			"UnsupportedDevice","Auto","ForceDisabled","ExtrapolateFacsAndPose","ExtrapolateFacsOnly",
-			"FaceTrackingSuccess","FaceTrackingNoFaceFound","FaceTrackingUnknown","FaceTrackingLost","FaceTrackingHasTrackingError",
-			"FaceTrackingIsOccluded","FaceTrackingUninitialized","Auto","ForceFalse","ForceTrue",
-			"Auto","Force0","Force1","None","Audio",
-			"Video","AudioVideo","LODCameraRecommendDisable","None","Face",
-			"UpperBody","False","True","Unknown","Canceled",
-			"Completed","All","None","Automatic","EntireObject",
-			"HitPoint","Absolute","Relative","Parent","LayerCollector",
-			"Reference","TranslatePlane","TranslateLine","Rotate","Scriptable",
-			"Offset","Scale","CustomOffset","CustomScale","XY",
-			"XX","YY","None","Fill","SpaceAround",
-			"SpaceBetween","SpaceEvenly","None","Grow","Shrink",
-			"Fill","Custom","Light","Dark","UiMessageError",
-			"UiMessageInfo","UpdateNotAvailable","UpdateAvailable","UpdateInProgress","UpdateReady",
-			"UpdateFailed","Success","NeedPermission","CaptureModerated","CaptureNotInGallery",
-			"IneligibleCapture","Default","Preview","Head","LeftHand",
-			"RightHand","Floor","Begin","Change","End",
-			"Cancel","None","MouseButton1","MouseButton2","MouseButton3",
-			"MouseWheel","MouseMovement","Touch","Keyboard","Focus",
-			"Accelerometer","Gyro","Gamepad1","Gamepad2","Gamepad3",
-			"Gamepad4","Gamepad5","Gamepad6","Gamepad7","Gamepad8",
-			"TextInput","InputMethod","None","Comfort","Normal",
-			"Expert","Custom","Disabled","Transparent","Unknown",
-			"OculusRift","HTCVive","ValveIndex","OculusQuest","Disabled",
-			"Pointer","DualPointer","NoOne","OnlyFriends","Anyone",
-			"World","Off","Undefined","Idle","Visible",
-			"Focused","Stopping","Left","Right","Touch",
-			"VirtualThumbstick","ABXY","Line","Plane","Vector",
-			"Center","Top","Bottom","Right","Left",
-			"Large","Small","LeftTrigger","RightTrigger","LeftHand",
-			"RightHand","Success","OtherError","ScreenSizeChanged","TimeLimitReached",
-			"Success","OtherError","CapturingAlready","NoDeviceSupport","NoSpaceOnDevice",
-			"Default","Low","Medium","High","Ok",
-			"Eof","EAgain","BadParameter","AllocFailed","CodecInitFailed",
-			"CodecCloseFailed","DecodeFailed","ParsingFailed","Unsupported","Generic",
-			"DownloadFailed","StreamNotFound","EncodeFailed","CreateFailed","NoPermission",
-			"NoService","ReleaseFailed","Unknown","None","GeometryComplexity",
-			"Transparent","Decal","Default","Disabled","Enabled",
-			"None","Recording","Playing","Inverse","Legacy",
-			"Idle","Joining","JoiningRetry","Joined","Leaving",
-			"Ended","Failed","Unknown","ClientNetworkDisconnected","PlayerLeft",
-			"ClientShutdown","PublishFailed","RejoinReceived","VoiceReboot","ImguiDebugLeave",
-			"LuaInitiated","Publish","Subscribe","Join","Disabled",
-			"Automatic","Enabled","NegX","X","NegY",
-			"Y","NegZ","Z","None","Small",
-			"Medium","Strong","Max","Connecting","Open",
-			"Closing","Closed","Connecting","Open","Error",
-			"Closed","SSE","RawStream","All","None",
-			"Touching","AllUsers","NoOne","Disabled","EnabledPreserve",
-			"EnabledOverride","None","BoundCage","LayerCage","BoundCageAndLinks",
-			"Reference","Rbf","OuterCage","ReferenceMeshAfterMorph","HSROuterDetail",
-			"HSROuter","HSRInner","HSRInnerReverse","LayerCageFittedToBase","LayerCageFittedToPrev",
-			"PreWrapDeformerOuterCage","None","TargetCageOriginal","TargetCageCompressed","TargetCageInterface",
-			"TargetLayerCageOriginal","TargetLayerCageCompressed","TargetLayerInterface","Rbf","OuterCageDetail",
-			"PreWrapDeformerCage","Global","Sibling",
-		},
-		category = {
-			"AccessModifierType","AccessoryType","ActionOnAutoResumeSync","ActionOnStopSync","ActionType",
-			"ActuatorRelativeTo","ActuatorType","AdAvailabilityResult","AdEventType","AdFormat",
-			"AdShape","AdTeleportMethod","AdUIEventType","AdUIType","AdUnitStatus",
-			"AdornCullingMode","AdornShading","AlignType","AlphaMode","AnalyticsCustomFieldKeys",
-			"AnalyticsEconomyAction","AnalyticsEconomyFlowType","AnalyticsEconomyTransactionType","AnalyticsLogLevel","AnalyticsProgressionStatus",
-			"AnalyticsProgressionType","AnimationClipFromVideoStatus","AnimationPriority","AnimatorRetargetingMode","AnnotationChannelContentPreference",
-			"AnnotationEditingMode","AnnotationPlaceContentPreference","AnnotationRequestStatus","AnnotationRequestType","AppLifecycleManagerState",
-			"AppShellActionType","AppShellFeature","AppUpdateStatus","ApplyStrokeMode","AspectType",
-			"AssetCreatorType","AssetFetchStatus","AssetType","AssetTypeVerification","AudioApiRollout",
-			"AudioCaptureMode","AudioChannelLayout","AudioFilterType","AudioSimulationFidelity","AudioSubType",
-			"AudioWindowSize","AuthorityMode","AutoIndentRule","AutomaticSize","AvatarAssetType",
-			"AvatarChatServiceFeature","AvatarContextMenuOption","AvatarGenerationError","AvatarItemType","AvatarPromptResult",
-			"AvatarSettingsAccessoryLimitMethod","AvatarSettingsAccessoryMode","AvatarSettingsAnimationClipsMode","AvatarSettingsAnimationPacksMode","AvatarSettingsAppearanceMode",
-			"AvatarSettingsBuildMode","AvatarSettingsClothingMode","AvatarSettingsCollisionMode","AvatarSettingsCustomAccessoryMode","AvatarSettingsCustomBodyType",
-			"AvatarSettingsCustomClothingMode","AvatarSettingsHitAndTouchDetectionMode","AvatarSettingsJumpMode","AvatarSettingsLegacyCollisionMode","AvatarSettingsScaleMode",
-			"AvatarThumbnailCustomizationType","AvatarUnificationMode","Axis","BenefitType","BinType",
-			"BodyPart","BodyPartR15","BorderMode","BorderStrokePosition","BreakReason",
-			"BreakpointRemoveReason","BulkMoveMode","BundleType","Button","ButtonStyle",
-			"CageType","CameraMode","CameraPanMode","CameraSpeedAdjustBinding","CameraType",
-			"CaptureGalleryPermission","CaptureType","CatalogCategoryFilter","CatalogSortAggregation","CatalogSortType",
-			"CellBlock","CellMaterial","CellOrientation","CenterDialogType","CharacterControlMode",
-			"ChatCallbackType","ChatColor","ChatMode","ChatPrivacyMode","ChatRestrictionStatus",
-			"ChatStyle","ChatVersion","ClientAnimatorThrottlingMode","CloseReason","CollaboratorStatus",
-			"CollisionFidelity","CommandPermission","CompileTarget","CompletionAcceptanceBehavior","CompletionItemKind",
-			"CompletionItemTag","CompletionTriggerKind","ComputerCameraMovementMode","ComputerMovementMode","ConfigSnapshotErrorState",
-			"ConnectionError","ConnectionState","ContentSourceType","ContextActionPriority","ContextActionResult",
-			"ControlMode","CoreGuiType","CreateAssetResult","CreateOutfitFailure","CreatorType",
-			"CreatorTypeFilter","CurrencyType","CustomCameraMode","DataStoreRequestType","DebuggerEndReason",
-			"DebuggerExceptionBreakMode","DebuggerFrameType","DebuggerPauseReason","DebuggerStatus","DevCameraOcclusionMode",
-			"DevComputerCameraMovementMode","DevComputerMovementMode","DevTouchCameraMovementMode","DevTouchMovementMode","DeveloperMemoryTag",
-			"DeviceFeatureType","DeviceForm","DeviceLevel","DeviceType","DialogBehaviorType",
-			"DialogPurpose","DialogTone","DisplaySize","DominantAxis","DraftStatusCode",
-			"DragDetectorDragStyle","DragDetectorPermissionPolicy","DragDetectorResponseStyle","DraggerCoordinateSpace","DraggerMovementMode",
-			"DraggingScrollBar","EasingDirection","EasingStyle","EditableStatus","ElasticBehavior",
-			"EnviromentalPhysicsThrottle","ExperienceAuthScope","ExperienceStateRecordingLoadMode","ExperienceStateRecordingLoadSourceType","ExperienceStateRecordingPlaybackMode",
-			"ExplosionType","FACSDataLod","FacialAgeEstimationResultType","FacialAnimationStreamingState","FacsActionUnit",
-			"FeatureRestrictionAbuseVector","FieldOfViewMode","FillDirection","FilterErrorType","FilterResult",
-			"FinishRecordingOperation","FluidFidelity","FluidForces","Font","FontSize",
-			"FontStyle","FontWeight","ForceLimitMode","FormFactor","FrameStyle",
-			"FramerateManagerMode","FriendRequestEvent","FriendStatus","FunctionalTestResult","GameAvatarType",
-			"GamepadType","GearGenreSetting","GearType","Genre","GraphicsMode",
-			"GraphicsOptimizationMode","GuiState","GuiType","HandRigDescriptionSide","HandlesStyle",
-			"HapticEffectType","HighlightDepthMode","HorizontalAlignment","HoverAnimateSpeed","HttpCachePolicy",
-			"HttpCompression","HttpContentType","HttpError","HttpRequestType","HumanoidCollisionType",
-			"HumanoidDisplayDistanceType","HumanoidHealthDisplayType","HumanoidRigType","HumanoidStateType","IKCollisionsMode",
-			"IKControlConstraintSupport","IKControlType","IXPLoadingStatus","ImageAlphaType","ImageCombineType",
-			"InOut","InfoType","InitialDockState","InputActionType","InputType",
-			"IntermediateMeshGenerationResult","InterpolationThrottlingMode","InviteState","ItemLineAlignment","JoinSource",
-			"JointCreationMode","KeyCode","KeyInterpolationMode","KeywordFilterType","Language",
-			"LeftRight","LexemeType","LightingStyle","Limb","LineJoinMode",
-			"ListDisplayMode","ListenerLocation","ListenerType","LiveEditingAtomicUpdateResponse","LiveEditingBroadcastMessageType",
-			"LoadCharacterLayeredClothing","LoadDynamicHeads","LocationType","LuauTypeCheckMode","MarketplaceBulkPurchasePromptStatus",
-			"MarketplaceItemPurchaseStatus","MarketplaceProductType","MarkupKind","MatchmakingType","Material",
-			"MaterialPattern","MembershipType","MeshPartDetailLevel","MeshPartHeadsAndAccessories","MeshScaleUnit",
-			"MeshType","MessageType","ModelLevelOfDetail","ModelStreamingBehavior","ModelStreamingMode",
-			"ModerationStatus","ModifierKey","MouseBehavior","MoveState","MoverConstraintRootBehaviorMode",
-			"MuteState","NameOcclusion","NegateOperationHiddenHistory","NetworkOwnership","NetworkStatus",
-			"NoiseType","NormalId","NotificationButtonType","OperationType","OrientationAlignmentMode",
-			"OutfitSource","OutfitType","OutputLayoutMode","OverrideMouseIconBehavior","PackagePermission",
-			"PartType","ParticleEmitterShape","ParticleEmitterShapeInOut","ParticleEmitterShapeStyle","ParticleFlipbookLayout",
-			"ParticleFlipbookMode","ParticleFlipbookTextureCompatible","ParticleOrientation","PathStatus","PathWaypointAction",
-			"PathfindingUseImprovedSearch","PeoplePageLayout","PerformanceOverlayMode","PermissionLevelShown","PhysicsSimulationRate",
-			"PhysicsSteppingMethod","PlaceContentPreference","PlacePublishType","Platform","PlaybackState",
-			"PlayerActions","PlayerCharacterDestroyBehavior","PlayerChatType","PlayerDataErrorState","PlayerDataLoadFailureBehavior",
-			"PoseEasingDirection","PoseEasingStyle","PositionAlignmentMode","PredictionMode","PreferredInput",
-			"PreferredTextSize","PrimalPhysicsSolver","PrimitiveType","PrivilegeType","ProductLocationRestriction",
-			"ProductPurchaseChannel","ProductPurchaseDecision","PromptCreateAssetResult","PromptCreateAvatarResult","PromptLinkSharingResult",
-			"PromptPublishAssetResult","PropertyStatus","ProximityPromptExclusivity","ProximityPromptInputType","ProximityPromptStyle",
-			"QualityLevel","R15CollisionType","RaycastFilterType","ReadCapturesFromGalleryResult","RecommendationActionType",
-			"RecommendationDepartureIntent","RecommendationImpressionType","RecommendationItemContentType","RecommendationItemVisibility","RejectCharacterDeletions",
-			"RenderFidelity","RenderPriority","RenderingCacheOptimizationMode","RenderingTestComparisonMethod","ReplicateInstanceDestroySetting",
-			"ResamplerMode","ReservedHighlightId","RestPose","ReturnKeyType","ReverbType",
-			"RibbonTool","RigScale","RigType","RollOffMode","RolloutState",
-			"RotationOrder","RotationType","RsvpStatus","RtlTextSupport","RunContext",
-			"RunState","RuntimeUndoBehavior","SafeAreaCompatibility","SalesTypeFilter","SandboxedInstanceMode",
-			"SaveAvatarThumbnailCustomizationFailure","SaveFilter","SavedQualitySetting","ScaleType","ScopeCheckResult",
-			"ScreenInsets","ScreenOrientation","ScrollBarInset","ScrollingDirection","SecurityCapability",
-			"SelectionBehavior","SelectionRenderMode","SelfViewPosition","SensorMode","SensorUpdateType",
-			"ServerLiveEditingMode","ServiceVisibility","Severity","ShowAdResult","SignalBehavior",
-			"SizeConstraint","SolverConvergenceMetricType","SolverConvergenceVisualizationMode","SortDirection","SortOrder",
-			"SpecialKey","StartCorner","StateObjectFieldType","Status","StreamOutBehavior",
-			"StreamingIntegrityMode","StreamingPauseMode","StrokeSizingMode","StudioCloseMode","StudioDataModelType",
-			"StudioPlaceUpdateFailureReason","StudioScriptEditorColorCategories","StudioScriptEditorColorPresets","StudioStyleGuideColor","StudioStyleGuideModifier",
-			"Style","SubscriptionExpirationReason","SubscriptionPaymentStatus","SubscriptionPeriod","SubscriptionState",
-			"SurfaceConstraint","SurfaceGuiShape","SurfaceGuiSizingMode","SurfaceType","SwipeDirection",
-			"SystemThemeValue","TableMajorAxis","TeamCreateErrorState","Technology","TeleportMethod",
-			"TeleportResult","TeleportState","TeleportType","TerrainAcquisitionMethod","TerrainFace",
-			"TextChatMessageStatus","TextDirection","TextFilterContext","TextInputType","TextTruncate",
-			"TextXAlignment","TextYAlignment","TextureMode","TextureQueryType","ThreadPoolConfig",
-			"ThrottlingPriority","ThumbnailSize","ThumbnailType","TickCountSampleMethod","TonemapperPreset",
-			"TopBottom","TouchCameraMovementMode","TouchMovementMode","TrackerError","TrackerExtrapolationFlagMode",
-			"TrackerFaceTrackingStatus","TrackerLodFlagMode","TrackerLodValueMode","TrackerMode","TrackerPromptEvent",
-			"TrackerType","TriStateBoolean","TweenStatus","UICaptureMode","UIDragDetectorBoundingBehavior",
-			"UIDragDetectorDragRelativity","UIDragDetectorDragSpace","UIDragDetectorDragStyle","UIDragDetectorResponseStyle","UIDragSpeedAxisMapping",
-			"UIFlexAlignment","UIFlexMode","UITheme","UiMessageType","UpdateState",
-			"UploadCaptureResult","UsageContext","UserCFrame","UserInputState","UserInputType",
-			"VRComfortSetting","VRControllerModelMode","VRDeviceType","VRLaserPointerMode","VRSafetyBubbleMode",
-			"VRScaling","VRSessionState","VRTouchpad","VRTouchpadMode","VelocityConstraintMode",
-			"VerticalAlignment","VerticalScrollBarPosition","VibrationMotor","VideoCaptureResult","VideoCaptureStartedResult",
-			"VideoDeviceCaptureQuality","VideoError","ViewMode","VirtualCursorMode","VirtualInputMode",
-			"VoiceChatDistanceAttenuationType","VoiceChatState","VoiceClientLeaveReasons","VoiceControlPath","VolumetricAudio",
-			"WaterDirection","WaterForce","WebSocketState","WebStreamClientState","WebStreamClientType",
-			"WeldConstraintPreserve","WhisperChatPrivacyMode","WrapLayerAutoSkin","WrapLayerDebugMode","WrapTargetDebugMode",
-			"ZIndexBehavior"
-		},
-		"<font color='rgb(0,139,219)'>%s</font>"
-	},
 	bools = {
 		{"nil", "false", "true"},
 		"<font color='rgb(255,198,0)'><b>%s</b></font>"
@@ -3838,9 +3125,9 @@ LocalPlayer.CharacterAdded:Connect(function(char)
 	end)
 end)
 
-local explorerData = explorerData or {}
-local nodesBuilt = nodesBuilt or {}
-local templates = templates or {}
+local explorerData = {}
+local nodesBuilt = {}
+local templates = {}
 
 local function buildExplorerData(instance)
 	if not instance or not instance.Parent and instance ~= game then
@@ -3903,16 +3190,6 @@ local function buildExplorerData(instance)
 	return node
 end
 
-local function buildChildrenNodes(node)
-	if node._childrenNodesBuilt then return end
-	node._childrenNodesBuilt = true
-
-	for i = 1, #node.Children do
-		local childInst = node.Children[i]
-		local childNode = buildExplorerData(childInst)
-		node.Children[i] = childNode
-	end
-end
 local function recalcAndPropagateSize(entryFrame)
 	if not entryFrame or not entryFrame:IsA("Frame") then return end
 
@@ -3921,23 +3198,68 @@ local function recalcAndPropagateSize(entryFrame)
 		local dropdown = frame:FindFirstChild("dropdown")
 		if dropdown and dropdown.Visible then
 			local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
+			for _, child in ipairs(dropdown:GetChildren()) do
+				if child:IsA("Frame") then
+					child.Size = UDim2.new(1, 0, 0, computeFrameHeight(child))
+				end
+			end
 			return base + (h or 0)
 		end
 		return base
 	end
+
 	entryFrame.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
+	
 	local parent = entryFrame.Parent
 	while parent and parent:IsA("Frame") do
-		local parentEntry = parent
-		if parent.Name == "dropdown" and parent.Parent and parent.Parent:IsA("Frame") then
-			parentEntry = parent.Parent
+		if parent.Name == "dropdown" then
+			local parentEntry = parent.Parent
+			if parentEntry and parentEntry:IsA("Frame") then
+				parentEntry.Size = UDim2.new(1, 0, 0, computeFrameHeight(parentEntry))
+				parent = parentEntry.Parent
+			else
+				break
+			end
+		else
+			parent.Size = UDim2.new(1, 0, 0, computeFrameHeight(parent))
+			parent = parent.Parent
 		end
-		parentEntry.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
-		parent = parentEntry.Parent
 	end
 end
 local guiToNode = {}
 local nodeToGui = {}
+local nodeToProps = {}
+
+local function makeProperties(instance)
+	return {
+		Parent = instance.Parent and instance.Parent.Name or "nil",
+		Name = instance.Name,
+		ClassName = instance.ClassName,
+		Attributes = instance:GetAttributes(),
+		Tags = (function()
+			local success, tags = pcall(function()
+				return instance:GetTags()
+			end)
+			return success and tags or {}
+		end)()
+	}
+end
+
+local function attachPropertyListeners(instance, node)
+	instance:GetPropertyChangedSignal("Name"):Connect(function()
+		if nodeToProps[node] then
+			nodeToProps[node].Name = instance.Name
+			if nodeToGui[node] then
+				nodeToGui[node].mainframe.name.Text = instance.Name
+			end
+		end
+	end)
+	instance:GetPropertyChangedSignal("Parent"):Connect(function()
+		if nodeToProps[node] then
+			nodeToProps[node].Parent = instance.Parent and instance.Parent.Name or "nil"
+		end
+	end)
+end
 
 local function createEntryForInstance(node, parentGui)
 	local template = createInstance("Frame", {
@@ -4054,6 +3376,7 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
+	
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -4094,6 +3417,60 @@ local function createEntryForInstance(node, parentGui)
 	return newTemplate
 end
 
+local function buildChildrenNodes(instance, parentNode, parentGui)
+	local node = {
+		Data = {
+			Name = instance.Name,
+			ClassName = instance.ClassName,
+			ChildrenCount = #instance:GetChildren(),
+		},
+		Children = {}
+	}
+
+	-- создаём PropertiesData
+	nodeToProps[node] = makeProperties(instance)
+
+	-- UI элемент
+	local entry = createEntryForInstance(node, parentGui)
+	guiToNode[entry] = node
+	nodeToGui[node] = entry
+
+	-- слушаем изменения Name/Parent
+	attachPropertyListeners(instance, node)
+
+	-- слушаем появление детей
+	instance.ChildAdded:Connect(function(child)
+		local childNode = buildChildrenNodes(child, node, entry.dropdown)
+		table.insert(node.Children, childNode)
+		recalcAndPropagateSize(entry)
+	end)
+
+	-- слушаем удаление детей
+	instance.ChildRemoved:Connect(function(child)
+		for i, childNode in ipairs(node.Children) do
+			if childNode.Data.Name == child.Name then
+				-- удаляем UI
+				if nodeToGui[childNode] then
+					nodeToGui[childNode]:Destroy()
+					nodeToGui[childNode] = nil
+				end
+				-- удаляем Properties
+				nodeToProps[childNode] = nil
+				table.remove(node.Children, i)
+				recalcAndPropagateSize(entry)
+				break
+			end
+		end
+	end)
+
+	-- рекурсивно создаём дочерние ноды
+	for _, child in ipairs(instance:GetChildren()) do
+		local childNode = buildChildrenNodes(child, node, entry.dropdown)
+		table.insert(node.Children, childNode)
+	end
+
+	return node
+end
 
 local function setExplorer()
 	explorerUsing = true
@@ -4129,7 +3506,6 @@ local function setExplorer()
 			end
 		end
 	end)
-
 	local MIN_WIDTH, MIN_HEIGHT = 240, 32
 	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
