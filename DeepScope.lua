@@ -3213,7 +3213,7 @@ end)
 local explorerData = {}
 local nodesBuilt = {}
 local templates = {}
-
+saveData()
 local function buildExplorerData(instance)
 	if not instance or not instance.Parent and instance ~= game then
 		return nil
@@ -5258,3 +5258,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
