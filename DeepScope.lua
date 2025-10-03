@@ -3493,7 +3493,6 @@ local function createGui()
 		ZIndex = 2,
 		FontFace = Font.new("rbxassetid://16658246179"),
 		Text = [[print("Hello DeepScope!")]],
-		TextTransparency = 1,
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
 		RichText = true,
@@ -3658,7 +3657,7 @@ local function createGui()
 		Parent = executorGui16,
 		PaddingRight = UDim.new(0, 35)
 	})
-	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.ContentText)
+	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -3676,7 +3675,6 @@ if makefolder and isfolder and writefile and isfile then
 		if not isfolder(folderName) then
 			makefolder(folderName)
 		end
-
 	end)
 end
 local function makeFakeScripts()
