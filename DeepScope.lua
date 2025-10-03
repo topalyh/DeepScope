@@ -589,14 +589,44 @@ local executorConfig = {
 		{"nil", "false", "true"},
 		"<font color='rgb(255,198,0)'><b>%s</b></font>"
 	},
-	commentColor = "rgb(102,102,102)",
-	stringColor = "rgb(173,241,149)",
-	numberColor = "rgb(255,198,0)",
-	operatorColor = "rgb(204,204,204)",
-	funcColor = "rgb(253,251,172)",
-	libColor = "rgb(132,214,247)",
-	propColor = "rgb(0,139,219)"
+	textColor = Color3.fromRGB(204,204,204),
+	backgroundColor = Color3.fromRGB(37,37,37),
+	commentColor = Color3.fromRGB(102,102,102),
+	stringColor = Color3.fromRGB(173,241,149),
+	numberColor = Color3.fromRGB(255,198,0),
+	operatorColor = Color3.fromRGB(204,204,204),
+	funcColor = Color3.fromRGB(253,251,172),
+	libColor = Color3.fromRGB(132,214,247),
+	propColor = Color3.fromRGB(0,139,219),
+	keywordColor = Color3.fromRGB(248,109,124),
+	boolsColor = Color3.fromRGB(255,198,0),
+	font = Font.new(fonts.BuilderMono),
+	TextSize = 15,
 }
+local function toRGB(color, bold)
+	local result = ""
+	local r = color.R * 255
+	local g = color.G * 255
+	local b = color.B * 255
+	if bold then
+		result = "<font color='rgb(%d,%d,%d)'><b>%s</b></font>"
+	else
+		result = "<font color='rgb(%d,%d,%d)'>%s</font>"
+	end
+	return string.format(result, r, g, b, "%s")
+end
+local function toJSONRGB(color)
+	local r = math.floor(color.R * 255)
+	local g = math.floor(color.G * 255)
+	local b = math.floor(color.B * 255)
+	local str = "json[%d|%d|%d]"
+	local result = str:format(r, g, b)
+	return result
+end
+local function toJSONFont(id)
+	local str = "font[%d]"
+	return str:format(id)
+end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
@@ -660,11 +690,8 @@ local initMessages = {
 	"Enjoying DeepScope? {player}"
 }
 local code = [[]]
-local defaultSaves = {
-	["UIColor"] = {163,162,165},
-}
 local saves = {}
-local currentUIColor = Color3.fromRGB(163, 162, 165)
+local currentUIColor = Color3.fromHSV(0.722222, 0.018181, 0.647058)
 local usingSlider = {
 	enabled = false
 }
@@ -676,7 +703,7 @@ if makefolder and isfolder and writefile and isfile then
 		}
 		local files = {
 			"DeepScopeCore/Saves.json",
-			"DeepScopeCode/Waypoints.json",
+			"DeepScopeCore/Waypoints.json",
 			"DeepScopeCore/Logs.txt"
 		}
 		for _, v in ipairs(folders) do
@@ -690,6 +717,8 @@ if makefolder and isfolder and writefile and isfile then
 				local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
 				if isJSON then
 					writefile(v, game:GetService("HttpService"):JSONEncode({}))
+				else
+					writefile(v, "")
 				end
 			end
 		end
@@ -797,6 +826,35 @@ local function AddLog(text, sourse, type)
 end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
+end
+local function saveData()
+	local data = {}
+	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
+	data.BuildMode = {
+		Saves = {}
+	}
+	data.Executor = {
+		SavedCodes = {}
+	}
+	data.ExecutorConfig = {
+		Colors = {
+			Text = toJSONRGB(executorConfig.textColor),
+			Background = toJSONRGB(executorConfig.backgroundColor),
+			Operator = toJSONRGB(executorConfig.operatorColor),
+			String = toJSONRGB(executorConfig.stringColor),
+			Number = toJSONRGB(executorConfig.numberColor),
+			Function = toJSONRGB(executorConfig.funcColor),
+			Keywords = toJSONRGB(executorConfig.keywordColor),
+			Bools = toJSONRGB(executorConfig.bools),
+			Comment = toJSONRGB(executorConfig.commentColor),
+			BuildIn = toJSONRGB(executorConfig.libColor)
+		},
+		TextSize = executorConfig.TextSize,
+		Font = toJSONFont(executorConfig.font)
+	}
+	local encoded = game.HttpService:JSONEncode(data)
+	local filePath = "DeepScopeCore/Saves.json"
+	writefile(filePath, encoded)
 end
 local modules = {
 	circle = {
@@ -1168,22 +1226,22 @@ local modules = {
 						local closing = code:find(c, pos + 1, true) or (len + 1)
 						if closing > len then closing = len end
 						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor, str))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.stringColor), str))
 						pos = closing + 1
 					elseif c:match("^%-%-") then
 						local block = c:match("^%-%-%[%[(.-)%]%]")
 						if block then
 							local full = c:match("^%-%-%[%[.-%]%]")
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, full))
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.commentColor), full))
 							pos = pos + #full
 						else
 							local line = c:match("^(%-%-.*)\n?") or c
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor, line))
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.commentColor), line))
 							pos = pos + #line
 						end
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.numberColor), num))
 						pos = pos + #num
 					elseif code:match("^[%a_]", pos) then
 						local word = code:match("^[%w_]+", pos)
@@ -1191,7 +1249,7 @@ local modules = {
 						local colored = nil
 
 						if afterWord == "(" then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
+							colored = string.format("<font color='%s'>%s</font>", toRGB(executorConfig.funcColor), word)
 						end
 						if table.find({
 							"assert","collectgarbage","dofile","error","getfenv",
@@ -1242,16 +1300,16 @@ local modules = {
 							"Vector2int16","Version","version","Wait","ypcall"
 							}, word) then
 							if afterWord == "(" then
-								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
+								colored = string.format("<font color='%s'>%s</font>", toRGB(executorConfig.libColor), word)
 							else
-								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
+								colored = string.format("<font color='%s'>%s</font>", toRGB(executorConfig.libColor), word)
 							end
 						end
 						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format(executorConfig.keywords[2], word)
+							colored = string.format(toRGB(executorConfig.keywordColor, true), word)
 						end
 						if table.find(executorConfig.bools[1], word) then
-							colored = string.format(executorConfig.bools[2], word)
+							colored = string.format(toRGB(executorConfig.boolsColor, true), word)
 						end
 
 						table.insert(tokens, colored or word)
@@ -1317,6 +1375,7 @@ spawn(function()
 		modules.other.fly.Loop()
 	end
 end)
+
 local function createGui()
 	local gui1 = createInstance("ScreenGui", {
 		DisplayOrder = 2147483647,
@@ -3445,6 +3504,7 @@ end
 
 local function buildChildrenNodes(instance, parentNode, parentGui)
 	local node = {
+		Instance = instance, -- привязка напрямую!
 		Data = {
 			Name = instance.Name,
 			ClassName = instance.ClassName,
@@ -3461,7 +3521,7 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 	guiToNode[entry] = node
 	nodeToGui[node] = entry
 
-	-- слушаем изменения Name/Parent
+	-- слушаем изменения Name/Parent (переименования и перемещения)
 	attachPropertyListeners(instance, node)
 
 	-- слушаем появление детей
@@ -3474,14 +3534,18 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 	-- слушаем удаление детей
 	instance.ChildRemoved:Connect(function(child)
 		for i, childNode in ipairs(node.Children) do
-			if childNode.Data.Name == child.Name then
+			if childNode.Instance == child then -- сравнение по объекту!
 				-- удаляем UI
-				if nodeToGui[childNode] then
-					nodeToGui[childNode]:Destroy()
-					nodeToGui[childNode] = nil
+				local gui = nodeToGui[childNode]
+				if gui then
+					gui:Destroy()
+					guiToNode[gui] = nil
 				end
+				nodeToGui[childNode] = nil
+
 				-- удаляем Properties
 				nodeToProps[childNode] = nil
+
 				table.remove(node.Children, i)
 				recalcAndPropagateSize(entry)
 				break
