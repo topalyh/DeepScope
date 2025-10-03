@@ -1298,18 +1298,9 @@ local executorConfig = {
 		},
 		"<font color='rgb(0,139,219)'>%s</font>"
 	},
-	otherKeywords = {
-		bools = {
-			{"nil", "false", "true"},
-			"<font color='rgb(255,198,0)'><b>%s</b></font>"
-		},
-		enums = {
-			{},
-			{
-				category = "rgb(97,161,241)",
-				value = "rgb(0,139,219)"
-			}
-		}
+	bools = {
+		{"nil", "false", "true"},
+		"<font color='rgb(255,198,0)'><b>%s</b></font>"
 	},
 	commentColor = "rgb(102,102,102)",
 	stringColor = "rgb(173,241,149)",
@@ -1396,42 +1387,6 @@ local logConfig = {
 	},
 	stringFormat = "%s - %s  -  %s",
 	messages = 0,
-}
-local globalfuncs = {
-	"assert","collectgarbage","dofile","error","getfenv",
-	"getmetatable","ipairs","load","loadfile","next",
-	"pairs","pcall","print","rawequal","rawget","rawlen",
-	"rawset","require","select","setfenv","setmetatable",
-	"tonumber","tostring","xpcall","loadstring","typeof",
-	"UserSettings","Vector2","Vector3","Enum","UDim",
-	"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
-	"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
-	"fromOffset","fromScale","new","game","table",
-	"insert","remove","concat","sort","unpack",
-	"pack","clear","find","create","clone",
-	"move","string","byte","char","find",
-	"format","gmatch","gsub","len","lower",
-	"match","rep","reverse","sub","upper",
-	"create","resume","running","status","wrap",
-	"yield","isyieldable","time","date","clock",
-	"difftime","arshift","band","bnot","bor",
-	"btest","bxor","extract","lrotate","lshift",
-	"replace","rrotate","rshift","abs","acos",
-	"asin","atan","atan2","ceil","cos",
-	"cosh","deg","exp","floor","fmod",
-	"frexp","ldexp","log","log10","max",
-	"min","modf","pow","rad","random",
-	"randomseed","sin","sinh","sqrt","tan",
-	"tanh","spawn","Delay","Spawn","game",
-	"Rect","Font","Instance","TweenInfo","workspace",
-	"Workspace","tick","time","zero","one",
-	"yAxis","xAxis","FromNormalId","zAxis","FromAxis",
-	"fromAxis","fromNormalId","wait","task","CFrame",
-	"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
-	"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
-	"fromRotationBetweenVectors","char","len","offset","codes",
-	"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
-	"math","clamp","gcinfo"
 }
 local lastVelocity = Vector3.zero
 local lastTime = tick()
@@ -1913,14 +1868,53 @@ local modules = {
 						if afterWord == "(" then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
-						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format(executorConfig.keywords[2], word)
-						elseif table.find(globalfuncs, word) then
+						if table.find({
+							"assert","collectgarbage","dofile","error","getfenv",
+							"getmetatable","ipairs","load","loadfile","next",
+							"pairs","pcall","print","rawequal","rawget","rawlen",
+							"rawset","require","select","setfenv","setmetatable",
+							"tonumber","tostring","xpcall","loadstring","typeof",
+							"UserSettings","Vector2","Vector3","Enum","UDim",
+							"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
+							"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
+							"fromOffset","fromScale","new","game","table",
+							"insert","remove","concat","sort","unpack",
+							"pack","clear","find","create","clone",
+							"move","string","byte","char","find",
+							"format","gmatch","gsub","len","lower",
+							"match","rep","reverse","sub","upper",
+							"create","resume","running","status","wrap",
+							"yield","isyieldable","time","date","clock",
+							"difftime","arshift","band","bnot","bor",
+							"btest","bxor","extract","lrotate","lshift",
+							"replace","rrotate","rshift","abs","acos",
+							"asin","atan","atan2","ceil","cos",
+							"cosh","deg","exp","floor","fmod",
+							"frexp","ldexp","log","log10","max",
+							"min","modf","pow","rad","random",
+							"randomseed","sin","sinh","sqrt","tan",
+							"tanh","spawn","Delay","Spawn","game",
+							"Rect","Font","Instance","TweenInfo","workspace",
+							"Workspace","tick","time","zero","one",
+							"yAxis","xAxis","FromNormalId","zAxis","FromAxis",
+							"fromAxis","fromNormalId","wait","task","CFrame",
+							"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
+							"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
+							"fromRotationBetweenVectors","char","len","offset","codes",
+							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
+							"math","clamp","gcinfo"
+							}, word) then
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
+						end
+						if table.find(executorConfig.keywords[1], word) then
+							colored = string.format(executorConfig.keywords[2], word)
+						end
+						if table.find(executorConfig.bools[1], word) then
+							colored = string.format(executorConfig.bools[2], word)
 						end
 
 						table.insert(tokens, colored or word)
@@ -3617,7 +3611,7 @@ local function createGui()
 		Name = "codeLimit",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.fromScale(0.85, 1),
+		Position = UDim2.fromScale(1, 1),
 		Size = UDim2.new(1, -35, 0, 30),
 		FontFace = Font.new(fonts.FiraSans),
 		TextColor3 = Color3.new(1, 1, 1),
@@ -3626,6 +3620,10 @@ local function createGui()
 		Text = "0/200K",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
+	})
+	createInstance("UIPadding", {
+		Parent = executorGui16,
+		PaddingRight = UDim.new(0, 35)
 	})
 	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
@@ -3888,7 +3886,7 @@ local function recalcAndPropagateSize(entryFrame)
 	if not entryFrame or not entryFrame:IsA("Frame") then return end
 
 	local function computeFrameHeight(frame)
-		local base = 16
+		local base = 24
 		local dropdown = frame:FindFirstChild("dropdown")
 		if dropdown and dropdown.Visible then
 			local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
@@ -5777,4 +5775,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
