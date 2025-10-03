@@ -1912,18 +1912,19 @@ local modules = {
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
 						elseif table.find(globalfuncs, word) then
-							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
-						elseif afterWord == "(" then
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
+						elseif afterWord == "(" then
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
+					end
+					if code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
 						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						local full = enum.."."..category.."."..value
 						table.insert(tokens, string.format(
@@ -1933,7 +1934,8 @@ local modules = {
 							executorConfig.propColor, value
 							))
 						pos = pos + #full
-					elseif code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
+					end
+					if code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
 						local full = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
 						local parts = {}
 						for part in full:gmatch("[^%.]+") do
@@ -5797,3 +5799,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
