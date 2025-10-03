@@ -1892,7 +1892,7 @@ local modules = {
 						table.insert(tokens, result)
 						pos = pos + #full
 					end
-					if c:match("[%a_]") then
+					if code:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
 						local afterWord = code:sub(pos + #word, pos + #word)
@@ -5812,3 +5812,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
