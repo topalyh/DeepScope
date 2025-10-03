@@ -1905,48 +1905,58 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-					elseif c:match("[%a_]") then
+					elseif code:match("^[%a_]", pos) then
 						local word = code:match("^[%w_]+", pos)
 						local afterWord = code:sub(pos + #word, pos + #word)
 						local colored = nil
+
+						-- Enums
+						local enumFull, enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
+						if enumFull then
+							colored = string.format(
+								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
+								executorConfig.libColor, enum,
+								executorConfig.libColor, category,
+								executorConfig.propColor, value
+							)
+							table.insert(tokens, colored)
+							pos = pos + #enumFull
+						end
+
+						-- Chains (obj.prop.subprop)
+						local chain = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
+						if chain then
+							local parts, result = {}, ""
+							for part in chain:gmatch("[^%.]+") do
+								table.insert(parts, part)
+							end
+							result = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, parts[1])
+							for i = 2, #parts do
+								result = result .. "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, parts[i])
+							end
+							table.insert(tokens, result)
+							pos = pos + #chain
+						end
+
+						-- Keywords
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format(executorConfig.keywords[2], word)
+
+							-- Global functions
 						elseif table.find(globalfuncs, word) then
 							if afterWord == "(" then
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 							else
 								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor, word)
 							end
+
+							-- User-defined functions
 						elseif afterWord == "(" then
 							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor, word)
 						end
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					end
-					if code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
-						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
-						local full = enum.."."..category.."."..value
-						table.insert(tokens, string.format(
-							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
-							executorConfig.libColor, enum,
-							executorConfig.libColor, category,
-							executorConfig.propColor, value
-							))
-						pos = pos + #full
-					end
-					if code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
-						local full = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
-						local parts = {}
-						for part in full:gmatch("[^%.]+") do
-							table.insert(parts, part)
-						end
-						local result = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, parts[1])
-						for i = 2, #parts do
-							result = result .. "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, parts[i])
-						end
-						table.insert(tokens, result)
-						pos = pos + #full
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -5782,7 +5792,7 @@ while true do
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y,
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Z
 				)
-					/LocalPlayer.Character.Humanoid.WalkSpeed)..":1"
+					/LocalPlayer.Character.Humanoid.WalkSpeed)..":1
 		end)
 	end
 	if LocalPlayer.Character.PrimaryPart then
@@ -5799,4 +5809,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
