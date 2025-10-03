@@ -669,6 +669,37 @@ local usingSlider = {
 	enabled = false
 }
 local guiToNode = setmetatable({}, {__mode = "k"})
+if makefolder and isfolder and writefile and isfile then
+	pcall(function()
+		local folders = {
+			"DeepScopeCore"
+		}
+		local files = {
+			"DeepScopeCore/Saves.json",
+			"DeepScopeCode/Waypoints.json",
+			"DeepScopeCore/Logs.txt"
+		}
+		for _, v in ipairs(folders) do
+			if not isfolder(v) then
+				makefolder(v)
+			end
+		end
+
+		for _, v in ipairs(files) do
+			if not isfile(v) then
+				local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
+				if isJSON then
+					writefile(v, game:GetService("HttpService"):JSONEncode({}))
+				end
+			end
+		end
+	end)
+end
+local function writeinfo(fileName, data)
+	local isJSON = fileName:match("DeepScopeCore/(.-)%.json$") ~= nil
+	local content = isJSON and game:GetService("HttpService"):JSONEncode(data) or data
+	writefile(fileName, content)
+end
 local logConfig = {
 	colors = {
 		normal = {204, 204, 204},
@@ -704,9 +735,9 @@ local function toPolar(v)
 end
 local function getLineAmount(code)
 	local result = ""
-	local lines = #string.split(code, "\n")
+	local lines = #code:split("\n")
 	for i = 1, lines do
-		result ..= i.."<br/>"
+		result ..= i .. "<br/>"
 	end
 	return result
 end
@@ -748,7 +779,7 @@ local function AddLog(text, sourse, type)
 		Parent = gui,
 		PaddingLeft = UDim.new(0, 5)
 	})
-	local timeNow = os.date("%H:%M:%S")
+	local timeNow = os.date("%H:%M:%S", tick())
 	local ok, textResult = pcall(function()
 		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
@@ -2958,30 +2989,6 @@ end
 local newgui = createGui()
 local function getMousePos()
 	return game.UserInputService:GetMouseLocation()
-end
-if makefolder and isfolder and writefile and isfile then
-	pcall(function()
-		local folders = {
-			"DeepScopeCore"
-		}
-		local files = {
-			"DeepScopeCore/Saves.json"
-		}
-		for _, v in ipairs(folders) do
-			if not isfolder(v) then
-				makefolder(v)
-			end
-		end
-
-		for _, v in ipairs(files) do
-			if not isfile(v) then
-				local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
-				if isJSON then
-					writefile(v, game:GetService("HttpService"):JSONEncode({}))
-				end
-			end
-		end
-	end)
 end
 local function makeFakeScripts()
 	local folder = createInstance("Folder", {
