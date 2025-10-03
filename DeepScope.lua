@@ -887,7 +887,7 @@ local function saveData()
 	}
 	local encoded = game.HttpService:JSONEncode(data)
 	local filePath = "DeepScopeCore/Saves.json"
-	writefile(filePath, encoded)
+	writefile(filePath, prettyJSON(encoded))
 end
 local modules = {
 	circle = {
