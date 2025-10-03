@@ -885,9 +885,8 @@ local function saveData()
 		TextSize = executorConfig.TextSize,
 		Font = toJSONFont(executorConfig.font)
 	}
-	local encoded = game.HttpService:JSONEncode(data)
 	local filePath = "DeepScopeCore/Saves.json"
-	writefile(filePath, prettyJSON(encoded))
+	writefile(filePath, prettyJSON(data))
 end
 local modules = {
 	circle = {
@@ -5291,3 +5290,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
