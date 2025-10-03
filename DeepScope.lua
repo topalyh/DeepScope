@@ -1869,30 +1869,7 @@ local modules = {
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor, num))
 						pos = pos + #num
-					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
-						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
-						local full = enum.."."..category.."."..value
-						table.insert(tokens, string.format(
-							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
-							executorConfig.libColor, enum,
-							executorConfig.libColor, category,
-							executorConfig.propColor, value
-							))
-						pos = pos + #full
-					elseif code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
-						local full = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
-						local parts = {}
-						for part in full:gmatch("[^%.]+") do
-							table.insert(parts, part)
-						end
-						local result = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, parts[1])
-						for i = 2, #parts do
-							result = result .. "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, parts[i])
-						end
-						table.insert(tokens, result)
-						pos = pos + #full
-					end
-					if code:match("[%a_]") then
+					elseif code:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
 						local afterWord = code:sub(pos + #word, pos + #word)
@@ -1957,7 +1934,28 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-
+					elseif code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos) then
+						local full = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
+						local parts = {}
+						for part in full:gmatch("[^%.]+") do
+							table.insert(parts, part)
+						end
+						local result = string.format("<font color='%s'>%s</font>", executorConfig.operatorColor, parts[1])
+						for i = 2, #parts do
+							result = result .. "." .. string.format("<font color='%s'>%s</font>", executorConfig.propColor, parts[i])
+						end
+						table.insert(tokens, result)
+						pos = pos + #full
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
+						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
+						local full = enum.."."..category.."."..value
+						table.insert(tokens, string.format(
+							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
+							executorConfig.libColor, enum,
+							executorConfig.libColor, category,
+							executorConfig.propColor, value
+							))
+						pos = pos + #full
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -5810,3 +5808,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
