@@ -5792,7 +5792,7 @@ while true do
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Y,
 					LocalPlayer.Character.PrimaryPart.AssemblyLinearVelocity.Z
 				)
-					/LocalPlayer.Character.Humanoid.WalkSpeed)..":1
+					/LocalPlayer.Character.Humanoid.WalkSpeed)..":1"
 		end)
 	end
 	if LocalPlayer.Character.PrimaryPart then
