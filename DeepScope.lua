@@ -1909,23 +1909,6 @@ local modules = {
 						local word = code:match("^[%w_]+", pos)
 						local afterWord = code:sub(pos + #word, pos + #word)
 						local colored = nil
-
-						-- Enums
-						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
-						print(enum, category, value)
-						local enumFull = (enum and category and value) ~= nil and enum.."."..category.."."..value or nil
-						if enumFull then
-							colored = string.format(
-								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
-								executorConfig.libColor, enum,
-								executorConfig.libColor, category,
-								executorConfig.propColor, value
-							)
-							table.insert(tokens, colored)
-							pos = pos + #enumFull
-						end
-
-						-- Chains (obj.prop.subprop)
 						local chain = code:match("^[%a_][%w_]*%.[%a_][%w_.]*", pos)
 						if chain then
 							local parts, result = {}, ""
@@ -3922,7 +3905,7 @@ local function recalcAndPropagateSize(entryFrame)
 	if not entryFrame or not entryFrame:IsA("Frame") then return end
 
 	local function computeFrameHeight(frame)
-		local base = 32
+		local base = 16
 		local dropdown = frame:FindFirstChild("dropdown")
 		if dropdown and dropdown.Visible then
 			local h = dropdown:FindFirstChild("UIListLayout") and dropdown.UIListLayout.AbsoluteContentSize.Y or 0
@@ -3949,7 +3932,7 @@ local function createEntryForInstance(node, parentGui)
 		Parent = nil,
 		Name = "template",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(228, 32),
+		Size = UDim2.fromOffset(228, 16),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
@@ -3959,7 +3942,7 @@ local function createEntryForInstance(node, parentGui)
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, 32)
+		Size = UDim2.new(1, 0, 0, 16)
 	})
 	local explorerGui6 = createInstance("UIListLayout", {
 		Parent = explorerGui5,
@@ -4003,7 +3986,7 @@ local function createEntryForInstance(node, parentGui)
 		Name = "icon",
 		BackgroundTransparency = 1,
 		LayoutOrder = 1,
-		Size = UDim2.fromOffset(28, 28),
+		Size = UDim2.fromOffset(14, 14),
 		Image = "rbxassetid://765660635",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -4016,7 +3999,7 @@ local function createEntryForInstance(node, parentGui)
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
 		LayoutOrder = 2,
-		Size = UDim2.fromOffset(0, 28),
+		Size = UDim2.fromOffset(0, 14),
 		FontFace = Font.new(fonts.FiraSans),
 		Text = "hi",
 		TextColor3 = Color3.new(1, 1, 1),
@@ -4031,7 +4014,7 @@ local function createEntryForInstance(node, parentGui)
 		Name = "add",
 		BackgroundTransparency = 1,
 		LayoutOrder = 3,
-		Size = UDim2.fromOffset(25, 15),
+		Size = UDim2.fromOffset(20, 10),
 		Image = "rbxassetid://88065133864491",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -4046,7 +4029,7 @@ local function createEntryForInstance(node, parentGui)
 		Parent = template,
 		Name = "dropdown",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(32, 32),
+		Position = UDim2.fromOffset(16, 16),
 		Size = UDim2.fromScale(1, 0),
 		Visible = false
 	})
