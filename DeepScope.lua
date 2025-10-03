@@ -22,6 +22,8 @@ local waxwritefile, waxreadfile = writefile, readfile
 if not RunService:IsStudio() then
 	cloneref = missing("function", cloneref, function(...) return ... end)
 	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
+	makefolder = missing("function", makefolder)
+	isfolder = missing("function", isfolder)
 	writefile = missing("function", waxwritefile) and function(file, data, safe)
 		if safe == true then return pcall(waxwritefile, file, data) end
 		waxwritefile(file, data)
@@ -1315,7 +1317,7 @@ local executorConfig = {
 	operatorColor = "rgb(204,204,204)",
 	funcColor = "rgb(253,251,172)",
 	libColor = "rgb(132,214,247)",
-	propColor = "rgb(68,142,241)"
+	propColor = "rgb(0,67,162)"
 }
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -1889,7 +1891,8 @@ local modules = {
 						end
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif c:match("[%a_]") then
+					end
+					if code:match("[%a_]") then
 						local word = code:match("^[%w_]+", pos)
 						local colored = nil
 						local afterWord = code:sub(pos + #word, pos + #word)
@@ -3668,7 +3671,16 @@ local newgui = createGui()
 local function getMousePos()
 	return game.UserInputService:GetMouseLocation()
 end
-
+if makefolder and isfolder and writefile and isfile then
+	pcall(function()
+		local folderName = "DeepScope"
+		local savesFileName = "saves.json"
+		if not isfolder(folderName) then
+			makefolder(folderName)
+		end
+		
+	end)
+end
 local function makeFakeScripts()
 	local folder = createInstance("Folder", {
 		Parent = game.ReplicatedStorage,
@@ -5798,4 +5810,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
