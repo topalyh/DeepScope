@@ -1912,6 +1912,7 @@ local modules = {
 
 						-- Enums
 						local enumFull, enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
+						print(enumFull, Enum, category, value)
 						if enumFull then
 							colored = string.format(
 								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
