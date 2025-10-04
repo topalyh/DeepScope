@@ -1341,12 +1341,12 @@ local modules = {
 						end
 
 						table.insert(tokens, colored or word)
+						pos = pos + #word
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
 					end
-				end		pos = pos + #word
-				
+				end
 
 				return table.concat(tokens)
 			end,
