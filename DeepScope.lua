@@ -603,12 +603,11 @@ local executorConfig = {
 	font = Font.new(fonts.BuilderMono),
 	TextSize = 15,
 }
-local function toRGB(color, bold)
-	local result = "rgb(%d,%d,%d)"
-	local r = color.R * 255
-	local g = color.G * 255
-	local b = color.B * 255
-	return string.format(result, r, g, b)
+local function toRGB(color)
+	local r = math.floor(color.R * 255)
+	local g = math.floor(color.G * 255)
+	local b = math.floor(color.B * 255)
+	return string.format("rgb(%d,%d,%d)", r, g, b)
 end
 local function toJSONRGB(color)
 	local r = math.floor(color.R * 255)
@@ -1254,22 +1253,22 @@ local modules = {
 						local closing = code:find(c, pos + 1, true) or (len + 1)
 						if closing > len then closing = len end
 						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.stringColor), str))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.stringColor:ToHex(), str))
 						pos = closing + 1
 					elseif c:match("^%-%-") then
 						local block = c:match("^%-%-%[%[(.-)%]%]")
 						if block then
 							local full = c:match("^%-%-%[%[.-%]%]")
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.commentColor), full))
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor:ToHex(), full))
 							pos = pos + #full
 						else
 							local line = c:match("^(%-%-.*)\n?") or c
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.commentColor), line))
+							table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.commentColor:ToHex(), line))
 							pos = pos + #line
 						end
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", toRGB(executorConfig.numberColor), num))
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", executorConfig.numberColor:ToHex(), num))
 						pos = pos + #num
 					elseif code:match("^[%a_]", pos) then
 						local word = code:match("^[%w_]+", pos)
@@ -1277,7 +1276,7 @@ local modules = {
 						local colored = nil
 
 						if afterWord == "(" then
-							colored = string.format("<font color='%s'>%s</font>", toRGB(executorConfig.funcColor), word)
+							colored = string.format("<font color='%s'>%s</font>", executorConfig.funcColor:ToHex(), word)
 						end
 						if table.find({
 							"assert","collectgarbage","dofile","error","getfenv",
@@ -1328,16 +1327,16 @@ local modules = {
 							"Vector2int16","Version","version","Wait","ypcall"
 							}, word) then
 							if afterWord == "(" then
-								colored = string.format("<font color='%s'>%s</font>", toRGB(executorConfig.libColor), word)
+								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor:ToHex(), word)
 							else
-								colored = string.format("<font color='%s'>%s</font>", toRGB(executorConfig.libColor), word)
+								colored = string.format("<font color='%s'>%s</font>", executorConfig.libColor:ToHex(), word)
 							end
 						end
 						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format("<font color='%s'><b>%s</b></font>",toRGB(executorConfig.keywordColor, true), word)
+							colored = string.format("<font color='%s'><b>%s</b></font>",executorConfig.keywordColor:ToHex(), word)
 						end
 						if table.find(executorConfig.bools[1], word) then
-							colored = string.format("<font color='%s'><b>%s</b></font>",toRGB(executorConfig.boolsColor, true), word)
+							colored = string.format("<font color='%s'><b>%s</b></font>",executorConfig.boolsColor:ToHex(), word)
 						end
 
 						table.insert(tokens, colored or word)
