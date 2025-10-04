@@ -604,16 +604,11 @@ local executorConfig = {
 	TextSize = 15,
 }
 local function toRGB(color, bold)
-	local result = ""
+	local result = "rgb(%d,%d,%d)"
 	local r = color.R * 255
 	local g = color.G * 255
 	local b = color.B * 255
-	if bold then
-		result = "<font color='rgb(%d,%d,%d)'><b>%s</b></font>"
-	else
-		result = "<font color='rgb(%d,%d,%d)'>%s</font>"
-	end
-	return string.format(result, r, g, b, "%s")
+	return string.format(result, r, g, b)
 end
 local function toJSONRGB(color)
 	local r = math.floor(color.R * 255)
@@ -860,8 +855,8 @@ local function prettyJSON(tbl, indent)
 	end
 end
 
-local function saveData()
-	local data = {}
+local function saveData(dataToSave)
+	local data = dataToSave or {}
 	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
 	data.BuildMode = {
 		Saves = {}
@@ -885,8 +880,9 @@ local function saveData()
 		TextSize = executorConfig.TextSize,
 		Font = toJSONFont(executorConfig.font)
 	}
+	local encoded = game.HttpService:JSONEncode(data)
 	local filePath = "DeepScopeCore/Saves.json"
-	writefile(filePath, prettyJSON(data))
+	writefile(filePath, prettyJSON(encoded))
 end
 local modules = {
 	circle = {
@@ -1338,19 +1334,19 @@ local modules = {
 							end
 						end
 						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format(toRGB(executorConfig.keywordColor, true), word)
+							colored = string.format("<font color='%s'><b>%s</b></font>",toRGB(executorConfig.keywordColor, true), word)
 						end
 						if table.find(executorConfig.bools[1], word) then
-							colored = string.format(toRGB(executorConfig.boolsColor, true), word)
+							colored = string.format("<font color='%s'><b>%s</b></font>",toRGB(executorConfig.boolsColor, true), word)
 						end
 
 						table.insert(tokens, colored or word)
-						pos = pos + #word
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
 					end
-				end
+				end		pos = pos + #word
+				
 
 				return table.concat(tokens)
 			end,
@@ -3619,8 +3615,8 @@ local function setExplorer()
 
 			for _, frame in ipairs(templates) do
 				if frame:IsA("Frame") and frame:FindFirstChild("mainframe") then
-					local y = frame.AbsolutePosition.Y + 32
-					local h = frame.AbsoluteSize.Y - 32
+					local y = frame.AbsolutePosition.Y
+					local h = frame.AbsoluteSize.Y
 
 					local onScreen = (y + h > absPos) and (y < absPos + absSize)
 					frame.mainframe.Visible = onScreen
@@ -5164,7 +5160,7 @@ registerCommand("walkfling", function()
 			root = character:FindFirstChild("HumanoidRootPart")
 		end
 		vel = root.Velocity
-		root.Velocity = vel * 1e10 + Vector3.new(0, 1e10, 0)
+		root.Velocity = vel * 1e20 + Vector3.new(0, 1e20, 0)
 
 		RunService.RenderStepped:Wait()
 		if character and character.Parent and root and root.Parent then
@@ -5196,7 +5192,7 @@ registerCommand("flyfling", function(args)
 	runCommand("unfly")
 	runCommand("unwalkfling")
 	task.wait()
-	runCommand("fly "..tonumber(args[1]) or flySpeed)
+	runCommand("fly "..tonumber(args[1]) or 1)
 	runCommand("walkfling")
 end)
 while true do
@@ -5290,4 +5286,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
