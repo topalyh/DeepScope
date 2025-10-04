@@ -1353,7 +1353,7 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+") then
 						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
 						local result = string.format(
 							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
