@@ -694,12 +694,18 @@ local guiToNode = setmetatable({}, {__mode = "k"})
 if makefolder and isfolder and writefile and isfile then
 	pcall(function()
 		local folders = {
-			"DeepScopeCore"
+			"DeepScopeCore",
+			"Properties",
+			"Explorer",
+			"Executor"
 		}
 		local files = {
 			"DeepScopeCore/Saves.json",
 			"DeepScopeCore/Waypoints.json",
-			"DeepScopeCore/Logs.txt"
+			"DeepScopeCore/Logs.txt",
+			"DeepScopeCore/Properties/Instances.dsf",
+			"DeepScopeCore/Explorer/Icons.dsf",
+			"DeepScopeCore/Executor/SavedScripts.dsf"
 		}
 		for _, v in ipairs(folders) do
 			if not isfolder(v) then
@@ -711,7 +717,7 @@ if makefolder and isfolder and writefile and isfile then
 			if not isfile(v) then
 				local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
 				if isJSON then
-					writefile(v, game:GetService("HttpService"):JSONEncode({}))
+					writefile(v, "[]")
 				else
 					writefile(v, "")
 				end
@@ -881,7 +887,13 @@ local function saveData(dataToSave)
 	}
 	local encoded = game.HttpService:JSONEncode(data)
 	local filePath = "DeepScopeCore/Saves.json"
-	writefile(filePath, prettyJSON(encoded))
+	writefile(filePath, encoded)
+end
+local function initFiles()
+	local propertiesURL = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/master/API-Dump.json"
+	local propertiesPath = "DeepScopeCore/Properties/Instances.json"
+	local data = game.HttpService:GetAsync(propertiesURL)
+	writefile(propertiesPath, data)
 end
 local modules = {
 	circle = {
@@ -1284,7 +1296,7 @@ local modules = {
 							"pairs","pcall","print","rawequal","rawget","rawlen",
 							"rawset","require","select","setfenv","setmetatable",
 							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings","Vector2","Vector3","Enum","UDim",
+							"UserSettings","Vector2","Vector3","UDim","_G",
 							"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
 							"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
 							"fromOffset","fromScale","new","game","table",
@@ -1341,6 +1353,16 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
+					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
+						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
+						local result = string.format(
+							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
+							"#"..executorConfig.libColor:ToHex(), enum,
+							"#"..executorConfig.libColor:ToHex(), category,
+							"#"..executorConfig.propColor:ToHex(), value
+						)
+						table.insert(tokens, result)
+						pos = pos + (enum.."."..category.."."..value)
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
@@ -3065,7 +3087,7 @@ local function createGui()
 		Parent = executorGui16,
 		PaddingRight = UDim.new(0, 35)
 	})
-	executorGui3.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
+	executorGui3_2.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
 	infoList = placeInfoGui4
 	logList = logGui2
@@ -3321,7 +3343,7 @@ local function recalcAndPropagateSize(entryFrame)
 	end
 
 	entryFrame.Size = UDim2.new(1, 0, 0, computeFrameHeight(entryFrame))
-	
+
 	local parent = entryFrame.Parent
 	while parent and parent:IsA("Frame") do
 		if parent.Name == "dropdown" then
@@ -3488,7 +3510,7 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-	
+
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -3515,9 +3537,7 @@ local function createEntryForInstance(node, parentGui)
 			end
 
 			dropdown.Visible = not dropdown.Visible
-			TweenService:Create(newTemplate.mainframe.dropdownbutton.icon, TweenInfo.new(0.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Rotation = dropdown.Visible and 0 or -90
-			}):Play()
+			newTemplate.mainframe.dropdownbutton.icon.Rotation = dropdown.Visible and 0 or -90
 			recalcAndPropagateSize(newTemplate)
 		end)
 	else
@@ -4513,8 +4533,8 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		local imported = game:HttpGet(gameURL)
 		local decoded = game.HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
-		module.UpdateText("CCU", format(gameInfo.playing, false, true, 1))
-		module.UpdateText("Visits", format(gameInfo.visits, false, true, 1))
+		module.UpdateText("CCU", format(gameInfo.playing, false, true, 3))
+		module.UpdateText("Visits", format(gameInfo.visits, false, true, 3))
 		wait(1)
 	end
 end)
@@ -5020,7 +5040,7 @@ registerCommand("exit", function()
 	game:Shutdown()
 end)
 registerCommand("align", function(args)
-	local unit = tostring(args[1]) or "right"
+	local unit = tostring(args[1]) or "left"
 	for _, v in newgui.Parent.commandbar:GetDescendants() do
 		if v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
 			if v.Name ~= "title" then
@@ -5285,4 +5305,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
