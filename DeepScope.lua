@@ -524,11 +524,10 @@ for _ab__ = 1, #______ do
 	__________[_ab__] = string.char(______[_ab__])
 end
 
-local _a = table.concat(__________)
-print(_a)
+local _ = table.concat(__________)
 
-if not isfile("DeepScopeCore/StudioIcons.png") then
-	writefile("DeepScopeCore/StudioIcons.png", #_a)
+if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
+	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
 end
 local imageId = getcustomasset("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103")
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
@@ -5224,4 +5223,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
