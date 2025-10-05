@@ -513,8 +513,7 @@ local function base64Decode(data)
 		return string.char(c)
 	end))
 end
-local _ = game:HttpGet("\104\116\116\112\115\58\47\47\103\105\116\104\117\98\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\98\108\111\98\47\109\97\105\110\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71")
-print(_)
+local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71")
 if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
 	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
 end
@@ -3458,7 +3457,7 @@ end
 
 local function buildChildrenNodes(instance, parentNode, parentGui)
 	local node = {
-		Instance = instance, -- привязка напрямую!
+		Instance = instance, -- ïðèâÿçêà íàïðÿìóþ!
 		Data = {
 			Name = instance.Name,
 			ClassName = instance.ClassName,
@@ -3467,29 +3466,29 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 		Children = {}
 	}
 
-	-- создаём PropertiesData
+	-- ñîçäà¸ì PropertiesData
 	nodeToProps[node] = makeProperties(instance)
 
-	-- UI элемент
+	-- UI ýëåìåíò
 	local entry = createEntryForInstance(node, parentGui)
 	guiToNode[entry] = node
 	nodeToGui[node] = entry
 
-	-- слушаем изменения Name/Parent (переименования и перемещения)
+	-- ñëóøàåì èçìåíåíèÿ Name/Parent (ïåðåèìåíîâàíèÿ è ïåðåìåùåíèÿ)
 	attachPropertyListeners(instance, node)
 
-	-- слушаем появление детей
+	-- ñëóøàåì ïîÿâëåíèå äåòåé
 	instance.ChildAdded:Connect(function(child)
 		local childNode = buildChildrenNodes(child, node, entry.dropdown)
 		table.insert(node.Children, childNode)
 		recalcAndPropagateSize(entry)
 	end)
 
-	-- слушаем удаление детей
+	-- ñëóøàåì óäàëåíèå äåòåé
 	instance.ChildRemoved:Connect(function(child)
 		for i, childNode in ipairs(node.Children) do
-			if childNode.Instance == child then -- сравнение по объекту!
-				-- удаляем UI
+			if childNode.Instance == child then -- ñðàâíåíèå ïî îáúåêòó!
+				-- óäàëÿåì UI
 				local gui = nodeToGui[childNode]
 				if gui then
 					gui:Destroy()
@@ -3497,7 +3496,7 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 				end
 				nodeToGui[childNode] = nil
 
-				-- удаляем Properties
+				-- óäàëÿåì Properties
 				nodeToProps[childNode] = nil
 
 				table.remove(node.Children, i)
@@ -3507,7 +3506,7 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 		end
 	end)
 
-	-- рекурсивно создаём дочерние ноды
+	-- ðåêóðñèâíî ñîçäà¸ì äî÷åðíèå íîäû
 	for _, child in ipairs(instance:GetChildren()) do
 		local childNode = buildChildrenNodes(child, node, entry.dropdown)
 		table.insert(node.Children, childNode)
