@@ -515,6 +515,7 @@ local function base64Decode(data)
 end
 local base64PNG = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/Base64%20IconAssets")
 local decoded = base64Decode(base64PNG)
+print(decoded)
 if not isfile("DeepScopeCore/StudioIcons.png") then
 	writefile("DeepScopeCore/StudioIcons.png", decoded)
 end
