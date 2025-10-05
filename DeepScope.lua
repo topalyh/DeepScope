@@ -513,23 +513,21 @@ local function base64Decode(data)
 		return string.char(c)
 	end))
 end
-local __ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\66\97\115\101\54\52\37\50\48\73\99\111\110\65\115\115\101\116\115")
-local ____ = base64Decode(__)
-local ______ = {}
-local __________ = {}
-for ________ = 1, #____ do
-	table.insert(______, string.byte(____, ________))
-end
-for _ab__ = 1, #______ do
-	__________[_ab__] = string.char(______[_ab__])
-end
+local data = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\66\97\115\101\54\52\37\50\48\73\99\111\110\65\115\115\101\116\115")
+data = data:gsub("%s+", "")
 
-local _ = table.concat(__________)
+local decoded = base64Decode(data)
 
-if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
-	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
+local chars = {}
+for i = 1, #decoded do
+	chars[i] = string.char(decoded:byte(i))
 end
-local imageId = getcustomasset("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103")
+local finalData = table.concat(chars)
+
+if not isfile("DeepScopeCore/StudioIcons.png") then
+	writefile("DeepScopeCore/StudioIcons.png", finalData)
+end
+local imageId = getcustomasset("DeepScopeCore/StudioIcons.png")
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
