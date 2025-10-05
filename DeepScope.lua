@@ -520,7 +520,7 @@ for ________ = 1, #____ do
 	table.insert(______, string.byte(____, ________))
 end
 
-local _ = string.char(table.unpack(______))
+local _ = string.char(table.concat(______))
 
 if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
 	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", #_)
@@ -5219,3 +5219,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
