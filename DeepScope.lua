@@ -3649,12 +3649,14 @@ local function createEntryForInstance(node, parentGui)
 		dropdown:Destroy()
 	end
 	newTemplate.activateregion.MouseEnter:Connect(function()
-		hoveringNode = newTemplate
-	end)
-	newTemplate.activateregion.MouseLeave:Connect(function()
-		hoveringNode = nil
-	end)
 	templates[newTemplate] = newTemplate
+		for _, v in templates do
+			v.mainframe.BackgroundColor3 = Color3.fromRGB(88, 87, 89)
+			v.mainframe.add.Visible = false
+		end
+		newTemplate.mainframe.BackgroundColor3 = Color3.fromRGB(57, 58, 59)
+		newTemplate.mainframe.add.Visible = true
+	end)
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
 end
@@ -3827,13 +3829,6 @@ local function setExplorer()
 			newY = math.clamp(startExplorerPos.Y.Offset + newY, minY, maxY) 
 
 			explorer.Position = UDim2.new(0, newX, 0, newY)
-		end
-		if hoveringNode then
-			hoveringNode.mainframe.BackgroundColor3 = Color3.fromRGB(57, 58, 59)
-			hoveringNode.add.Visible = true
-		else
-			hoveringNode.mainframe.BackgroundColor3 = Color3.fromRGB(88, 87, 89)
-			hoveringNode.add.Visible = false
 		end
 	end)
 
