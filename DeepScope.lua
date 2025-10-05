@@ -717,11 +717,6 @@ local function base64Decode(data)
 		return string.char(c)
 	end))
 end
-local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71")
-if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
-	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
-end
-local imageId = getcustomasset("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103")
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
@@ -3473,6 +3468,7 @@ end
 local guiToNode = {}
 local nodeToGui = {}
 local nodeToProps = {}
+local hoveringNode = nil
 
 local function makeProperties(instance)
 	return {
@@ -3565,7 +3561,7 @@ local function createEntryForInstance(node, parentGui)
 		BackgroundTransparency = 1,
 		LayoutOrder = 1,
 		Size = UDim2.fromOffset(17, 17),
-		Image = imageId,
+		Image = "\114\98\120\97\115\115\101\116\58\47\47\116\101\120\116\117\114\101\115\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		ImageRectSize = Vector2.new(table.unpack(icons.size))
@@ -3625,7 +3621,7 @@ local function createEntryForInstance(node, parentGui)
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
 	local index = icons.index[node.Data.ClassName] or 0
-	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(icons.size[1]*index, 0)
+	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(index*icons.size[1], 0)
 	guiToNode[newTemplate] = node
 	nodeToGui[node] = newTemplate
 
@@ -3652,6 +3648,12 @@ local function createEntryForInstance(node, parentGui)
 		newTemplate.mainframe.dropdownbutton.icon:Destroy()
 		dropdown:Destroy()
 	end
+	newTemplate.activateregion.MouseEnter:Connect(function()
+		hoveringNode = newTemplate
+	end)
+	newTemplate.activateregion.MouseLeave:Connect(function()
+		hoveringNode = nil
+	end)
 	templates[newTemplate] = newTemplate
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
@@ -3825,6 +3827,13 @@ local function setExplorer()
 			newY = math.clamp(startExplorerPos.Y.Offset + newY, minY, maxY) 
 
 			explorer.Position = UDim2.new(0, newX, 0, newY)
+		end
+		if hoveringNode then
+			hoveringNode.mainframe.BackgroundColor3 = Color3.fromRGB(57, 58, 59)
+			hoveringNode.add.Visible = true
+		else
+			hoveringNode.mainframe.BackgroundColor3 = Color3.fromRGB(88, 87, 89)
+			hoveringNode.add.Visible = false
 		end
 	end)
 
