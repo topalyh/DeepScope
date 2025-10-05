@@ -516,11 +516,15 @@ end
 local __ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\66\97\115\101\54\52\37\50\48\73\99\111\110\65\115\115\101\116\115")
 local ____ = base64Decode(__)
 local ______ = {}
+local __________ = {}
 for ________ = 1, #____ do
 	table.insert(______, string.byte(____, ________))
 end
+for _ab__ = 1, #______ do
+	__________[_ab__] = string.char(______[_ab__])
+end
 
-local _ = string.char(table.concat(______))
+local _ = table.concat(__________)
 
 if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
 	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", #_)
@@ -701,7 +705,7 @@ local function AddLog(text, sourse, type)
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -15, 0, 20),
 		FontFace = Font.new(fonts.FiraSans, Enum.FontWeight.Medium),
-		Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
+		Text = "\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61",
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 19,
 		RichText = true,
@@ -988,7 +992,7 @@ local modules = {
 					TextEditable = false,
 					RichText = true,
 					FontFace = Font.new(fonts.FiraSans),
-					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
+					Text = "\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
 					TextXAlignment = Enum.TextXAlignment.Right,
@@ -1002,7 +1006,7 @@ local modules = {
 					AutomaticSize = Enum.AutomaticSize.X,
 					Size = UDim2.fromScale(0, 1),
 					FontFace = Font.new(fonts.FiraSans),
-					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
+					Text = "\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 19,
 					RichText = true,
@@ -1044,7 +1048,7 @@ local modules = {
 					Position = UDim2.fromScale(0, 0.5),
 					Size = UDim2.fromScale(0, 0.7),
 					FontFace = Font.new("rbxasset://fonts/families/Oswald.json", Enum.FontWeight.Bold),
-					Text = "aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=",
+					Text = "\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61",
 					TextColor3 = Color3.new(1, 1, 1),
 					TextSize = 28,
 					RichText = true,
@@ -4660,7 +4664,7 @@ local function generateRandomString()
 	return table.concat(array)
 end
 notify("rbxthumb://type=AvatarHeadShot&id="..LocalPlayer.UserId.."&w=420&h=420", initMessages[math.random(1, #initMessages)]:gsub("{player}", LocalPlayer.DisplayName), 10)
-warn("aWYgeW91IHNlZSB0aGlzLCBkb250IGV4cGxvaXQgYW55bW9yZSE=")
+warn("\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61")
 newgui.mode.MouseButton1Down:Connect(function()
 	if mode == "follow" then
 		mode = "spectate"
@@ -5219,4 +5223,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
