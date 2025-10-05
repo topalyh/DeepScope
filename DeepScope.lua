@@ -19,26 +19,25 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local waxwritefile, waxreadfile = writefile, readfile
-if not RunService:IsStudio() then
-	cloneref = missing("function", cloneref, function(...) return ... end)
-	everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
-	makefolder = missing("function", makefolder)
-	isfolder = missing("function", isfolder)
-	writefile = missing("function", waxwritefile) and function(file, data, safe)
-		if safe == true then return pcall(waxwritefile, file, data) end
-		waxwritefile(file, data)
-	end
-	readfile = missing("function", waxreadfile) and function(file, safe)
-		if safe == true then return pcall(waxreadfile, file) end
-		return waxreadfile(file)
-	end
-	isfile = missing("function", isfile, readfile and function(file)
-		local success, result = pcall(function()
-			return readfile(file)
-		end)
-		return success and result ~= nil and result ~= ""
-	end)
+cloneref = missing("function", cloneref, function(...) return ... end)
+everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
+makefolder = missing("function", makefolder)
+isfolder = missing("function", isfolder)
+getcustomasset = missing("function", getcustomasset)
+writefile = missing("function", waxwritefile) and function(file, data, safe)
+	if safe == true then return pcall(waxwritefile, file, data) end
+	waxwritefile(file, data)
 end
+readfile = missing("function", waxreadfile) and function(file, safe)
+	if safe == true then return pcall(waxreadfile, file) end
+	return waxreadfile(file)
+end
+isfile = missing("function", isfile, readfile and function(file)
+	local success, result = pcall(function()
+		return readfile(file)
+	end)
+	return success and result ~= nil and result ~= ""
+end)
 repeat wait() until LocalPlayer.Character
 local suffixes = {
 	"",
@@ -93,134 +92,7 @@ local icons = {
 	size = {19, 19},
 	UIsize = {19, 19},
 	icons = {
-		Unknown = {1.5, 1.5},
-		NumberValue = {73.5, 1.5},
-		BoolValue = {73.5, 1.5},
-		BrickColorValue = {73.5, 1.5},
-		IntValue = {73.5, 1.5},
-		ObjectValue = {73.5, 1.5},
-		CFrameValue = {73.5, 1.5},
-		Vector3Value = {73.5, 1.5},
-		Color3Value = {73.5, 1.5},
-		RayValue = {73.5, 1.5},
-		StringValue = {73.5, 1.5},
-		Folder = {1.5, 92},
-		Part = {19.5, 1.5},
-		Model = {37.5, 1.5},
-		Configuration = {37.5, 73.5},
-		UnionOperation = {127.5, 91.5},
-		Tool = {55.5, 19.5},
-		PointLight = {235.5, 1.5},
-		SpotLight = {235.5, 1.5},
-		SurfaceLight = {235.5, 1.5},
-		Lighting = {235.5, 1.5},
-		Weld = {109.5, 37.5},
-		ManualWeld = {109.5, 37.5},
-		JointsServer = {109.5, 37.5},
-		WeldConstraint = {109.5, 37.5},
-		Glue = {109.5, 37.5},
-		Motor6D = {109.5, 37.5},
-		Script = {109.5, 1.5},
-		LocalScript = {73.5, 19.5},
-		ModuleScript = {19.5, 91.5},
-		Mesh = {146, 2},
-		SpecialMesh = {146, 2},
-		MeshContentProvider = {146, 2},
-		Terrain = {163.5, 73.5},
-		Camera = {91.5, 1.5},
-		Decal = {127.5, 1.5},
-		Humanoid = {164, 1.5},
-		Texture = {182, 1.5},
-		Sound = {199.5, 1.5},
-		Player = {217.5, 1.5},
-		Workspace = {91.5, 19.5},
-		Players = {127.5, 19.5},
-		SpawnLocation = {199.5, 19.5},
-		Sky = {1.5, 37.5},
-		Accessory = {73.5, 37.5},
-		Seat = {127.5, 37.5},
-		VehicleSeat = {127.5, 37.5},
-		ScreenGui = {91.5, 55.5},
-		Frame = {110, 55.5},
-		ImageLabel = {128, 55.5},
-		TextLabel = {146, 55.5},
-		TextService = {146, 55.5},
-		TextButton = {164, 55.5},
-		ImageButton = {181.5, 55.5},
-		Handles = {199.5, 55.5},
-		SelectionBox = {218, 55.5},
-		SurfaceSelection = {236, 55.5},
-		Selection = {236, 55.5},
-		ArcHandles = {1.5, 73.5},
-		BillboardGui = {146.5, 73.5},
-		BindableFunction = {182, 73.5},
-		["Run Service"] = {182, 73.5},
-		BindableEvent = {200, 73.5},
-		ParticleEmitter = {235.5, 73.5},
-		ReplicatedFirst = {37.5, 91.5},
-		ReplicatedStorage = {37.5, 91.5},
-		InsertService = {37.5, 91.5},
-		AssetService = {37.5, 91.5},
-		RemoteFunction = {163.5, 91.5},
-		RemoveEvent = {181.5, 91.5},
-		HingeConstraint = {91.5, 109.5},
-		StarterPlayer = {73.5, 109.5},
-		StarterCharacterScripts = {217.5, 91.5},
-		StarterPlayerScripts = {217.5, 91.5},
-		PlayerScripts = {217.5, 91.5},
-		Attachment = {145.5, 109.5},
-		BallSocketConstraint = {235.5, 109.5},
-		RodConstraint = {19.5, 127.5},
-		RopeConstraint = {38, 127.5},
-		PrismaticConstraint = {55.5, 127.5},
-		SpringConstraint = {73.5, 127.5},
-		Debris = {37.5, 37.5},
-		PhysicsService = {37.5, 37.5},
-		CollectionService = {37.5, 37.5},
-		CookiesService = {127.5, 145.5},
-		Backpack = {109.5, 19.5},
-		StarterGear = {109.5, 19.5},
-		StarterPack = {109.5, 19.5},
-		PlayerGui = {73.5, 55.5},
-		StarterGui = {73.5, 55.5},
-		CoreGui = {73.5, 55.5},
-		["Script Context"] = {217.5, 91.5},
-		CoreScript = {127.5, 109.5},
-		ScriptService = {127.5, 109.5},
-		Animation = {73.5, 73.5},
-		Smoke = {55.5, 73.5},
-		Fire = {90.5, 73.5},
-		Shirt = {20, 55.5},
-		Pants = {38, 55.5},
-		ShirtGraphic = {217.5, 37.5},
-		TestService = {217.5, 73.5},
-		NetworkClient = {37.5, 19.5},
-		ServerStorage = {73.5, 91.5},
-		ServerScriptService = {73.5, 91.5},
-		Chat = {91.5, 37.5},
-		AdService = {55.5, 91.5},
-		BadgeService = {91.5, 91.5},
-		ContextActionService = {235.5, 37.5},
-		ContentProvider = {37.5, 91.5},
-		GamePassService = {91.5, 19.5},
-		GuiService = {91.5, 55.5},
-		HapticService = {1.5, 109.5},
-		HttpService = {109.5, 127.5-(18*2)},
-		PathFindingService = {163.5, 37.5},
-		KeyframeSequenceProvider = {73.5, 73.5},
-		LogService = {55.5, 109.5},
-		MarketplaceService = {73.5, 55.5},
-		PointsService = {235.5, 91.5},
-		["Teleport Service"] = {199.5, 91.5},
-		UserInputService = {1.5, 109.5},
-		ClickDetector = {91.5, 127.5},
-		DragDetector = {91.5, 127.5},
-		UIDragDetector = {91.5, 127.5},
-		ColorCorrectionEffect = {109.5, 109.5},
-		Atmosphere = {109.5, 109.5},
-		BloomEffect = {109.5, 109.5},
-		BlurEffect = {109.5, 109.5},
-		SunRaysEffect = {109.5, 109.5},
+		
 	},
 	UIicons = {
 		dropdown_closed = {199.5, 199.5},
@@ -622,6 +494,31 @@ local function toJSONFont(font)
 	local str = "font[%s]"
 	return str:format(font)
 end
+local function base64Decode(data)
+	local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+	data = data:gsub('[^'..b..'=]', '')
+	return (data:gsub(',', function(x)
+		if x == '=' then return '' end
+		local r, f = '', (b:find(x) - 1)
+		for i = 6, 1, -1 do
+			r = r .. (f % 2^i - f % 2^(i-1) > 0 and '1' or '0')
+		end
+		return r
+	end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+		if #x ~= 8 then return '' end
+		local c = 0
+		for i = 1, 8 do
+			c = c + (x:sub(i,i) == '1' and 2^(8 - i) or 0)
+		end
+		return string.char(c)
+	end))
+end
+local base64PNG = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/Base64%20IconAssets")
+local decoded = base64Decode(base64PNG)
+if not isfile("DeepScopeCore/StudioIcons.png") then
+	writefile("DeepScopeCore/StudioIcons.png", decoded)
+end
+local imageId = getcustomasset("DeepScopeCore/StudioIcons.png")
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
@@ -894,6 +791,16 @@ local function initFiles()
 	local propertiesPath = "DeepScopeCore/Properties/Instances.json"
 	local data = game.HttpService:GetAsync(propertiesURL)
 	writefile(propertiesPath, data)
+end
+local function readData()
+	local data = {}
+	local success, err = pcall(function()
+		data = game.HttpService:JSONDecode(readfile("DeepScopeCore/Saves.json"))
+	end)
+	if not success then
+		data = {}
+	end
+	return data
 end
 local modules = {
 	circle = {
@@ -3231,7 +3138,7 @@ local function notify(icon, text, countdown)
 	newTemplate.Name = "template" .. notify_amount
 	newTemplate.Visible = true
 	local sound = Instance.new("Sound")
-	sound.Parent = newTemplate.inner
+	sound.Parent = newTemplate
 	sound.SoundId = notificationSoundId
 	sound:Play()
 	game.Debris:AddItem(newTemplate, countdown + 1.4)
