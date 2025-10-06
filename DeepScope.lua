@@ -706,9 +706,9 @@ if makefolder and isfolder and writefile and isfile then
 	pcall(function()
 		local folders = {
 			"DeepScopeCore",
-			"DrrpScopeCore/Properties",
-			"DrrpScopeCore/Explorer",
-			"DrrpScopeCore/Executor",
+			"DeepScopeCore/Properties",
+			"DeepScopeCore/Explorer",
+			"DeepScopeCore/Executor",
 			"DeepScopeCore/Fonts"
 		}
 		local files = {
@@ -5354,3 +5354,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
