@@ -706,9 +706,9 @@ if makefolder and isfolder and writefile and isfile then
 	pcall(function()
 		local folders = {
 			"DeepScopeCore",
-			"DeepScopeCore/Properties",
-			"DeepScopeCore/Explorer",
-			"DeepScopeCore/Executor",
+			"DrrpScopeCore/Properties",
+			"DrrpScopeCore/Explorer",
+			"DrrpScopeCore/Executor",
 			"DeepScopeCore/Fonts"
 		}
 		local files = {
@@ -749,8 +749,8 @@ if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\10
 end
 local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\70\105\114\97\77\111\110\111\45\66\97\115\101\54\52\46\98\54\52")
 local a = base64Decode(_)
-if not isfile("\70\105\114\97\77\111\110\111\46\116\116\102") then
-	writefile("\70\105\114\97\77\111\110\111\46\116\116\102", a)
+if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\70\111\110\116\115\47\70\105\114\97\77\111\110\111\46\111\116\102") then
+	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\70\111\110\116\115\47\70\105\114\97\77\111\110\111\46\111\116\102", a)
 end
 local logConfig = {
 	colors = {
@@ -5354,4 +5354,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
