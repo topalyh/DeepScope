@@ -4657,7 +4657,7 @@ function CoreSettings:CreateSetting(name, value, type)
 			newTemplate:SetAttribute("Holding", true)
 			CoreSettings.LoopConn = game:GetService("RunService").RenderStepped:Connect(function()
 				if newTemplate:GetAttribute("Holding") then
-					local value = math.clamp(((getMousePos().X / slider.slider.AbsolutePosition.X) / slider.slider.AbsoluteSize.X) * 1000, 0, 1)
+					local value = math.clamp(((getMousePos().X - slider.slider.AbsolutePosition.X) / slider.slider.AbsoluteSize.X), 0, 1)
 					slider.value.Text = math.floor(value * max)
 					slider.slider.pointer.Position = UDim2.fromScale(value, 0.5)
 					newTemplate:SetAttribute("Value", math.floor(value * max))
@@ -4672,6 +4672,12 @@ function CoreSettings:CreateSetting(name, value, type)
 					CoreSettings.LoopConn = nil
 				end
 			end
+		end)
+		slider.value.FocusLost:Connect(function()
+			local value = math.clamp(tonumber(slider.value.Text), min, max)
+			local delta = (value / max)
+			slider.slider.pointer.Position = UDim2.fromScale(delta, 0.5)
+			slider.value.Text = math.floor(delta * max)
 		end)
 	elseif type == "Switch" then
 		local switch = createInstance("TextButton", {
@@ -4704,11 +4710,14 @@ function CoreSettings:CreateSetting(name, value, type)
 			end
 		end)
 	elseif type == "Color" then
-		local formatColor, formatStr = {
-			math.floor(value.R * 255),
-			math.floor(value.G * 255),
-			math.floor(value.B * 255),
-		}, "[%d, %d, %d]"
+		local formatStr = "[%d, %d, %d]"
+		local currentColor = Color3.new(value.R, value.G, value.B)
+		local rgb = {
+			math.floor(currentColor.R * 255),
+			math.floor(currentColor.G * 255),
+			math.floor(currentColor.B * 255),
+		}
+
 		local color = createInstance("TextBox", {
 			Parent = newTemplate,
 			Name = "colorlabel",
@@ -4719,36 +4728,43 @@ function CoreSettings:CreateSetting(name, value, type)
 			Size = UDim2.new(0.405, -8, 0.8, 0),
 			FontFace = Font.fromName("Oswald"),
 			PlaceholderText = "[R, G, B]",
-			Text = formatStr:format(table.unpack(formatColor)),
+			Text = formatStr:format(table.unpack(rgb)),
 			TextColor3 = Color3.new(1, 1, 1),
 			TextScaled = true,
 			TextXAlignment = Enum.TextXAlignment.Left
 		})
-		createInstance("TextButton", {
+
+		local pick = createInstance("TextButton", {
 			Parent = color,
 			Name = "pick",
-			BackgroundColor3 = Color3.fromRGB(table.unpack(formatColor)),
+			BackgroundColor3 = Color3.fromRGB(table.unpack(rgb)),
 			Position = UDim2.fromScale(1, 0),
 			Size = UDim2.fromScale(1, 1),
 			SizeConstraint = Enum.SizeConstraint.RelativeYY,
 			Text = "",
 			BorderSizePixel = 0
 		})
-		newTemplate:SetAttribute("Value", Color3.fromRGB(table.unpack(formatColor)))
-		color.pick.MouseButton1Click:Connect(function()
+
+		newTemplate:SetAttribute("Value", currentColor)
+
+		pick.MouseButton1Click:Connect(function()
 			if not pickerOpened then
-				setColorPicker(Color3.fromRGB(table.unpack(formatColor)), color.pick)
+				setColorPicker(currentColor, pick)
 			end
 		end)
+
 		color.FocusLost:Connect(function()
-			local r, g, b = color.Text:match("%[?(%d+),? (%d+),? (%d+)%]?")
+			local r, g, b = color.Text:match("%[?(%d+),?%s*(%d+),?%s*(%d+)%]?")
 			if r and g and b then
-				r, g, b = math.clamp(tonumber(r), 0, 255), math.clamp(tonumber(g), 0, 255), math.clamp(tonumber(b), 0, 255)
-				color.BackgroundColor3 = Color3.fromRGB(r, g, b)
+				r, g, b = tonumber(r), tonumber(g), tonumber(b)
+				r, g, b = math.clamp(r, 0, 255), math.clamp(g, 0, 255), math.clamp(b, 0, 255)
+
+				currentColor = Color3.fromRGB(r, g, b)
+				pick.BackgroundColor3 = currentColor
 				color.Text = formatStr:format(r, g, b)
-				newTemplate:SetAttribute("Value", Color3.fromRGB(r, g, b))
+				newTemplate:SetAttribute("Value", currentColor)
 			else
-				color.Text = formatStr:format(formatColor[1], formatColor[2], formatColor[3])
+				color.Text = formatStr:format(table.unpack(rgb))
 			end
 		end)
 	end
@@ -5738,4 +5754,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
