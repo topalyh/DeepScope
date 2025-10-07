@@ -3981,29 +3981,6 @@ local function formatTime(num)
 	local seconds = num % 60
 	return formatstr:format(days, hours, minutes, seconds)
 end
-local function setColorMode()
-	if colorMode == "hsv" then
-		colorMode = "rgb"
-	else
-		colorMode = "hsv"
-	end
-	newgui.Parent.colorpicker.middlebar.result.color_switch.Frame:TweenPosition(UDim2.new(0, 0, 0, colorMode == "rgb" and -27 or 0), "InOut", "Quad", 0.2, true)
-	if colorMode == "rgb" then
-		newgui.Parent.colorpicker.sliders.R.Visible = true
-		newgui.Parent.colorpicker.sliders.G.Visible = true
-		newgui.Parent.colorpicker.sliders.B.Visible = true
-		newgui.Parent.colorpicker.sliders.hue.Visible = false
-		newgui.Parent.colorpicker.sliders.saturation.Visible = false
-		newgui.Parent.colorpicker.sliders.value.Visible = false
-	else
-		newgui.Parent.colorpicker.sliders.R.Visible = false
-		newgui.Parent.colorpicker.sliders.G.Visible = false
-		newgui.Parent.colorpicker.sliders.B.Visible = false
-		newgui.Parent.colorpicker.sliders.hue.Visible = true
-		newgui.Parent.colorpicker.sliders.saturation.Visible = true
-		newgui.Parent.colorpicker.sliders.value.Visible = true
-	end
-end
 local function format(number, useCommas, useShort, demicals)
 	demicals = demicals or 1
 	if type(number) ~= "number" then
@@ -4049,258 +4026,98 @@ local function format(number, useCommas, useShort, demicals)
 	return math.round(number)
 end
 local function setColorPicker(color, gui)
-	pickerOpened = true
 	local picker = newgui.Parent.colorpicker
-	if color then
-		colors.h, colors.s, colors.v = color:ToHSV()
-		colors.r, colors.g, colors.b = math.round(color.R * 255), math.round(color.G * 255), math.round(color.B * 255)
-	else
-		colors.h, colors.s, colors.v = 0, 0, 1
-		colors.r, colors.g, colors.b = 255, 255, 255
-	end
-	local pointer = picker.picker.pointer
-	local module = modules[pickerMode]
-	pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
-	picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-	picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
-	picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
-	picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-		ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, 1, 1))
-	}), picker.sliders.saturation)
-	picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.v, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.new()),
-		ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, colors.s, 1))
-	}), picker.sliders.value)
-	picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.r/255, ColorSequence.new({
-		ColorSequenceKeypoint.new(0,Color3.new(0,colors.g/255,colors.b/255)),
-		ColorSequenceKeypoint.new(1,Color3.new(1,colors.g/255,colors.b/255))
-	}), picker.sliders.R)
-	picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.g/255, ColorSequence.new({
-		ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,0,colors.b/255)),
-		ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,1,colors.b/255))
-	}), picker.sliders.G)
-	picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.b/255, ColorSequence.new({
-		ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,colors.g/255,0)),
-		ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,colors.g/255,1))
-	}), picker.sliders.B)
-	newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
-	newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
-	game:GetService("RunService").RenderStepped:Connect(function()
-		if draggingColorPicker then
-			local newX = getMousePos().X - startMousePos.X
-			local newY = getMousePos().Y - startMousePos.Y
-			local minX = 0
-			local maxX = newgui.Parent.AbsoluteSize.X - picker.AbsoluteSize.X
-			local minY = game.GuiService.TopbarInset.Height + picker.dragbutton.AbsoluteSize.Y
-			local maxY = newgui.Parent.AbsoluteSize.Y - picker.AbsoluteSize.Y
-			newX = math.clamp(startExplorerPos.X.Offset + newX, minX, maxX)
-			newY = math.clamp(startExplorerPos.Y.Offset + newY, minY, maxY) 
 
-			picker.Position = UDim2.new(0, newX, 0, newY)
-		end
-		if pickingColor then
-			local mousePos = (getMousePos() - picker.picker.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)) / picker.picker.AbsoluteSize
-			local pointer = picker.picker.pointer
-			local module = modules[pickerMode]
-			local colorResult = module.GetColor(mousePos)
-			local h, s, v = colorResult[1], colorResult[2], colorResult[3]
-			colors.h, colors.s, colors.v = h, s, v
-			colors.r, colors.g, colors.b = math.round(Color3.fromHSV(h, s, v).R * 255), math.round(Color3.fromHSV(h, s, v).G * 255), math.round(Color3.fromHSV(h, s, v).B * 255)
-			pointer.Position = module.GetPointerPositionFromColor(h, s, v)
-			picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(h, s, v)
-			picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
-			picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
-			picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, 1, 1))
-			}), picker.sliders.saturation)
-			picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.v, ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.new()),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, colors.s, 1))
-			}), picker.sliders.value)
-			picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.r/255, ColorSequence.new({
-				ColorSequenceKeypoint.new(0,Color3.new(0,colors.g/255,colors.b/255)),
-				ColorSequenceKeypoint.new(1,Color3.new(1,colors.g/255,colors.b/255))
-			}), picker.sliders.R)
-			picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.g/255, ColorSequence.new({
-				ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,0,colors.b/255)),
-				ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,1,colors.b/255))
-			}), picker.sliders.G)
-			picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.b/255, ColorSequence.new({
-				ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,colors.g/255,0)),
-				ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,colors.g/255,1))
-			}), picker.sliders.B)
-			newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
-			newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
-		end
-		if usingSlider.enabled then
-			local mousePos = (getMousePos() - usingSlider.slider.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)) / usingSlider.slider.AbsoluteSize
-			local name = usingSlider.slider.Name:sub(1, 1):lower()
-			local module = modules[pickerMode]
-			if name == "h" or name == "s" or name == "v" then
-				colors[name] = math.clamp(mousePos.X, 0, 1)
-				colors.r, colors.g, colors.b = math.floor(Color3.fromHSV(colors.h, colors.s, colors.v).R * 255), math.floor(Color3.fromHSV(colors.h, colors.s, colors.v).G * 255), math.floor(Color3.fromHSV(colors.h, colors.s, colors.v).B * 255)
-			end
-			if name == "r" or name == "g" or name == "b" then
-				colors[name] = math.clamp(mousePos.X, 0, 1)*255
-				colors.h, colors.s, colors.v = Color3.new(colors.r/255, colors.g/255, colors.b/255):ToHSV()
-			end
-			picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-			picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
-			picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
-			picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, 1, 1))
-			}), picker.sliders.saturation)
-			picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.v, ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.new()),
-				ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, colors.s, 1))
-			}), picker.sliders.value)
-			picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.r/255, ColorSequence.new({
-				ColorSequenceKeypoint.new(0,Color3.new(0,colors.g/255,colors.b/255)),
-				ColorSequenceKeypoint.new(1,Color3.new(1,colors.g/255,colors.b/255))
-			}), picker.sliders.R)
-			picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.g/255, ColorSequence.new({
-				ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,0,colors.b/255)),
-				ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,1,colors.b/255))
-			}), picker.sliders.G)
-			picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.b/255, ColorSequence.new({
-				ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,colors.g/255,0)),
-				ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,colors.g/255,1))
-			}), picker.sliders.B)
-			picker.picker.pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
-			newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
-			newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
-			if colorMode == "rgb" then
-				local h, s, v = Color3.fromRGB(colors.r, colors.g, colors.b):ToHSV()
-				newgui.Parent.colorpicker.picker.pointer.Position = module.GetPointerPositionFromColor(h, s, v)
-			end
-		end
-		if resizingColorPicker then
-			local function snap(number)
-				return math.floor(number / 10) * 10
-			end
-			local MAX_HEIGHT = 421
-			local mousePos = getMousePos()
-			local deltaY = mousePos.Y - startMousePos.Y
-			local newHeight = math.clamp(snap(startPickerSize.Y.Offset + deltaY), 320, MAX_HEIGHT)
-			picker.Size = UDim2.new(startPickerSize.X.Scale, startPickerSize.X.Offset, 0, newHeight)
-		end
-		if picker.Size.Y.Offset > 320 + 100/3 then
-			picker.sliders.R.Visible = true
-		else
-			picker.sliders.R.Visible = false
-		end
-		if picker.Size.Y.Offset > 320 + 100/2 then
-			picker.sliders.G.Visible = true
-		else
-			picker.sliders.G.Visible = false
-		end
-		if picker.Size.Y.Offset > 420 then
-			picker.sliders.B.Visible = true
-		else
-			picker.sliders.B.Visible = false
-		end
-	end)
-	for _, v in picker.sliders:GetChildren() do
-		if v:IsA("Frame") then
-			v.activateregion.MouseButton1Down:Connect(function()
-				usingSlider = {
-					enabled = true,
-					slider = v
-				}
-			end)
-			v.value.FocusLost:Connect(function()
-				local module = modules[pickerMode]
-				local name = v.Name:sub(1, 1):lower()
-				if name == "r" or name == "g" or name == "b" then
-					local ok, error = pcall(function()
-						colors[v.Name:sub(1, 1):lower()] = math.clamp(tonumber(v.value.Text)/255 or 0, 0, 1) * 255
-					end)
-					colors.h, colors.s, colors.v = Color3.new(colors.r/255, colors.g/255, colors.b/255):ToHSV()
-					if not ok then
-						v.value.Text = 0
+	-- локальное состояние
+	local state = {
+		gui = gui,
+		h = 0, s = 0, v = 1,
+		r = 255, g = 255, b = 255,
+		mode = "rgb",
+		active = true
+	}
+
+	-- если цвет передан
+	if color then
+		state.h, state.s, state.v = color:ToHSV()
+		state.r, state.g, state.b = math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255)
+	end
+
+	-- функция для обновления визуала
+	local function updateVisuals()
+		local color3 = Color3.fromHSV(state.h, state.s, state.v)
+		picker.middlebar.result.color.BackgroundColor3 = color3
+		picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", state.r, state.g, state.b)
+		-- обновляем слайдеры
+		picker.sliders.hue.pointer.Position = UDim2.fromScale(state.h, 0.5)
+		picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(state.s, ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(1, Color3.fromHSV(state.h, 1, 1))
+		}), picker.sliders.saturation)
+		picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(state.v, ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.new()),
+			ColorSequenceKeypoint.new(1, Color3.fromHSV(state.h, state.s, 1))
+		}), picker.sliders.value)
+		picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(state.r/255, ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.new(0,state.g/255,state.b/255)),
+			ColorSequenceKeypoint.new(1,Color3.new(1,state.g/255,state.b/255))
+		}), picker.sliders.R)
+		picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(state.r/255, ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.new(state.r/255,0,state.b/255)),
+			ColorSequenceKeypoint.new(1,Color3.new(state.r/255,1,state.b/255))
+		}), picker.sliders.G)
+		picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(state.r/255, ColorSequence.new({
+			ColorSequenceKeypoint.new(0,Color3.new(state.r/255,state.g/255,0)),
+			ColorSequenceKeypoint.new(1,Color3.new(state.r/255,state.g/255,1))
+		}), picker.sliders.B)
+
+		-- обновляем основной выбор цвета
+		picker.picker.pointer.Position = modules[pickerMode].GetPointerPositionFromColor(state.h, state.s, state.v)
+		picker.picker.square.BackgroundColor3 = Color3.fromHSV(state.h, 1, 1)
+		picker.picker.triangle.ImageColor3 = Color3.fromHSV(state.h, 1, 1)
+
+		-- обновляем превью в самой настройке
+		state.gui.BackgroundColor3 = color3
+		state.gui.Parent.value.Text = string.format("[%d, %d, %d]", state.r, state.g, state.b)
+	end
+
+	-- связываем поведение с ползунками
+	for _, slider in picker.sliders:GetChildren() do
+		if slider:IsA("Frame") then
+			slider.activateregion.MouseButton1Down:Connect(function()
+				RunService.RenderStepped:Connect(function()
+					local mouseX = getMousePos().X
+					local relative = (mouseX - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
+					local val = math.clamp(relative, 0, 1)
+
+					local name = slider.Name:sub(1, 1):lower()
+					if name == "r" or name == "g" or name == "b" then
+						state[name] = math.floor(val * 255)
+						local c = Color3.fromRGB(state.r, state.g, state.b)
+						state.h, state.s, state.v = c:ToHSV()
+					elseif name == "h" or name == "s" or name == "v" then
+						state[name] = val
+						local c = Color3.fromHSV(state.h, state.s, state.v)
+						state.r, state.g, state.b = math.floor(c.R * 255), math.floor(c.G * 255), math.floor(c.B * 255)
 					end
-				end
-				if name == "s" or name == "v" then
-					local ok, error = pcall(function()
-						colors[v.Name:sub(1, 1):lower()] = math.clamp(tonumber(v.value.Text)/100 or 0, 0, 1)
-					end)
-					if not ok then
-						v.value.Text = 0
-					end
-				end
-				if name == "h" then
-					local ok, error = pcall(function()
-						colors[v.Name:sub(1, 1):lower()] = math.clamp(tonumber(v.value.Text)/360 or 0, 0, 1)
-					end)
-					if not ok then
-						v.value.Text = 0
-					end
-				end
-				local r, g, b = math.round(Color3.fromHSV(colors.h, colors.s, colors.v).R * 255), math.round(Color3.fromHSV(colors.h, colors.s, colors.v).G * 255), math.round(Color3.fromHSV(colors.h, colors.s, colors.v).B * 255)
-				picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(colors.h, colors.s, colors.v)
-				picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", r, g, b)
-				picker.sliders.hue.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.h, nil, picker.sliders.hue)
-				picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.s, ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-					ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, 1, 1))
-				}), picker.sliders.saturation)
-				picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.v, ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.new()),
-					ColorSequenceKeypoint.new(1, Color3.fromHSV(colors.h, colors.s, 1))
-				}), picker.sliders.value)
-				picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.r/255, ColorSequence.new({
-					ColorSequenceKeypoint.new(0,Color3.new(0,colors.g/255,colors.b/255)),
-					ColorSequenceKeypoint.new(1,Color3.new(1,colors.g/255,colors.b/255))
-				}), picker.sliders.R)
-				picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.g/255, ColorSequence.new({
-					ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,0,colors.b/255)),
-					ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,1,colors.b/255))
-				}), picker.sliders.G)
-				picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(colors.b/255, ColorSequence.new({
-					ColorSequenceKeypoint.new(0,Color3.new(colors.r/255,colors.g/255,0)),
-					ColorSequenceKeypoint.new(1,Color3.new(colors.r/255,colors.g/255,1))
-				}), picker.sliders.B)
-				picker.picker.pointer.Position = module.GetPointerPositionFromColor(colors.h, colors.s, colors.v)
-				newgui.Parent.colorpicker.picker.triangle.ImageColor3 = Color3.fromHSV(colors.h, 1, 1)
-				newgui.Parent.colorpicker.picker.square.BackgroundColor3 = Color3.fromHSV(colors.h, 1, 1)
-				if colorMode == "rgb" then
-					local h, s, v = Color3.fromRGB(colors.r, colors.g, colors.b):ToHSV()
-					newgui.Parent.colorpicker.picker.pointer.Position = module.GetPointerPositionFromColor(h, s, v)
-				end
+
+					updateVisuals()
+				end)
 			end)
 		end
 	end
-	for _, v in picker.options.modes:GetChildren() do
-		local button = v:FindFirstChild("button")
-		button.MouseButton1Click:Connect(function()
-			setMode(v.Name)
-		end)
-	end
-	picker.resize.MouseEnter:Connect(function()
-		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
-			ImageTransparency = 0.5
-		}):Play()
-	end)
-	picker.resize.MouseLeave:Connect(function()
-		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
-			ImageTransparency = 1
-		}):Play()
-	end)
-	picker.middlebar.result.color_switch.MouseButton1Click:Connect(function()
-		setColorMode()
-	end)
-	picker.Visible = true
+
+	-- закрытие пикера
 	picker.options.close.MouseButton1Click:Connect(function()
-		currentUIColor = Color3.fromRGB(colors.r, colors.g, colors.b)
+		local finalColor = Color3.fromHSV(state.h, state.s, state.v)
+		state.gui.Parent:SetAttribute("Value", finalColor)
 		picker.Visible = false
-		pickerOpened = false
-		gui.Parent.Parent:SetAttribute("Value", Color3.fromRGB(colors.r, colors.g, colors.b))
-		gui.BackgroundColor3 = Color3.fromRGB(colors.r, colors.g, colors.b)
-		gui.Parent.Text = string.format("[%d, %d, %d]", colors.r, colors.g, colors.b)
+		state.active = false
 	end)
+
+	-- инициализация визуала
+	updateVisuals()
+	picker.Visible = true
 end
 local function setLogMenu()
 	logsOpened = true
@@ -4747,11 +4564,10 @@ function CoreSettings:CreateSetting(name, value, type)
 		})
 
 		newTemplate:SetAttribute("Value", currentColor)
-		local currentPick = color.pick
 
 		pick.MouseButton1Click:Connect(function()
 			if not pickerOpened then
-				setColorPicker(currentColor, currentPick)
+				setColorPicker(currentColor, pick)
 			end
 		end)
 
@@ -5756,5 +5572,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
