@@ -4297,8 +4297,9 @@ local function setColorPicker(color, gui)
 		currentUIColor = Color3.fromRGB(colors.r, colors.g, colors.b)
 		picker.Visible = false
 		pickerOpened = false
-		gui:SetAttribute("Value", Color3.fromRGB(colors.r, colors.g, colors.b))
+		gui.Parent:SetAttribute("Value", Color3.fromRGB(colors.r, colors.g, colors.b))
 		gui.BackgroundColor3 = Color3.fromRGB(colors.r, colors.g, colors.b)
+		gui.Parent.value.Text = string.format("[%d, %d, %d]", colors.r, colors.g, colors.b)
 	end)
 end
 local function setLogMenu()
