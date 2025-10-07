@@ -4297,9 +4297,9 @@ local function setColorPicker(color, gui)
 		currentUIColor = Color3.fromRGB(colors.r, colors.g, colors.b)
 		picker.Visible = false
 		pickerOpened = false
-		gui.Parent:SetAttribute("Value", Color3.fromRGB(colors.r, colors.g, colors.b))
+		gui.Parent.Parent:SetAttribute("Value", Color3.fromRGB(colors.r, colors.g, colors.b))
 		gui.BackgroundColor3 = Color3.fromRGB(colors.r, colors.g, colors.b)
-		gui.Parent.value.Text = string.format("[%d, %d, %d]", colors.r, colors.g, colors.b)
+		gui.Parent.Text = string.format("[%d, %d, %d]", colors.r, colors.g, colors.b)
 	end)
 end
 local function setLogMenu()
@@ -5755,3 +5755,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
