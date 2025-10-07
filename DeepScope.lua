@@ -4657,7 +4657,7 @@ function CoreSettings:CreateSetting(name, value, type)
 			newTemplate:SetAttribute("Holding", true)
 			CoreSettings.LoopConn = game:GetService("RunService").RenderStepped:Connect(function()
 				if newTemplate:GetAttribute("Holding") then
-					local value = math.clamp((getMousePos().X / slider.slider.AbsolutePosition.X) / slider.slider.AbsoluteSize.X, 0, 1)
+					local value = math.clamp(((getMousePos().X / slider.slider.AbsolutePosition.X) / slider.slider.AbsoluteSize.X) * 1000, 0, 1)
 					slider.value.Text = math.floor(value * max)
 					slider.slider.pointer.Position = UDim2.fromScale(value, 0.5)
 					newTemplate:SetAttribute("Value", math.floor(value * max))
@@ -5738,3 +5738,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
