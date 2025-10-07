@@ -4747,10 +4747,11 @@ function CoreSettings:CreateSetting(name, value, type)
 		})
 
 		newTemplate:SetAttribute("Value", currentColor)
+		local currentPick = color.pick
 
 		pick.MouseButton1Click:Connect(function()
 			if not pickerOpened then
-				setColorPicker(currentColor, pick)
+				setColorPicker(currentColor, currentPick)
 			end
 		end)
 
@@ -5755,4 +5756,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
