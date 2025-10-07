@@ -114,6 +114,7 @@ local icons = {
 		["PointLight"] = 13,
 		["SpotLight"] = 13,
 		["SurfaceLight"] = 13,
+		["Lighting"] = 13,
 		["BodyAngularVelocity"] = 14,
 		["BodyForce"] = 14,
 		["BodyGyro"] = 14,
@@ -125,6 +126,8 @@ local icons = {
 		["LocalScript"] = 18,
 		["Workspace"] = 19,
 		["StarterGear"] = 20,
+		["StarterPack"] = 20,
+		["Backpack"] = 20,
 		["Players"] = 21,
 		["HopperBin"] = 22,
 		["Teams"] = 23,
@@ -139,6 +142,8 @@ local icons = {
 		["Weld"] = 34,
 		["ManualWeld"] = 34,
 		["Glue"] = 34,
+		["Motor"] = 34,
+		["Motor6D"] = 34,
 		["Seat"] = 35,
 		["VehicleSeat"] = 35,
 		["Explosion"] = 36,
@@ -151,6 +156,7 @@ local icons = {
 		["Shirt"] = 43,
 		["Pants"] = 44,
 		["Hat"] = 45,
+		["CoreGui"] = 46,
 		["StarterGui"] = 46,
 		["ScreenGui"] = 47,
 		["Frame"] = 48,
@@ -167,6 +173,11 @@ local icons = {
 		["Configuration"] = 58,
 		["Smoke"] = 59,
 		["Keyframe"] = 60,
+		["KeyframeSequence"] = 60,
+		["KeyframeSequenceProvider"] = 60,
+		["Animation"] = 60,
+		["AnimationTrack"] = 60,
+		["AnimationController"] = 60,
 		["Fire"] = 61,
 		["Dialog"] = 62,
 		["DialogChoise"] = 63,
@@ -194,8 +205,8 @@ local icons = {
 		["BloomEffect"] = 83,
 		["SunRays"] = 83,
 		["Atmosphere"] = 83,
-		["BallSocketConstraint"] = 85,
-		["HingeConstraint"] = 86,
+		["HingeConstraint"] = 85,
+		["BallSocketConstraint"] = 86,
 		["PrismaticConstraint"] = 87,
 		["RopeConstraint"] = 88,
 		["RodConstraint"] = 89,
@@ -438,7 +449,7 @@ local add_objects = {
 				Order = 63
 			},
 			RigidConstraint = {
-				Name = "RigitConstraint",
+				Name = "RigidConstraint",
 				Order = 64
 			},
 			RodConstraint = {
@@ -595,6 +606,17 @@ local executorConfig = {
 	font = Font.new(fonts.BuilderMono),
 	TextSize = 15,
 }
+local math = math
+local table = table
+local Color3 = Color3
+local UDim2 = UDim2
+local UDim = UDim
+local Enum = Enum
+local Vector3 = Vector3
+local Vector2 = Vector2
+local CFrame = CFrame
+local string = string
+local os = os
 local function toRGB(color)
 	local r = math.floor(color.R * 255)
 	local g = math.floor(color.G * 255)
@@ -609,28 +631,36 @@ local function toJSONRGB(color)
 	local result = str:format(r, g, b)
 	return result
 end
+local function fromJSONRGB(str)
+	local r, g, b = str:match("json%[(%d+)%|(%d+)%|(%d+)%]")
+	return Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
+end
 local function toJSONFont(font)
 	local font = font.Family
 	local str = "font[%s]"
 	return str:format(font)
 end
-local function base64Decode(data)
+local function fromJSONFONT(str)
+	local font = str:match("font%[(.*)%]")
+	return Font.new(font)
+end
+local function base64Decode(a)
 	local b = '\65\66\67\68\69\70\71\72\73\74\75\76\77\78\79\80\81\82\83\84\85\86\87\88\89\90\97\98\99\100\101\102\103\104\105\106\107\108\109\110\111\112\113\114\115\116\117\118\119\120\121\122\48\49\50\51\52\53\54\55\56\57\43\47'
-	data = data:gsub('\91\94'..b..'\61\93', '')
-	return (data:gsub('\44', function(x)
-		if x == '\61' then return '' end
-		local r, f = '', (b:find(x) - 1)
-		for i = 6, 1, -1 do
-			r = r .. (f % 2^i - f % 2^(i-1) > 0 and '\49' or '\48')
+	a = a:gsub('\91\94'..b..'\61\93', '')
+	return (a:gsub('\44', function(c)
+		if c == '\61' then return '' end
+		local d, f = '', (b:find(c) - 1)
+		for g = 6, 1, -1 do
+			d = d .. (f % 2^g - f % 2^(g-1) > 0 and '\49' or '\48')
 		end
-		return r
-	end):gsub('\37\100\37\100\37\100\63\37\100\63\37\100\63\37\100\63\37\100\63\37\100\63', function(x)
-		if #x ~= 8 then return '' end
-		local c = 0
-		for i = 1, 8 do
-			c = c + (x:sub(i,i) == '\49' and 2^(8 - i) or 0)
+		return d
+	end):gsub('\37\100\37\100\37\100\63\37\100\63\37\100\63\37\100\63\37\100\63\37\100\63', function(h)
+		if #h ~= 8 then return '' end
+		local j = 0
+		for k = 1, 8 do
+			j = j + (h:sub(k,k) == '\49' and 2^(8 - k) or 0)
 		end
-		return string.char(c)
+		return string.char(j)
 	end))
 end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
@@ -706,9 +736,9 @@ if makefolder and isfolder and writefile and isfile then
 	pcall(function()
 		local folders = {
 			"DeepScopeCore",
-			"DrrpScopeCore/Properties",
-			"DrrpScopeCore/Explorer",
-			"DrrpScopeCore/Executor",
+			"DeepScopeCore/Properties",
+			"DeepScopeCore/Explorer",
+			"DeepScopeCore/Executor",
 			"DeepScopeCore/Fonts"
 		}
 		local files = {
@@ -742,15 +772,8 @@ local function writeinfo(fileName, data)
 	writefile(fileName, content)
 end
 local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71")
-print(_)
-print(base64Decode(_))
 if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
 	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
-end
-local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\70\105\114\97\77\111\110\111\45\66\97\115\101\54\52\46\98\54\52")
-local a = base64Decode(_)
-if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\70\111\110\116\115\47\70\105\114\97\77\111\110\111\46\119\111\102\102\50") then
-	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\70\111\110\116\115\47\70\105\114\97\77\111\110\111\46\119\111\102\102\50", a)
 end
 local logConfig = {
 	colors = {
@@ -911,21 +934,39 @@ local function saveData(dataToSave)
 	local filePath = "DeepScopeCore/Saves.json"
 	writefile(filePath, encoded)
 end
-local function initFiles()
-	local propertiesURL = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/master/API-Dump.json"
-	local propertiesPath = "DeepScopeCore/Properties/Instances.json"
-	local data = game.HttpService:GetAsync(propertiesURL)
-	writefile(propertiesPath, data)
-end
 local function readData()
 	local data = {}
+	local result = {
+		UIColor = {},
+		BuildMode = {
+			Saves = {}
+		},
+		Executor = {
+			SavedCodes = {}
+		},
+		ExecutorConfig = {
+			Colors = {},
+			TextSize = 15,
+			Font = ""
+		}
+	}
 	local success, err = pcall(function()
 		data = game.HttpService:JSONDecode(readfile("DeepScopeCore/Saves.json"))
 	end)
 	if not success then
 		data = {}
 	end
-	return data
+	for i, v in data.ExecutorConfig.Colors do
+		local value = fromJSONRGB(v)
+		if value then
+			result.ExecutorConfig.Colors[i] = value
+		end
+	end
+	for _, v in data.UIColor do
+		table.insert(result.UIColor, v)
+	end
+	
+	return result
 end
 local modules = {
 	circle = {
@@ -1010,9 +1051,6 @@ local modules = {
 			end
 			return UDim2.fromScale(value, 0.5)
 		end,
-	},
-	settings = {
-
 	},
 	other = {
 		fly = {
@@ -1300,13 +1338,13 @@ local modules = {
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
 						pos = closing + 1
 					elseif c:match("^%-%-") then
-						local block = c:match("^%-%-%[%[(.-)%]%]")
+						local block = code:match("^%-%-%[%[(.-)%]%]")
 						if block then
-							local full = c:match("^%-%-%[%[.-%]%]")
+							local full = code:match("^%-%-%[%[.-%]%]")
 							table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), full))
 							pos = pos + #full
 						else
-							local line = c:match("^(%-%-.*)\n?") or c
+							local line = code:match("^(%-%-.*)\n?") or code
 							table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), line))
 							pos = pos + #line
 						end
@@ -1437,6 +1475,9 @@ local modules = {
 		}
 	}
 }
+local coreModules = {}
+coreModules.Lib = {}
+coreModules.Lib.Settings = {}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if isDied then return end
@@ -1615,10 +1656,10 @@ local function createGui()
 	})
 	local gui16 = createInstance("TextButton", {
 		Parent = gui2,
-		Name = "uicolor",
+		Name = "settings",
 		Size = UDim2.new(0.181, 0, 0.194, 0),
 		Position = UDim2.new(0.502, 0, -0.555, 0),
-		Text = "set UI color",
+		Text = "settings",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
@@ -3119,6 +3160,73 @@ local function createGui()
 		Parent = executorGui16,
 		PaddingRight = UDim.new(0, 35)
 	})
+	local settingsGui1 = createInstance("Frame", {
+		Parent = gui1,
+		Name = "settings",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.35, 0.6),
+		BorderSizePixel = 0,
+		Visible = false
+	})
+	createInstance("UIAspectRatioConstraint", {
+		Parent = settingsGui1,
+		AspectRatio = 0.677
+	})
+	local settingsGui2 = createInstance("ScrollingFrame", {
+		Parent = settingsGui1,
+		Name = "list",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		CanvasSize = UDim2.fromScale(0, 0),
+		ScrollBarThickness = 0
+	})
+	createInstance("UIListLayout", {
+		Parent = settingsGui2,
+		Padding = UDim.new(0, 1),
+		SortOrder = Enum.SortOrder.LayoutOrder
+	})
+	local settingsGui3 = createInstance("TextButton", {
+		Parent = settingsGui1,
+		Name = "dragbutton",
+		AnchorPoint = Vector2.new(0, 1),
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		Size = UDim2.fromScale(1, 0.086),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "settings",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextScaled = true,
+		BorderSizePixel = 0
+	})
+	createInstance("UIPadding", {
+		Parent = settingsGui3,
+		PaddingBottom = UDim.new(0, 3),
+		PaddingTop = UDim.new(0, 3)
+	})
+	local settingsGui4 = createInstance("TextButton", {
+		Parent = settingsGui3,
+		Name = "fullclose",
+		AnchorPoint = Vector2.new(1, 0),
+		BackgroundTransparency = 1,
+		Position = UDim2.new(1, -5, 0.05, 0),
+		Size = UDim2.fromScale(0.9, 0.9),
+		SizeConstraint = Enum.SizeConstraint.RelativeYY,
+		Text = ""
+	})
+	createInstance("UIStroke", {
+		Parent = settingsGui4,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = Color3.new(1, 1, 1),
+		LineJoinMode = Enum.LineJoinMode.Miter
+	})
+	local settingsGui5 = createInstance("ImageLabel", {
+		Parent = settingsGui4,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = "rbxassetid://74120900238837",
+	})
 	executorGui3_2.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
 	infoList = placeInfoGui4
@@ -3579,8 +3687,8 @@ local function createEntryForInstance(node, parentGui)
 		newTemplate.mainframe.dropdownbutton.icon:Destroy()
 		dropdown:Destroy()
 	end
-	newTemplate.activateregion.MouseEnter:Connect(function()
 	templates[newTemplate] = newTemplate
+	newTemplate.activateregion.MouseEnter:Connect(function()
 		for _, v in templates do
 			if not newTemplate:GetAttribute("Selected") then
 				v.mainframe.BackgroundColor3 = v.mainframe:GetAttribute("NormalColor")
@@ -3593,6 +3701,11 @@ local function createEntryForInstance(node, parentGui)
 			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("SelectedColor")
 		end
 		newTemplate.mainframe.add.Visible = true
+	end)
+	newTemplate.activateregion.MouseLeave:Connect(function()
+		if not newTemplate:GetAttribute("Selected") then
+			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("NormalColor")
+		end
 	end)
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
@@ -4184,13 +4297,8 @@ local function setColorPicker(color, gui)
 		currentUIColor = Color3.fromRGB(colors.r, colors.g, colors.b)
 		picker.Visible = false
 		pickerOpened = false
-		for _, v in newgui:GetDescendants() do
-			if v:IsA("TextButton") or v:IsA("Frame") or v:IsA("TextBox") or v:IsA("TextLabel") then
-				if v.BackgroundTransparency ~= 1 then
-					v.BackgroundColor3 = currentUIColor
-				end
-			end
-		end
+		gui:SetAttribute("Value", Color3.fromRGB(colors.r, colors.g, colors.b))
+		gui.BackgroundColor3 = Color3.fromRGB(colors.r, colors.g, colors.b)
 	end)
 end
 local function setLogMenu()
@@ -4411,6 +4519,269 @@ function setExecutor()
 		}):Play()
 	end)
 end
+local CoreSettings = coreModules.Lib.Settings
+CoreSettings.LoopConn = nil
+
+function CoreSettings:CreateSetting(name, value, type)
+	local templates = {}
+	local template = createInstance("Frame", {
+		Name = name,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0.075),
+	})
+	createInstance("Frame", {
+		Parent = template,
+		Name = "divider",
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, 0, 0, 1),
+		BorderSizePixel = 0,
+	})
+	createInstance("Frame", {
+		Parent = template,
+		Name = "separator",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(0, 1, 1, 0),
+		BorderSizePixel = 0,
+	})
+	createInstance("TextLabel", {
+		Parent = template,
+		Name = "name",
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, 5, 0.5, 0),
+		Size = UDim2.new(0.5, -5, 0.8, 0),
+		FontFace = Font.new(fonts.BuilderSans),
+		Text = name,
+		TextColor3 = Color3.new(1, 1, 1),
+		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Left
+	})
+	local newTemplate = template:Clone()
+	newTemplate.Name = name
+	newTemplate.Parent = newgui.Parent.settings.list
+	if type == "TextPole" then
+		local pole = createInstance("TextBox", {
+			Parent = newTemplate,
+			Name = "value",
+			AnchorPoint = Vector2.new(1, 0.5),
+			BackgroundTransparency = 1,
+			ClearTextOnFocus = false,
+			Position = UDim2.new(1, -5, 0.5, 0),
+			Size = UDim2.new(0.5, -5, 0.8, 0),
+			FontFace = Font.new(fonts.BuilderSans),
+			Text = value,
+			TextColor3 = Color3.new(1, 1, 1),
+			TextScaled = true,
+		})
+		createInstance("Frame", {
+			Parent = pole,
+			Name = "outline",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(0, 0),
+			BorderSizePixel = 0,
+		})
+		createInstance("UIStroke", {
+			Parent = pole.outline,
+			Color = Color3.new(1, 1, 1),
+			LineJoinMode = Enum.LineJoinMode.Miter
+		})
+		pole.outline.Size = UDim2.fromOffset(pole.TextBounds.X + 5, pole.TextBounds.Y)
+		newTemplate:SetAttribute("Value", pole.Text)
+		pole:GetPropertyChangedSignal("Text"):Connect(function()
+			newTemplate:SetAttribute("Value", pole.Text)
+			pole.outline:TweenSize(UDim2.fromOffset(pole.TextBounds.X + 5, pole.TextBounds.Y), "InOut", "Size", 0.2, true)
+		end)
+	elseif type == "Slider" then
+		local max, min, default = value[1].Max, value[1].Min, value[2]
+		local slider = createInstance("Frame", {
+			Parent = newTemplate,
+			Name = "slider",
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0.5, 4, 0.5, 0),
+			Size = UDim2.new(0.5, -8, 0.5, 0),
+		})
+		createInstance("Frame", {
+			Parent = slider,
+			Name = "slider",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			Position = UDim2.fromScale(0.4, 0.5),
+			Size = UDim2.fromScale(0.7, 0.1),
+			BorderSizePixel = 0
+		})
+		createInstance("Frame", {
+			Parent = slider.slider,
+			Name = "pointer",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = Color3.new(),
+			Position = UDim2.fromScale(0, 0.5),
+			Size = UDim2.fromScale(0.1, 0.1),
+			SizeConstraint = Enum.SizeConstraint.RelativeXX
+		})
+		createInstance("TextButton", {
+			Parent = slider,
+			Name = "activateregion",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(0.8, 1),
+			Text = ""
+		})
+		createInstance("TextBox", {
+			Parent = slider,
+			Name = "value",
+			AnchorPoint = Vector2.new(1, 0.5),
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(1, 0.5),
+			Size = UDim2.fromScale(0.2, 1),
+			FontFace = Font.fromName("Oswald"),
+			Text = default,
+			TextColor3 = Color3.new(1, 1, 1),
+			TextScaled = true,
+		})
+		createInstance("UIStroke", {
+			Parent = slider.value,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Color3.new(1, 1, 1)
+		})
+		local output = math.clamp((default / max), 0, 1)
+		slider.slider.pointer.Position = UDim2.fromScale(output, 0.5)
+		slider.value.Text = output * max
+		newTemplate:SetAttribute("Holding", false)
+		newTemplate:SetAttribute("Value", slider.value.Text)
+		slider.activateregion.MouseButton1Down:Connect(function()
+			newTemplate:SetAttribute("Holding", true)
+			CoreSettings.LoopConn = game:GetService("RunService").RenderStepped:Connect(function()
+				if newTemplate:GetAttribute("Holding") then
+					local value = math.clamp((getMousePos().X / slider.slider.AbsolutePosition.X) / slider.slider.AbsoluteSize.X, 0, 1)
+					slider.value.Text = math.floor(value * max)
+					slider.slider.pointer.Position = UDim2.fromScale(value, 0.5)
+					newTemplate:SetAttribute("Value", math.floor(value * max))
+				end	
+			end)
+		end)
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				newTemplate:SetAttribute("Holding", false)
+				if CoreSettings.LoopConn then
+					CoreSettings.LoopConn:Disconnect()
+					CoreSettings.LoopConn = nil
+				end
+			end
+		end)
+	elseif type == "Switch" then
+		local switch = createInstance("TextButton", {
+			Parent = newTemplate,
+			Name = "switch",
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			Position = UDim2.fromScale(0.65, 0.5),
+			Size = UDim2.fromScale(0.2, 0.8),
+			Text = "",
+			BorderSizePixel = 0
+		})
+		createInstance("Frame", {
+			Parent = switch,
+			Name = "pointer",
+			BackgroundColor3 = Color3.new(),
+			Size = UDim2.fromScale(1, 1),
+			SizeConstraint = Enum.SizeConstraint.RelativeYY,
+			BorderSizePixel = 0
+		})
+		newTemplate:SetAttribute("Value", value)
+		switch.pointer.Position = UDim2.fromScale(value and 0.6 or 0, 0)
+		switch.MouseButton1Click:Connect(function()
+			if newTemplate:GetAttribute("Value") == true then
+				newTemplate:SetAttribute("Value", false)
+				switch.pointer:TweenPosition(UDim2.fromScale(0, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quint, 0.25)
+			else
+				newTemplate:SetAttribute("Value", true)
+				switch.pointer:TweenPosition(UDim2.fromScale(0.6, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quint, 0.25)
+			end
+		end)
+	elseif type == "Color" then
+		local formatColor, formatStr = {
+			math.floor(value.R * 255),
+			math.floor(value.G * 255),
+			math.floor(value.B * 255),
+		}, "[%d, %d, %d]"
+		local color = createInstance("TextBox", {
+			Parent = newTemplate,
+			Name = "colorlabel",
+			AnchorPoint = Vector2.new(0, 0.5),
+			BackgroundTransparency = 1,
+			ClearTextOnFocus = false,
+			Position = UDim2.new(0.5, 4, 0.5, 0),
+			Size = UDim2.new(0.405, -8, 0.8, 0),
+			FontFace = Font.fromName("Oswald"),
+			PlaceholderText = "[R, G, B]",
+			Text = formatStr:format(table.unpack(formatColor)),
+			TextColor3 = Color3.new(1, 1, 1),
+			TextScaled = true,
+			TextXAlignment = Enum.TextXAlignment.Left
+		})
+		createInstance("TextButton", {
+			Parent = color,
+			Name = "pick",
+			BackgroundColor3 = Color3.fromRGB(table.unpack(formatColor)),
+			Position = UDim2.fromScale(1, 0),
+			Size = UDim2.fromScale(1, 1),
+			SizeConstraint = Enum.SizeConstraint.RelativeYY,
+			Text = "",
+			BorderSizePixel = 0
+		})
+		newTemplate:SetAttribute("Value", Color3.fromRGB(table.unpack(formatColor)))
+		color.pick.MouseButton1Click:Connect(function()
+			if not pickerOpened then
+				setColorPicker(Color3.fromRGB(table.unpack(formatColor)), color.pick)
+			end
+		end)
+		color.FocusLost:Connect(function()
+			local r, g, b = color.Text:match("%[?(%d+),? (%d+),? (%d+)%]?")
+			if r and g and b then
+				r, g, b = math.clamp(tonumber(r), 0, 255), math.clamp(tonumber(g), 0, 255), math.clamp(tonumber(b), 0, 255)
+				color.BackgroundColor3 = Color3.fromRGB(r, g, b)
+				color.Text = formatStr:format(r, g, b)
+				newTemplate:SetAttribute("Value", Color3.fromRGB(r, g, b))
+			else
+				color.Text = formatStr:format(formatColor[1], formatColor[2], formatColor[3])
+			end
+		end)
+	end
+end
+function CoreSettings:CreateSeparator(name)
+	local separator = createInstance("Frame", {
+		Name = name,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0.125),
+	})
+	createInstance("TextLabel", {
+		Parent = separator,
+		Name = "txt",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(10, 0),
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Font.fromName("Oswald"),
+		Text = name,
+		TextColor3 = Color3.new(1, 1, 1),
+		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Left
+	})
+	createInstance("Frame", {
+		Parent = separator.txt,
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		Position = UDim2.new(0, -10, 1, 0),
+		Size = UDim2.new(1, 0, 0, 1),
+		BorderSizePixel = 0
+	})
+	local newSeparator = separator:Clone()
+	newSeparator.Name = name
+	newSeparator.Parent = newgui.Parent.settings.list
+end
 local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
 luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
@@ -4516,11 +4887,6 @@ game.UserInputService.InputEnded:Connect(function(input)
 		newgui.Parent.closeregion.Interactable = true
 	end
 end)
-newgui.uicolor.MouseButton1Click:Connect(function()
-	if not pickerOpened then
-		setColorPicker(currentUIColor)
-	end
-end)
 local updateConn = nil
 newgui.placeinfo.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = true
@@ -4605,7 +4971,25 @@ local function fixMagnitudeLimit(x, y, z)
 end
 
 local guiobj_1 = newgui.list
-
+CoreSettings:CreateSetting("UI Color", currentUIColor, "Color")
+CoreSettings:CreateSeparator("Executor")
+CoreSettings:CreateSetting("Text Color", executorConfig.textColor, "Color")
+CoreSettings:CreateSetting("Background Color", executorConfig.backgroundColor, "Color")
+CoreSettings:CreateSetting("String Color", executorConfig.stringColor, "Color")
+CoreSettings:CreateSetting("Number Color", executorConfig.numberColor, "Color")
+CoreSettings:CreateSetting("Library Color", executorConfig.libColor, "Color")
+CoreSettings:CreateSetting("Operator Color", executorConfig.operatorColor, "Color")
+CoreSettings:CreateSetting("Function Color", executorConfig.funcColor, "Color")
+CoreSettings:CreateSetting("Comment Color", executorConfig.commentColor, "Color")
+CoreSettings:CreateSetting("Keyword Color", executorConfig.keywordColor, "Color")
+CoreSettings:CreateSetting("Bools Color", executorConfig.boolsColor, "Color")
+CoreSettings:CreateSetting("Text Size", {NumberRange.new(5, 25), executorConfig.TextSize}, "Slider")
+newgui.settings.MouseButton1Click:Connect(function()
+	newgui.Parent.settings.Visible = true
+end)
+newgui.Parent.settings.dragbutton.fullclose.MouseButton1Click:Connect(function()
+	newgui.Parent.settings.Visible = false
+end)
 local function search()
 	local text = newgui.searchPlayer.Text:lower()
 	local list = guiobj_1:GetChildren()
