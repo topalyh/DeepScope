@@ -2181,7 +2181,7 @@ local function createGui()
 		Name = "circle",
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
-		Image = "rbxassetid://w",
+		Image = "rbxassetid://2849458409",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
@@ -4118,6 +4118,18 @@ local function setColorPicker(color, gui)
 			end))
 		end
 	end
+	table.insert(connections, picker.dragbutton.MouseButton1Down:Connect(function()
+		state.dragging = true
+	end))
+	table.insert(connections, picker.picker.activateregion.MouseButton1Down:Connect(function()
+		state.picking = true
+	end))
+	table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			state.dragging = false
+			state.picking = false
+		end
+	end))
 
 	-- перетаскивание окна
 	table.insert(connections, RunService.RenderStepped:Connect(function()
