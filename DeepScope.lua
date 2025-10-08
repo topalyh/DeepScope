@@ -4106,6 +4106,72 @@ local function setColorPicker(color, gui)
 			end)
 		end
 	end
+	RunService.RenderStepped:Connect(function()
+		if draggingColorPicker then
+			local newX = getMousePos().X - startMousePos.X
+			local newY = getMousePos().Y - startMousePos.Y
+			local minX = 0
+			local maxX = newgui.Parent.AbsoluteSize.X - picker.AbsoluteSize.X
+			local minY = game.GuiService.TopbarInset.Height + picker.dragbutton.AbsoluteSize.Y
+			local maxY = newgui.Parent.AbsoluteSize.Y - picker.AbsoluteSize.Y
+			newX = math.clamp(startExplorerPos.X.Offset + newX, minX, maxX)
+			newY = math.clamp(startExplorerPos.Y.Offset + newY, minY, maxY)picker.Position = UDim2.new(0, newX, 0, newY)
+		end
+		if pickingColor then
+			local mousePos = (getMousePos() - picker.picker.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)) / picker.picker.AbsoluteSize
+			local pointer = picker.picker.pointer
+			local module = modules[pickerMode]
+			local colorResult = module.GetColor(mousePos)
+			local h, s, v = colorResult[1], colorResult[2], colorResult[3]
+			state.h, state.s, state.v = h, s, v
+			state.r, state.g, state.b = math.round(Color3.fromHSV(h, s, v).R * 255), math.round(Color3.fromHSV(h, s, v).G * 255), math.round(Color3.fromHSV(h, s, v).B * 255)
+			pointer.Position = module.GetPointerPositionFromColor(h, s, v)
+			picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(h, s, v)
+			picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
+		end
+		if resizingColorPicker then
+			local function snap(number)
+				return math.floor(number / 10) * 10
+			end
+			local MAX_HEIGHT = 421
+			local mousePos = getMousePos()
+			local deltaY = mousePos.Y - startMousePos.Y
+			local newHeight = math.clamp(snap(startPickerSize.Y.Offset + deltaY), 320, MAX_HEIGHT)
+			picker.Size = UDim2.new(startPickerSize.X.Scale, startPickerSize.X.Offset, 0, newHeight)
+		end
+		if picker.Size.Y.Offset > 320 + 100/3 then
+			picker.sliders.R.Visible = true
+		else
+			picker.sliders.R.Visible = false
+		end
+		if picker.Size.Y.Offset > 320 + 100/2 then
+			picker.sliders.G.Visible = true
+		else
+			picker.sliders.G.Visible = false
+		end
+		if picker.Size.Y.Offset > 420 then
+			picker.sliders.B.Visible = true
+		else
+			picker.sliders.B.Visible = false
+		end
+	end)
+
+	for _, v in picker.options.modes:GetChildren() do
+		local button = v:FindFirstChild("button")
+		button.MouseButton1Click:Connect(function()
+			setMode(v.Name)
+		end)
+	end
+	picker.resize.MouseEnter:Connect(function()
+		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
+			ImageTransparency = 0.5
+		}):Play()
+	end)
+	picker.resize.MouseLeave:Connect(function()
+		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
+			ImageTransparency = 1
+		}):Play()
+	end)	
 
 	-- закрытие пикера
 	picker.options.close.MouseButton1Click:Connect(function()
