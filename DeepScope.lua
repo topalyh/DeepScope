@@ -4120,6 +4120,8 @@ local function setColorPicker(color, gui)
 	end
 	table.insert(connections, picker.dragbutton.MouseButton1Down:Connect(function()
 		state.dragging = true
+		startExplorerPos = picker.Position
+		startMousePos = getMousePos()
 	end))
 	table.insert(connections, picker.picker.activateregion.MouseButton1Down:Connect(function()
 		state.picking = true
