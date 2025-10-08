@@ -1238,9 +1238,9 @@ local modules = {
 				return {r, g, b}
 			end,
 			rgbToHSL = function(r, g, b)
-				r = math.clamp(r, 0, 1)
-				g = math.clamp(g, 0, 1)
-				b = math.clamp(b, 0, 1)
+				r = math.clamp(r / 255, 0, 1)
+				g = math.clamp(g / 255, 0, 1)
+				b = math.clamp(b / 255, 0, 1)
 				local min = math.min(r, g, b)
 				local max = math.max(r, g, b)
 				local l = (min + max) / 2
@@ -3695,6 +3695,7 @@ local function createEntryForInstance(node, parentGui)
 		if not newTemplate:GetAttribute("Selected") then
 			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("NormalColor")
 		end
+		newTemplate.mainframe.add.Visible = false
 	end)
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
@@ -4025,6 +4026,8 @@ local function setColorPicker(color, gui)
 		gui = gui,
 		h = 0, s = 0, v = 1,
 		r = 255, g = 255, b = 255,
+		c = 0, m = 0, y = 0, k = 0,
+		h2 = 0, s2 = 0, l = 1,
 		active = true,
 		dragging = false,
 		picking = false,
@@ -4035,6 +4038,8 @@ local function setColorPicker(color, gui)
 	if color then
 		state.h, state.s, state.v = color:ToHSV()
 		state.r, state.g, state.b = math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255)
+		state.c, state.m, state.y, state.k = modules.other.colorTranslations.rgbToCMYK(state.r, state.g, state.b)
+		state.h2, state.s2, state.l = modules.other.colorTranslations.rgbToHSL(state.r, state.g, state.b)
 	end
 
 	-- обновление визуалов
@@ -4086,34 +4091,31 @@ local function setColorPicker(color, gui)
 	for _, slider in picker.sliders:GetChildren() do
 		if slider:IsA("Frame") then
 			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
-				local conn
 				state.usingSlider = true
-				conn = RunService.RenderStepped:Connect(function()
-					if not state.active then conn:Disconnect() return end
-					if not state.usingSlider then return end
-					local relative = (getMousePos().X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
-					local val = math.clamp(relative, 0, 1)
-					local name = slider.Name:sub(1, 1):lower()
-
-					if name == "r" or name == "g" or name == "b" then
-						state[name] = math.floor(val * 255)
-						local c = Color3.fromRGB(state.r, state.g, state.b)
-						state.h, state.s, state.v = c:ToHSV()
-					else
-						state[name] = val
-						local c = Color3.fromHSV(state.h, state.s, state.v)
-						state.r, state.g, state.b = math.floor(c.R * 255), math.floor(c.G * 255), math.floor(c.B * 255)
-					end
-
-					updateVisuals()
-				end)
 			end))
+			local conn
+			conn = RunService.RenderStepped:Connect(function()
+				if not state.active then conn:Disconnect() return end
+				if not state.usingSlider then return end
+				local relative = (getMousePos().X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
+				local val = math.clamp(relative, 0, 1)
+				local name = slider.Name:sub(1, 1):lower()
+
+				if name == "r" or name == "g" or name == "b" then
+					state[name] = math.floor(val * 255)
+				elseif (name == "h" or name == "s" or name == "v") or (name == "c" or name == "m" or name == "y" or name == "k") then
+					state[name] = val
+				end
+
+				updateVisuals()
+			end)
 		end
 	end
 	for _, v in picker.options.modes:GetChildren() do
-		table.insert(connections, v.button.MouseButton1Click:Connect(function()
+		local button = v.button
+		button.MouseButton1Click:Connect(function()
 			setMode(v.Name)
-		end))
+		end)
 	end
 	table.insert(connections, picker.dragbutton.MouseButton1Down:Connect(function()
 		state.dragging = true
@@ -4130,7 +4132,6 @@ local function setColorPicker(color, gui)
 			state.usingSlider = false
 		end
 	end))
-
 	-- перетаскивание окна
 	table.insert(connections, RunService.RenderStepped:Connect(function()
 		if not state.active then return end
@@ -4146,9 +4147,12 @@ local function setColorPicker(color, gui)
 		if state.picking then
 			local mousePos = (getMousePos() - picker.picker.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)) / picker.picker.AbsoluteSize
 			local h, s, v = table.unpack(modules[pickerMode].GetColor(mousePos))
-			state.h, state.s, state.v = h, s, v
+			local c, m, y, k = modules.other.colorTranslations.rgbToCMYK(state.r, state.g, state.b)
 			local c = Color3.fromHSV(h, s, v)
+			state.h, state.s, state.v = h, s, v
 			state.r, state.g, state.b = math.round(c.R * 255), math.round(c.G * 255), math.round(c.B * 255)
+			state.c, state.m, state.y, state.k = c, m, y, k
+			
 			updateVisuals()
 		end
 	end))
