@@ -4125,9 +4125,7 @@ local function setColorPicker(color, gui)
 			local h, s, v = colorResult[1], colorResult[2], colorResult[3]
 			state.h, state.s, state.v = h, s, v
 			state.r, state.g, state.b = math.round(Color3.fromHSV(h, s, v).R * 255), math.round(Color3.fromHSV(h, s, v).G * 255), math.round(Color3.fromHSV(h, s, v).B * 255)
-			pointer.Position = module.GetPointerPositionFromColor(h, s, v)
-			picker.middlebar.result.color.BackgroundColor3 = Color3.fromHSV(h, s, v)
-			picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", colors.r, colors.g, colors.b)
+			updateVisuals()
 		end
 		if resizingColorPicker then
 			local function snap(number)
