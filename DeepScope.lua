@@ -4087,8 +4087,10 @@ local function setColorPicker(color, gui)
 		if slider:IsA("Frame") then
 			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
 				local conn
+				state.usingSlider = true
 				conn = RunService.RenderStepped:Connect(function()
 					if not state.active then conn:Disconnect() return end
+					if not state.usingSlider then return end
 					local relative = (getMousePos().X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
 					local val = math.clamp(relative, 0, 1)
 					local name = slider.Name:sub(1, 1):lower()
@@ -4108,6 +4110,11 @@ local function setColorPicker(color, gui)
 			end))
 		end
 	end
+	for _, v in picker.options.modes:GetChildren() do
+		table.insert(connections, v.button.MouseButton1Click:Connect(function()
+			setMode(v.Name)
+		end))
+	end
 	table.insert(connections, picker.dragbutton.MouseButton1Down:Connect(function()
 		state.dragging = true
 		startExplorerPos = picker.Position
@@ -4120,6 +4127,7 @@ local function setColorPicker(color, gui)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			state.dragging = false
 			state.picking = false
+			state.usingSlider = false
 		end
 	end))
 
