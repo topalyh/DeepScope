@@ -4026,15 +4026,19 @@ local function format(number, useCommas, useShort, demicals)
 	return math.round(number)
 end
 local function setColorPicker(color, gui)
-	local picker = newgui.Parent.colorpicker
+	local pickerTemplate = newgui.Parent.colorpicker
+	local picker = pickerTemplate:Clone()
+	picker.Parent = newgui.Parent
+	picker.Visible = true
 
 	-- локальное состояние
 	local state = {
 		gui = gui,
 		h = 0, s = 0, v = 1,
 		r = 255, g = 255, b = 255,
-		mode = "rgb",
-		active = true
+		active = true,
+		dragging = false,
+		picking = false
 	}
 
 	-- если цвет передан
@@ -4043,59 +4047,67 @@ local function setColorPicker(color, gui)
 		state.r, state.g, state.b = math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255)
 	end
 
-	-- функция для обновления визуала
+	-- обновление визуалов
 	local function updateVisuals()
 		local color3 = Color3.fromHSV(state.h, state.s, state.v)
 		picker.middlebar.result.color.BackgroundColor3 = color3
 		picker.middlebar.hex.TextBox.Text = string.format("#%02x%02x%02x", state.r, state.g, state.b)
+
+		picker.picker.pointer.Position = modules[pickerMode].GetPointerPositionFromColor(state.h, state.s, state.v)
+		picker.picker.triangle.ImageColor3 = Color3.fromHSV(state.h, 1, 1)
+		picker.picker.square.BackgroundColor3 = Color3.fromHSV(state.h, 1, 1)
+
 		-- обновляем слайдеры
-		picker.sliders.hue.pointer.Position = UDim2.fromScale(state.h, 0.5)
-		picker.sliders.saturation.pointer.Position = modules.slider.GetPointerPositionFromColor(state.s, ColorSequence.new({
+		local function updateSlider(slider, val, seq)
+			slider.pointer.Position = modules.slider.GetPointerPositionFromColor(val, seq, slider)
+		end
+
+		updateSlider(picker.sliders.hue, state.h)
+		updateSlider(picker.sliders.saturation, state.s, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
 			ColorSequenceKeypoint.new(1, Color3.fromHSV(state.h, 1, 1))
-		}), picker.sliders.saturation)
-		picker.sliders.value.pointer.Position = modules.slider.GetPointerPositionFromColor(state.v, ColorSequence.new({
+		}))
+		updateSlider(picker.sliders.value, state.v, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new()),
 			ColorSequenceKeypoint.new(1, Color3.fromHSV(state.h, state.s, 1))
-		}), picker.sliders.value)
-		picker.sliders.R.pointer.Position = modules.slider.GetPointerPositionFromColor(state.r/255, ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(0,state.g/255,state.b/255)),
-			ColorSequenceKeypoint.new(1,Color3.new(1,state.g/255,state.b/255))
-		}), picker.sliders.R)
-		picker.sliders.G.pointer.Position = modules.slider.GetPointerPositionFromColor(state.r/255, ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(state.r/255,0,state.b/255)),
-			ColorSequenceKeypoint.new(1,Color3.new(state.r/255,1,state.b/255))
-		}), picker.sliders.G)
-		picker.sliders.B.pointer.Position = modules.slider.GetPointerPositionFromColor(state.r/255, ColorSequence.new({
-			ColorSequenceKeypoint.new(0,Color3.new(state.r/255,state.g/255,0)),
-			ColorSequenceKeypoint.new(1,Color3.new(state.r/255,state.g/255,1))
-		}), picker.sliders.B)
-
-		-- обновляем основной выбор цвета
-		picker.picker.pointer.Position = modules[pickerMode].GetPointerPositionFromColor(state.h, state.s, state.v)
-		picker.picker.square.BackgroundColor3 = Color3.fromHSV(state.h, 1, 1)
-		picker.picker.triangle.ImageColor3 = Color3.fromHSV(state.h, 1, 1)
+		}))
+		updateSlider(picker.sliders.R, state.r, ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.new(0,state.g/255,state.b/255)),
+			ColorSequenceKeypoint.new(1, Color3.new(1,state.g/255,state.b/255))
+		}))
+		updateSlider(picker.sliders.G, state.g, ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.new(state.r/255,0,state.b/255)),
+			ColorSequenceKeypoint.new(1, Color3.new(state.r/255,1,state.b/255))
+		}))
+		updateSlider(picker.sliders.B, state.b, ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.new(state.r/255,state.g/255,0)),
+			ColorSequenceKeypoint.new(1, Color3.new(state.r/255,state.g/255,1))
+		}))
 
 		-- обновляем превью в самой настройке
 		state.gui.BackgroundColor3 = color3
 		state.gui.Parent.Text = string.format("[%d, %d, %d]", state.r, state.g, state.b)
 	end
 
-	-- связываем поведение с ползунками
+	-- соединения
+	local connections = {}
+
+	-- привязка слайдеров
 	for _, slider in picker.sliders:GetChildren() do
 		if slider:IsA("Frame") then
-			slider.activateregion.MouseButton1Down:Connect(function()
-				RunService.RenderStepped:Connect(function()
-					local mouseX = getMousePos().X
-					local relative = (mouseX - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
+			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
+				local conn
+				conn = RunService.RenderStepped:Connect(function()
+					if not state.active then conn:Disconnect() return end
+					local relative = (getMousePos().X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
 					local val = math.clamp(relative, 0, 1)
-
 					local name = slider.Name:sub(1, 1):lower()
+
 					if name == "r" or name == "g" or name == "b" then
 						state[name] = math.floor(val * 255)
 						local c = Color3.fromRGB(state.r, state.g, state.b)
 						state.h, state.s, state.v = c:ToHSV()
-					elseif name == "h" or name == "s" or name == "v" then
+					else
 						state[name] = val
 						local c = Color3.fromHSV(state.h, state.s, state.v)
 						state.r, state.g, state.b = math.floor(c.R * 255), math.floor(c.G * 255), math.floor(c.B * 255)
@@ -4103,85 +4115,44 @@ local function setColorPicker(color, gui)
 
 					updateVisuals()
 				end)
-			end)
+			end))
 		end
 	end
-	RunService.RenderStepped:Connect(function()
-		if draggingColorPicker then
+
+	-- перетаскивание окна
+	table.insert(connections, RunService.RenderStepped:Connect(function()
+		if not state.active then return end
+
+		if state.dragging then
 			local newX = getMousePos().X - startMousePos.X
 			local newY = getMousePos().Y - startMousePos.Y
-			local minX = 0
-			local maxX = newgui.Parent.AbsoluteSize.X - picker.AbsoluteSize.X
-			local minY = game.GuiService.TopbarInset.Height + picker.dragbutton.AbsoluteSize.Y
-			local maxY = newgui.Parent.AbsoluteSize.Y - picker.AbsoluteSize.Y
-			newX = math.clamp(startExplorerPos.X.Offset + newX, minX, maxX)
-			newY = math.clamp(startExplorerPos.Y.Offset + newY, minY, maxY)picker.Position = UDim2.new(0, newX, 0, newY)
+			newX = math.clamp(startExplorerPos.X.Offset + newX, 0, newgui.Parent.AbsoluteSize.X - picker.AbsoluteSize.X)
+			newY = math.clamp(startExplorerPos.Y.Offset + newY, game.GuiService.TopbarInset.Height + picker.dragbutton.AbsoluteSize.Y, newgui.Parent.AbsoluteSize.Y - picker.AbsoluteSize.Y)
+			picker.Position = UDim2.new(0, newX, 0, newY)
 		end
-		if pickingColor then
+
+		if state.picking then
 			local mousePos = (getMousePos() - picker.picker.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)) / picker.picker.AbsoluteSize
-			local pointer = picker.picker.pointer
-			local module = modules[pickerMode]
-			local colorResult = module.GetColor(mousePos)
-			local h, s, v = colorResult[1], colorResult[2], colorResult[3]
+			local h, s, v = table.unpack(modules[pickerMode].GetColor(mousePos))
 			state.h, state.s, state.v = h, s, v
-			state.r, state.g, state.b = math.round(Color3.fromHSV(h, s, v).R * 255), math.round(Color3.fromHSV(h, s, v).G * 255), math.round(Color3.fromHSV(h, s, v).B * 255)
+			local c = Color3.fromHSV(h, s, v)
+			state.r, state.g, state.b = math.round(c.R * 255), math.round(c.G * 255), math.round(c.B * 255)
 			updateVisuals()
 		end
-		if resizingColorPicker then
-			local function snap(number)
-				return math.floor(number / 10) * 10
-			end
-			local MAX_HEIGHT = 421
-			local mousePos = getMousePos()
-			local deltaY = mousePos.Y - startMousePos.Y
-			local newHeight = math.clamp(snap(startPickerSize.Y.Offset + deltaY), 320, MAX_HEIGHT)
-			picker.Size = UDim2.new(startPickerSize.X.Scale, startPickerSize.X.Offset, 0, newHeight)
-		end
-		if picker.Size.Y.Offset > 320 + 100/3 then
-			picker.sliders.R.Visible = true
-		else
-			picker.sliders.R.Visible = false
-		end
-		if picker.Size.Y.Offset > 320 + 100/2 then
-			picker.sliders.G.Visible = true
-		else
-			picker.sliders.G.Visible = false
-		end
-		if picker.Size.Y.Offset > 420 then
-			picker.sliders.B.Visible = true
-		else
-			picker.sliders.B.Visible = false
-		end
-	end)
+	end))
 
-	for _, v in picker.options.modes:GetChildren() do
-		local button = v:FindFirstChild("button")
-		button.MouseButton1Click:Connect(function()
-			setMode(v.Name)
-		end)
-	end
-	picker.resize.MouseEnter:Connect(function()
-		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
-			ImageTransparency = 0.5
-		}):Play()
-	end)
-	picker.resize.MouseLeave:Connect(function()
-		TweenService:Create(picker.resize, TweenInfo.new(0.2), {
-			ImageTransparency = 1
-		}):Play()
-	end)	
-
-	-- закрытие пикера
-	picker.options.close.MouseButton1Click:Connect(function()
+	-- закрытие
+	table.insert(connections, picker.options.close.MouseButton1Click:Connect(function()
+		state.active = false
 		local finalColor = Color3.fromHSV(state.h, state.s, state.v)
 		state.gui.Parent.Parent:SetAttribute("Value", finalColor)
-		picker.Visible = false
-		state.active = false
-	end)
+		picker:Destroy()
+		for _, c in ipairs(connections) do
+			pcall(function() c:Disconnect() end)
+		end
+	end))
 
-	-- инициализация визуала
 	updateVisuals()
-	picker.Visible = true
 end
 local function setLogMenu()
 	logsOpened = true
