@@ -1847,7 +1847,7 @@ local function createGui()
 		Name = "colorpicker",
 		BackgroundColor3 = Color3.fromRGB(88, 87, 89),
 		Position = UDim2.fromOffset(0, 88),
-		Size = UDim2.fromOffset(220, 320),
+		Size = UDim2.fromOffset(220, 420),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
@@ -2627,17 +2627,6 @@ local function createGui()
 		Image = "rbxassetid://3192543734",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-	})
-	local pickerGui84 = createInstance("TextButton", {
-		Parent = pickerGui1,
-		Name = "resizebottom",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, -2, 0, 7),
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-		Text = "",
-		AutoButtonColor = false
 	})
 	local notifyGui1 = createInstance("Frame", {
 		Parent = gui1,
@@ -4038,7 +4027,8 @@ local function setColorPicker(color, gui)
 		r = 255, g = 255, b = 255,
 		active = true,
 		dragging = false,
-		picking = false
+		picking = false,
+		usingSlider = false,
 	}
 
 	-- если цвет передан
@@ -4071,15 +4061,15 @@ local function setColorPicker(color, gui)
 			ColorSequenceKeypoint.new(0, Color3.new()),
 			ColorSequenceKeypoint.new(1, Color3.fromHSV(state.h, state.s, 1))
 		}))
-		updateSlider(picker.sliders.R, state.r, ColorSequence.new({
+		updateSlider(picker.sliders.R, state.r/255, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(0,state.g/255,state.b/255)),
 			ColorSequenceKeypoint.new(1, Color3.new(1,state.g/255,state.b/255))
 		}))
-		updateSlider(picker.sliders.G, state.g, ColorSequence.new({
+		updateSlider(picker.sliders.G, state.g/255, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(state.r/255,0,state.b/255)),
 			ColorSequenceKeypoint.new(1, Color3.new(state.r/255,1,state.b/255))
 		}))
-		updateSlider(picker.sliders.B, state.b, ColorSequence.new({
+		updateSlider(picker.sliders.B, state.b/255, ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(state.r/255,state.g/255,0)),
 			ColorSequenceKeypoint.new(1, Color3.new(state.r/255,state.g/255,1))
 		}))
