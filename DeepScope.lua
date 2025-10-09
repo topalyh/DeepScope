@@ -91,11 +91,43 @@ local fonts = {
 local icons = {
 	size = {16, 16},
 	index = {
+		["Part"] = 1,
+		["AdService"] = 145,
+		["AdGui"] = 145,
+		["AdPortal"] = 146,
+		["TerrainDetail"] = 144,
+		["MaterialService"] = 131,
+		["MaterialVariant"] = 130,
+		["FaceControls"] = 129,
+		["PathfindingModifier"] = 128,
+		["PathfindingLink"] = 128,
+		["ProximityPrompt"] = 124,
+		["ProximityPromptService"] = 124,
+		["HumanoidDescription"] = 104,
+		["BodyPartDescription"] = 104,
+		["AccessoryDescription"] = 104,
+		["ChorusSoundEffect"] = 84,
+		["Highlight"] = 133,
+		["LocalizationTable"] = 97,
+		["LocalizationService"] = 91,
+		["CompressorSoundEffect"] = 84,
+		["DistortionSoundEffect"] = 84,
+		["EchoSoundEffect"] = 84,
+		["EqualizerSoundEffect"] = 84,
+		["FlangeSoundEffect"] = 84,
+		["PitchSoundEffect"] = 84,
+		["ReverbSoundEffect"] = 84,
+		["TremoloSoundEffect"] = 84,
+		["SoundGroup"] = 85,
+		["ViewportFrame"] = 120,
+		["Beam"] = 96,
+		["Trail"] = 93,
 		["Accessory"] = 32,
 		["AlignOrientation"] = 100,
 		["AlignPosition"] = 99,
 		["AngularVelocity"] = 104,
 		["Animation"] = 60,
+		["VideoFrame"] = 60,
 		["AnimationController"] = 60,
 		["AnimationTrack"] = 60,
 		["ArcHandles"] = 56,
@@ -113,6 +145,7 @@ local icons = {
 		["BodyPosition"] = 14,
 		["BodyThrust"] = 14,
 		["BodyVelocity"] = 14,
+		["Bone"] = 114,
 		["BoolValue"] = 4,
 		["BoxHandleAdornment"] = 112,
 		["BrickColorValue"] = 4,
@@ -137,7 +170,9 @@ local icons = {
 		["FlagStand"] = 39,
 		["Folder"] = 77,
 		["ForceField"] = 37,
+		["TouchTransmister"] = 37,
 		["Frame"] = 48,
+		["ScrollingFrame"] = 48,
 		["Glue"] = 34,
 		["Handles"] = 53,
 		["Hat"] = 45,
@@ -156,19 +191,17 @@ local icons = {
 		["LineHandleAdornment"] = 108,
 		["LinearVelocity"] = 101,
 		["LocalScript"] = 18,
-		["LocalizationService"] = 91,
 		["ManualWeld"] = 34,
 		["MeshPart"] = 1,
 		["Model"] = 2,
 		["ModuleScript"] = 76,
 		["Motor"] = 34,
-		["Motor6D"] = 34,
+		["Motor6D"] = 107,
 		["NegateOperation"] = 72,
 		["NetworkClient"] = 16,
 		["NoCollisionConstraint"] = 106,
 		["NumberValue"] = 4,
 		["Pants"] = 44,
-		["Part"] = 1,
 		["ParticleEmitter"] = 80,
 		["PhysicsService"] = 30,
 		["PlaneConstraint"] = 134,
@@ -3506,16 +3539,18 @@ local hoveringNode = nil
 
 local function makeProperties(instance)
 	return {
-		Parent = instance.Parent and instance.Parent.Name or "nil",
-		Name = instance.Name,
+		Archivable = instance.Archivable,
 		ClassName = instance.ClassName,
-		Attributes = instance:GetAttributes(),
+		Name = instance.Name,
+		Parent = instance.Parent and instance.Parent.Name or "nil",
+		UniqueId = instance.UniqueId,
 		Tags = (function()
 			local success, tags = pcall(function()
 				return instance:GetTags()
 			end)
 			return success and tags or {}
-		end)()
+		end)(),
+		Attributes = instance:GetAttributes()
 	}
 end
 
@@ -3632,10 +3667,6 @@ local function createEntryForInstance(node, parentGui)
 		ScaleType = Enum.ScaleType.Fit,
 		Visible = false
 	})
-	local explorerGui13 = createInstance("UISizeConstraint", {
-		Parent = explorerGui12,
-		MaxSize = Vector2.new(163, 1e308)
-	})
 	local explorerGui14 = createInstance("Frame", {
 		Parent = template,
 		Name = "dropdown",
@@ -3700,6 +3731,9 @@ local function createEntryForInstance(node, parentGui)
 			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("SelectedColor")
 		end
 		newTemplate.mainframe.add.Visible = true
+	end)
+	newTemplate.activateregion.MouseButton1Click:Connect(function()
+		newTemplate:SetAttribute("Selected", true)
 	end)
 	newTemplate.activateregion.MouseLeave:Connect(function()
 		if not newTemplate:GetAttribute("Selected") then
@@ -4892,7 +4926,7 @@ local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
 	if newgui.Parent.settings.list["Custom Cursor"]:GetAttribute("Value") == true then
 		UserInputService.MouseIconEnabled = false
-		currentCursor = createInstance("ImageImage", {
+		currentCursor = createInstance("ImageLabel", {
 			Parent = newgui.Parent,
 			Name = base64Decode(generateRandomString()),
 			BackgroundTransparency = 1,
