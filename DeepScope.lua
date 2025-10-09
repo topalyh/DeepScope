@@ -4100,7 +4100,7 @@ local function setColorPicker(color, gui)
 	-- привязка слайдеров
 	for _, slider in picker.sliders:GetChildren() do
 		if slider:IsA("Frame") then
-			table.insert(slider.activateregion.MouseButton1Down:Connect(function()
+			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
 				state.sliderInfo.active = slider
 				
 				if state.sliderInfo.conn then
@@ -4892,17 +4892,17 @@ local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
 	if newgui.Parent.settings.list["Custom Cursor"]:GetAttribute("Value") == true then
 		UserInputService.MouseIconEnabled = false
-		local cursor = createInstance("ImageLabel", {
+		currentCursor = createInstance("ImageImage", {
 			Parent = newgui.Parent,
 			Name = base64Decode(generateRandomString()),
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Size = UDim2.fromOffset(75, 75),
-			Image = "rbxassetid://7767269282"
+			Image = "rbxassetid://7767269282",
+			ZIndex = 2147483647
 		})
-		currentCursor = cursor
 		conn = game:GetService("RunService").RenderStepped:Connect(function()
-			cursor.Position = UDim2.fromOffset(getMousePos().X, getMousePos().Y)
+			currentCursor.Position = UDim2.fromOffset(getMousePos().X, getMousePos().Y)
 		end)
 	else
 		if conn then
@@ -4910,10 +4910,7 @@ newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):
 			conn = nil
 		end
 		UserInputService.MouseIconEnabled = true
-		if currentCursor then
-			currentCursor:Destroy()
-			currentCursor = nil
-		end
+		currentCursor:Destroy()
 	end
 end)
 newgui.settings.MouseButton1Click:Connect(function()
@@ -5660,4 +5657,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
