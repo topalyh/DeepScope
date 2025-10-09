@@ -834,6 +834,16 @@ _createForces = function(hrp)
 	BodyPos = bp
 	BodyGyro = bg
 end
+local function generateRandomString()
+	local length = 10
+	local characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	local array = {}
+	for i = 1, length do
+		local index = math.random(1, #characters)
+		table.insert(array, characters:sub(index, index))
+	end
+	return table.concat(array)
+end
 local function AddLog(text, sourse, type)
 	if not type then type = "normal" end
 	repeat wait() until logList
@@ -4031,7 +4041,7 @@ local function setColorPicker(color, gui)
 		active = true,
 		dragging = false,
 		picking = false,
-		usingSlider = false,
+		sliderInfo = {active = nil, conn = nil},
 	}
 
 	-- если цвет передан
@@ -4090,25 +4100,30 @@ local function setColorPicker(color, gui)
 	-- привязка слайдеров
 	for _, slider in picker.sliders:GetChildren() do
 		if slider:IsA("Frame") then
-			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
-				state.usingSlider = true
-			end))
-			local conn
-			conn = RunService.RenderStepped:Connect(function()
-				if not state.active then conn:Disconnect() return end
-				if not state.usingSlider then return end
-				local relative = (getMousePos().X - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
-				local val = math.clamp(relative, 0, 1)
-				local name = slider.Name:sub(1, 1):lower()
-
-				if name == "r" or name == "g" or name == "b" then
-					state[name] = math.floor(val * 255)
-				elseif (name == "h" or name == "s" or name == "v") or (name == "c" or name == "m" or name == "y" or name == "k") then
-					state[name] = val
+			table.insert(slider.activateregion.MouseButton1Down:Connect(function()
+				state.sliderInfo.active = slider
+				
+				if state.sliderInfo.conn then
+					state.sliderInfo.conn:Disconnect()
 				end
-
-				updateVisuals()
-			end)
+				
+				state.sliderInfo.conn = game:GetService("RunService").RenderStepped:Connect(function()
+					local mouseX = getMousePos().X
+					local relative = (mouseX - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
+					local val = math.clamp(relative, 0, 1)
+					
+					local name = slider.Name:sub(1, 1):lower()
+					if name == "r" or name == "g" or name == "b" then
+						state[name] = math.round(val * 255)
+					elseif 
+						(name == "h" or name == "s" or name == "v") or 
+						(name == "c" or name == "m" or name == "y" or name == "k") or 
+						(name == "h2" or name == "s2" or name == "l") 
+					then
+						state[name] = val
+					end
+				end)
+			end))
 		end
 	end
 	for _, v in picker.options.modes:GetChildren() do
@@ -4129,7 +4144,7 @@ local function setColorPicker(color, gui)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			state.dragging = false
 			state.picking = false
-			state.usingSlider = false
+			state.sliderInfo = {active = nil, conn = nil}
 		end
 	end))
 	-- перетаскивание окна
@@ -4869,6 +4884,33 @@ CoreSettings:CreateSetting("Comment Color", executorConfig.commentColor, "Color"
 CoreSettings:CreateSetting("Keyword Color", executorConfig.keywordColor, "Color")
 CoreSettings:CreateSetting("Bools Color", executorConfig.boolsColor, "Color")
 CoreSettings:CreateSetting("Text Size", {NumberRange.new(5, 25), executorConfig.TextSize}, "Slider")
+CoreSettings:CreateSeparator("Misc")
+CoreSettings:CreateSetting("Constraints Visible", false, "Switch")
+CoreSettings:CreateSetting("Custom Cursor", false, "Switch")
+local conn = nil
+newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
+	if newgui.Parent.settings.list["Custom Cursor"]:GetAttribute("Value") == true then
+		UserInputService.MouseIconEnabled = false
+		local cursor = createInstance("ImageFrame", {
+			Parent = newgui.Parent,
+			Name = base64Decode(generateRandomString()),
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Size = UDim2.fromOffset(75, 75),
+			Image = "rbxassetid://7767269282"
+		})
+		conn = game:GetService("RunService").RenderStepped:Connect(function()
+			cursor.Position = UDim2.fromOffset(getMousePos().X, getMousePos().Y)
+		end)
+	else
+		if conn then
+			conn:Disconnect()
+			conn = nil
+		end
+		UserInputService.MouseIconEnabled = true
+		newgui.Parent:FindFirstChildWithIsA("ImageFrame"):Destroy()
+	end
+end)
 newgui.settings.MouseButton1Click:Connect(function()
 	newgui.Parent.settings.Visible = true
 end)
@@ -5053,16 +5095,6 @@ end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
 end)
-local function generateRandomString()
-	local length = 10
-	local characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-	local array = {}
-	for i = 1, length do
-		local index = math.random(1, #characters)
-		table.insert(array, characters:sub(index, index))
-	end
-	return table.concat(array)
-end
 notify("rbxthumb://type=AvatarHeadShot&id="..LocalPlayer.UserId.."&w=420&h=420", initMessages[math.random(1, #initMessages)]:gsub("{player}", LocalPlayer.DisplayName), 10)
 warn("\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61")
 newgui.mode.MouseButton1Down:Connect(function()
