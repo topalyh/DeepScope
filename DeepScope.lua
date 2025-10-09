@@ -4888,10 +4888,11 @@ CoreSettings:CreateSeparator("Misc")
 CoreSettings:CreateSetting("Constraints Visible", false, "Switch")
 CoreSettings:CreateSetting("Custom Cursor", false, "Switch")
 local conn = nil
+local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
 	if newgui.Parent.settings.list["Custom Cursor"]:GetAttribute("Value") == true then
 		UserInputService.MouseIconEnabled = false
-		local cursor = createInstance("ImageFrame", {
+		local cursor = createInstance("ImageLabel", {
 			Parent = newgui.Parent,
 			Name = base64Decode(generateRandomString()),
 			BackgroundTransparency = 1,
@@ -4899,6 +4900,7 @@ newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):
 			Size = UDim2.fromOffset(75, 75),
 			Image = "rbxassetid://7767269282"
 		})
+		currentCursor = cursor
 		conn = game:GetService("RunService").RenderStepped:Connect(function()
 			cursor.Position = UDim2.fromOffset(getMousePos().X, getMousePos().Y)
 		end)
@@ -4908,7 +4910,10 @@ newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):
 			conn = nil
 		end
 		UserInputService.MouseIconEnabled = true
-		newgui.Parent:FindFirstChildWithIsA("ImageFrame"):Destroy()
+		if currentCursor then
+			currentCursor:Destroy()
+			currentCursor = nil
+		end
 	end
 end)
 newgui.settings.MouseButton1Click:Connect(function()
@@ -5655,3 +5660,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
