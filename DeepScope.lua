@@ -3757,7 +3757,7 @@ local function createEntryForInstance(node, parentGui)
 		index = instancesData[node.Data.ClassName].ExplorerIndex or icons.index[node.Data.ClassName]
 		iconIndex = instancesData[node.Data.ClassName].ExplorerIconIndex
 	end)
-	newTemplate.icon.ImageRectOffset = Vector2.new(iconIndex*icons.size[1], 0)
+	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconIndex*icons.size[1], 0)
 	newTemplate.LayoutOrder = index
 	guiToNode[newTemplate] = node
 	nodeToGui[node] = newTemplate
