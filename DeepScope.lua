@@ -3735,11 +3735,11 @@ local function createEntryForInstance(node, parentGui)
 	local instancesData = fetchRMD()
 	
 	local newTemplate = template:Clone()
+	local index = instancesData[node.Data.ClassName].ExplorerOrder
+	local iconIndex = instancesData[node.Data.ClassName].ExplorerImageIndex
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
-	local index = instancesData[node.Data.ClassName].ExplorerIndex
-	local iconIndex = instancesData[node.Data.ClassName].ExplorerIconIndex
 	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconIndex*16, 0)
 	newTemplate.LayoutOrder = index
 	guiToNode[newTemplate] = node
