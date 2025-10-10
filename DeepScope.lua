@@ -730,7 +730,7 @@ local function parseXML(xml)
 				Name = name or "Unknown",
 				ClassCategory = category or "Unknown",
 				ExplorerOrder = order or 9999,
-				ExplorerIconOffset = Vector2.new(icon*16 or 0, 0),
+				ExplorerIconOffset = Vector2.new((icon or 0)*16, 0),
 			}
 		end
 	end
