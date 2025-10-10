@@ -719,18 +719,18 @@ end
 local function parseXML(xml)
 	local data = {}
 
-	for block in xml:gmatch("<Item class=\"ReflectionMetadataClass\">(.-)</Item>") do
-		local name = block:match("<string name=\"Name\">(.-)</string>")
+	for block in xml:gmatch('<Item class="ReflectionMetadataClass">(.-)</Item>') do
+		local name = block:match('<string name="Name">(.-)</string>')
 		if name then
-			local order = tonumber(block:match("<string name=\"ExplorerOrder\">(.-)</string>"))
-			local icon = tonumber(block:match("<string name=\"ExplorerImageIndex\">(.-)</string>"))
-			local category = block:match("<string name=\"ClassCategory\">(.-)</string>")
+			local order = tonumber(block:match('<string name="ExplorerOrder">(.-)</string>'))
+			local icon = tonumber(block:match('<string name="ExplorerImageIndex">(.-)</string>'))
+			local category = block:match('<string name="ClassCategory">(.-)</string>')
 
 			data[name] = {
 				Name = name or "Unknown",
 				ClassCategory = category or "Unknown",
 				ExplorerOrder = order or 9999,
-				ExplorerIconOffset = Vector2.new((icon or 0)*16, 0),
+				ExplorerIconOffset = (icon or 0)*16,
 			}
 		end
 	end
@@ -895,12 +895,42 @@ local function writeinfo(fileName, data)
 	local content = isJSON and game:GetService("HttpService"):JSONEncode(data) or data
 	writefile(fileName, content)
 end
+local function prettyJSON(tbl, indent)
+	indent = indent or 0
+	local padding = string.rep("  ", indent)
+	local nextPad = string.rep("  ", indent + 1)
+
+	if typeof(tbl) == "table" then
+		local isArray = (#tbl > 0)
+		local result = {}
+		if isArray then
+			table.insert(result, "[")
+			for i, v in ipairs(tbl) do
+				table.insert(result, nextPad .. prettyJSON(v, indent + 1) .. (i < #tbl and "," or ""))
+			end
+			table.insert(result, padding .. "]")
+		else
+			table.insert(result, "{")
+			local count, total = 0, 0
+			for _ in pairs(tbl) do total += 1 end
+			for k, v in pairs(tbl) do
+				count += 1
+				local key = HttpService:JSONEncode(k)
+				table.insert(result, nextPad .. key .. ": " .. prettyJSON(v, indent + 1) .. (count < total and "," or ""))
+			end
+			table.insert(result, padding .. "}")
+		end
+		return table.concat(result, "\n")
+	else
+		return HttpService:JSONEncode(tbl)
+	end
+end
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 local api = game:HttpGet("https://anaminus.github.io/rbx/json/api/latest.json")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 writefile("DeepScopeCore/Explorer/API.json", api)
-writefile("DeepScopeCore/Explorer/RMD.json", HttpService:JSONEncode(parseXML(rmd)))
+writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
@@ -962,37 +992,6 @@ local function generateRandomString()
 end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
-end
-
-local function prettyJSON(tbl, indent)
-	indent = indent or 0
-	local padding = string.rep("  ", indent)
-	local nextPad = string.rep("  ", indent + 1)
-
-	if typeof(tbl) == "table" then
-		local isArray = (#tbl > 0)
-		local result = {}
-		if isArray then
-			table.insert(result, "[")
-			for i, v in ipairs(tbl) do
-				table.insert(result, nextPad .. prettyJSON(v, indent + 1) .. (i < #tbl and "," or ""))
-			end
-			table.insert(result, padding .. "]")
-		else
-			table.insert(result, "{")
-			local count, total = 0, 0
-			for _ in pairs(tbl) do total += 1 end
-			for k, v in pairs(tbl) do
-				count += 1
-				local key = HttpService:JSONEncode(k)
-				table.insert(result, nextPad .. key .. ": " .. prettyJSON(v, indent + 1) .. (count < total and "," or ""))
-			end
-			table.insert(result, padding .. "}")
-		end
-		return table.concat(result, "\n")
-	else
-		return HttpService:JSONEncode(tbl)
-	end
 end
 
 local function saveData(dataToSave)
@@ -1427,9 +1426,6 @@ local modules = {
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
 						pos = closing + 1
-					elseif c:match("^%-%-") then
-						local endComment = code:find("\n", pos + 2) or len + 1
-						local comment = code:sub(pos, endComment - 1)
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.numberColor:ToHex(), num))
