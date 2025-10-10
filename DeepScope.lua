@@ -3483,6 +3483,19 @@ local explorerData = {}
 local nodesBuilt = {}
 local templates = {}
 
+local function fetchRMD()
+	local success, result = pcall(function()
+		return readfile("DeepScopeCore/Explorer/RMD.dsf")
+	end)
+	if success then
+		local data = game:GetService("HttpService"):JSONDecode(result)
+		return data
+	else
+		AddLog("Failed to fetch RMD.", "DeepScope", "error")
+		return nil
+	end
+end
+
 local function buildExplorerData(instance)
 	if not instance or not instance.Parent and instance ~= game then
 		return nil
@@ -3732,13 +3745,20 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-
+	local instancesData = fetchRMD()
+	
 	local newTemplate = template:Clone()
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
-	local index = icons.index[node.Data.ClassName] or 0
-	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(index*icons.size[1], 0)
+	local index = 0
+	local iconIndex = icons.index[node.Data.ClassName]
+	local success, _ = pcall(function()
+		index = instancesData[node.Data.ClassName].ExplorerIndex or icons.index[node.Data.ClassName]
+		iconIndex = instancesData[node.Data.ClassName].ExplorerIconIndex
+	end)
+	newTemplate.icon.ImageRectOffset = Vector2.new(iconIndex*icons.size[1], 0)
+	newTemplate.LayoutOrder = index
 	guiToNode[newTemplate] = node
 	nodeToGui[node] = newTemplate
 
