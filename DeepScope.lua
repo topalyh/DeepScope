@@ -13,11 +13,6 @@ function missing(t, f, fallback)
 	if type(f) == t then return f end
 	return fallback
 end
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local GuiService = game:GetService("GuiService")
-local TweenService = game:GetService("TweenService")
 local waxwritefile, waxreadfile = writefile, readfile
 cloneref = missing("function", cloneref, function(...) return ... end)
 everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
@@ -38,6 +33,12 @@ isfile = missing("function", isfile, readfile and function(file)
 	end)
 	return success and result ~= nil and result ~= ""
 end)
+local UserInputService = cloneref(game:GetService("UserInputService"))
+local RunService = cloneref(game:GetService("RunService"))
+local LocalPlayer = cloneref(game:GetService("Players")).LocalPlayer
+local GuiService = cloneref(game:GetService("GuiService"))
+local TweenService = cloneref(game:GetService("TweenService"))
+local HttpService = cloneref(game:GetService("HttpService"))
 repeat wait() until LocalPlayer.Character
 local suffixes = {
 	"",
@@ -715,6 +716,29 @@ local function base64Decode(a)
 		return string.char(j)
 	end))
 end
+local function parseXML(xml)
+	local data = {}
+
+	for block in xml:gmatch("<Item class=\"ReflectionMetadataClass\">(.-)</Item>") do
+		local name = block:match("<string name=\"Name\">(.-)</string>")
+		if name then
+			local order = tonumber(block:match("<string name=\"ExplorerOrder\">(.-)</string>"))
+			local icon = tonumber(block:match("<string name=\"ExplorerImageIndex\">(.-)</string>"))
+			local category = block:match("<string name=\"ClassCategory\">(.-)</string>")
+
+			if order and icon and category then
+				data[name] = {
+					Name = name or "Unknown",
+					ClassCategory = category or "Unknown",
+					ExplorerOrder = order or 9999,
+					ExplorerImageIndex = icon or -1,
+				}
+			end
+		end
+	end
+
+	return data
+end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
 local selectedplr = "nobody"
@@ -784,39 +808,42 @@ local usingSlider = {
 	enabled = false
 }
 local guiToNode = setmetatable({}, {__mode = "k"})
-if makefolder and isfolder and writefile and isfile then
-	pcall(function()
-		local folders = {
-			"DeepScopeCore",
-			"DeepScopeCore/Properties",
-			"DeepScopeCore/Explorer",
-			"DeepScopeCore/Executor",
-			"DeepScopeCore/Fonts"
-		}
-		local files = {
-			"DeepScopeCore/Saves.json",
-			"DeepScopeCore/Waypoints.json",
-			"DeepScopeCore/Logs.txt",
-			"DeepScopeCore/Properties/Instances.dsf",
-			"DeepScopeCore/Executor/SavedScripts.dsf"
-		}
-		for _, v in ipairs(folders) do
-			if not isfolder(v) then
-				makefolder(v)
-			end
-		end
-
-		for _, v in ipairs(files) do
-			if not isfile(v) then
-				local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
-				if isJSON then
-					writefile(v, "[]")
-				else
-					writefile(v, "")
+local function initFileSystem()
+	if makefolder and isfolder and writefile and isfile then
+		pcall(function()
+			local folders = {
+				"DeepScopeCore",
+				"DeepScopeCore/Properties",
+				"DeepScopeCore/Explorer",
+				"DeepScopeCore/Executor",
+			}
+			local files = {
+				"DeepScopeCore/Saves.json",
+				"DeepScopeCore/Waypoints.json",
+				"DeepScopeCore/Logs.txt",
+				"DeepScopeCore/Properties/Instances.dsf",
+				"DeepScopeCore/Executor/SavedScripts.dsf",
+				"DeepScopeCore/Explorer/RMD.dsf",
+				"DeepScopeCore/Explorer/API.dsf"
+			}
+			for _, v in ipairs(folders) do
+				if not isfolder(v) then
+					makefolder(v)
 				end
 			end
-		end
-	end)
+
+			for _, v in ipairs(files) do
+				if not isfile(v) then
+					local isJSON = v:match("DeepScopeCore/(.-)%.json$") ~= nil
+					if isJSON then
+						writefile(v, "[]")
+					else
+						writefile(v, "")
+					end
+				end
+			end
+		end)
+	end
 end
 local function writeinfo(fileName, data)
 	local isJSON = fileName:match("DeepScopeCore/(.-)%.json$") ~= nil
@@ -826,6 +853,14 @@ end
 local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71")
 if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
 	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
+end
+local _ = game:HttpGet("\104\116\116\112\115\58\47\47\97\110\97\109\105\110\117\115\46\103\105\116\104\117\98\46\105\111\47\114\98\120\47\106\115\111\110\47\97\112\105\47\108\97\116\101\115\116\46\106\115\111\110")
+if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\65\80\73\46\100\115\102") then
+	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\65\80\73\46\100\115\102", _)
+end
+local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\67\108\111\110\101\84\114\111\111\112\101\114\49\48\49\57\47\82\111\98\108\111\120\45\67\108\105\101\110\116\45\84\114\97\99\107\101\114\47\114\111\98\108\111\120\47\82\101\102\108\101\99\116\105\111\110\77\101\116\97\100\97\116\97\46\120\109\108")
+if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\82\77\68\46\100\115\102") then
+	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\82\77\68\46\100\115\102", HttpService:JSONDecode(parseXML(_)))
 end
 local logConfig = {
 	colors = {
@@ -956,14 +991,14 @@ local function prettyJSON(tbl, indent)
 			for _ in pairs(tbl) do total += 1 end
 			for k, v in pairs(tbl) do
 				count += 1
-				local key = game.HttpService:JSONEncode(k)
+				local key = HttpService:JSONEncode(k)
 				table.insert(result, nextPad .. key .. ": " .. prettyJSON(v, indent + 1) .. (count < total and "," or ""))
 			end
 			table.insert(result, padding .. "}")
 		end
 		return table.concat(result, "\n")
 	else
-		return game.HttpService:JSONEncode(tbl)
+		return HttpService:JSONEncode(tbl)
 	end
 end
 
@@ -992,7 +1027,7 @@ local function saveData(dataToSave)
 		TextSize = executorConfig.TextSize,
 		Font = toJSONFont(executorConfig.font)
 	}
-	local encoded = game.HttpService:JSONEncode(data)
+	local encoded = HttpService:JSONEncode(data)
 	local filePath = "DeepScopeCore/Saves.json"
 	writefile(filePath, encoded)
 end
@@ -1013,7 +1048,7 @@ local function readData()
 		}
 	}
 	local success, err = pcall(function()
-		data = game.HttpService:JSONDecode(readfile("DeepScopeCore/Saves.json"))
+		data = HttpService:JSONDecode(readfile("DeepScopeCore/Saves.json"))
 	end)
 	if not success then
 		data = {}
@@ -1400,16 +1435,8 @@ local modules = {
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
 						pos = closing + 1
 					elseif c:match("^%-%-") then
-						local block = code:match("^%-%-%[%[(.-)%]%]")
-						if block then
-							local full = code:match("^%-%-%[%[.-%]%]")
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), full))
-							pos = pos + #full
-						else
-							local line = code:match("^(%-%-.*)\n?") or code
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), line))
-							pos = pos + #line
-						end
+						local endComment = code:find("\n", pos + 2) or len + 1
+						local comment = code:sub(pos, endComment - 1)
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.numberColor:ToHex(), num))
@@ -1476,6 +1503,11 @@ local modules = {
 								colored = string.format("<font color='%s'>%s</font>", "#"..executorConfig.libColor:ToHex(), word)
 							end
 						end
+						if table.find({
+								"writefile","readfile","isfile","makefolder","isfolder",
+								"movefileas"
+							}, word) then
+						end
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format("<font color='%s'><b>%s</b></font>","#"..executorConfig.keywordColor:ToHex(), word)
 						end
@@ -1486,7 +1518,7 @@ local modules = {
 						table.insert(tokens, colored or word)
 						pos = pos + #word
 					elseif code:match("^Enum%.[%w_]+%.[%w_]+") then
-						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
+						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)")
 						local result = string.format(
 							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
 							"#"..executorConfig.libColor:ToHex(), enum,
@@ -4899,7 +4931,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		end
 		local gameURL = "https://games.roblox.com/v1/games?universeIds=" .. game.GameId
 		local imported = game:HttpGet(gameURL)
-		local decoded = game.HttpService:JSONDecode(imported)
+		local decoded = HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
 		module.UpdateText("CCU", format(gameInfo.playing, false, true, 3))
 		module.UpdateText("Visits", format(gameInfo.visits, false, true, 3))
@@ -5425,7 +5457,7 @@ end)
 registerCommand("serverhop", function(args, speaker)
 	local servers = {}
 	local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true")
-	local body = game.HttpService:JSONDecode(req)
+	local body = HttpService:JSONDecode(req)
 
 	if body and body.data then
 		for i, v in next, body.data do
@@ -5436,7 +5468,7 @@ registerCommand("serverhop", function(args, speaker)
 	end
 
 	if #servers > 0 then
-		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
 	else
 		return notify(nil, "Could't find a server.")
 	end
