@@ -3751,13 +3751,9 @@ local function createEntryForInstance(node, parentGui)
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
-	local index = 0
-	local iconIndex = icons.index[node.Data.ClassName]
-	local success, _ = pcall(function()
-		index = instancesData[node.Data.ClassName].ExplorerIndex or icons.index[node.Data.ClassName]
-		iconIndex = instancesData[node.Data.ClassName].ExplorerIconIndex
-	end)
-	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconIndex*icons.size[1], 0)
+	local index = instancesData[node.Data.ClassName].ExplorerIndex
+	local iconIndex = instancesData[node.Data.ClassName].ExplorerIconIndex
+	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconIndex*16, 0)
 	newTemplate.LayoutOrder = index
 	guiToNode[newTemplate] = node
 	nodeToGui[node] = newTemplate
