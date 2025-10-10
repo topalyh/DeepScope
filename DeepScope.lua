@@ -726,14 +726,12 @@ local function parseXML(xml)
 			local icon = tonumber(block:match("<string name=\"ExplorerImageIndex\">(.-)</string>"))
 			local category = block:match("<string name=\"ClassCategory\">(.-)</string>")
 
-			if order and icon and category then
-				data[name] = {
-					Name = name or "Unknown",
-					ClassCategory = category or "Unknown",
-					ExplorerOrder = order or 9999,
-					ExplorerImageIndex = icon or -1,
-				}
-			end
+			data[name] = {
+				Name = name or "Unknown",
+				ClassCategory = category or "Unknown",
+				ExplorerOrder = order or 9999,
+				ExplorerImageIndex = icon or -1,
+			}
 		end
 	end
 
