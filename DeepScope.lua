@@ -730,7 +730,7 @@ local function parseXML(xml)
 				Name = name or "Unknown",
 				ClassCategory = category or "Unknown",
 				ExplorerOrder = order or 9999,
-				ExplorerImageIndex = icon or -1,
+				ExplorerIconOffset = Vector2.new(icon*16 or 0, 0),
 			}
 		end
 	end
@@ -3732,15 +3732,18 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-	local instancesData = fetchRMD()
-	
 	local newTemplate = template:Clone()
-	local index = instancesData[node.Data.ClassName].ExplorerOrder
-	local iconIndex = instancesData[node.Data.ClassName].ExplorerImageIndex
+	
+	local instancesData = fetchRMD()
+	local classData = instancesData[node.Data.ClassName]
+
+	local index = classData and classData.ExplorerOrder or 9999
+	local iconOffset = classData and classData.ExplorerIconOffset or Vector2.new(0, 0)
+
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
 	newTemplate.mainframe.name.Text = node.Data.Name
-	newTemplate.mainframe.icon.ImageRectOffset = Vector2.new(iconIndex*16, 0)
+	newTemplate.mainframe.icon.ImageRectOffset = iconOffset
 	newTemplate.LayoutOrder = index
 	guiToNode[newTemplate] = node
 	nodeToGui[node] = newTemplate
