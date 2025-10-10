@@ -698,20 +698,20 @@ local function fromJSONFONT(str)
 	return Font.new(font)
 end
 local function base64Decode(a)
-	local b = '\65\66\67\68\69\70\71\72\73\74\75\76\77\78\79\80\81\82\83\84\85\86\87\88\89\90\97\98\99\100\101\102\103\104\105\106\107\108\109\110\111\112\113\114\115\116\117\118\119\120\121\122\48\49\50\51\52\53\54\55\56\57\43\47'
-	a = a:gsub('\91\94'..b..'\61\93', '')
-	return (a:gsub('\44', function(c)
-		if c == '\61' then return '' end
+	local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+	a = a:gsub('[^'..b..'=]', '')
+	return (a:gsub(',', function(c)
+		if c == '=' then return '' end
 		local d, f = '', (b:find(c) - 1)
 		for g = 6, 1, -1 do
-			d = d .. (f % 2^g - f % 2^(g-1) > 0 and '\49' or '\48')
+			d = d .. (f % 2^g - f % 2^(g-1) > 0 and '1' or '0')
 		end
 		return d
-	end):gsub('\37\100\37\100\37\100\63\37\100\63\37\100\63\37\100\63\37\100\63\37\100\63', function(h)
+	end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(h)
 		if #h ~= 8 then return '' end
 		local j = 0
 		for k = 1, 8 do
-			j = j + (h:sub(k,k) == '\49' and 2^(8 - k) or 0)
+			j = j + (h:sub(k,k) == '1' and 2^(8 - k) or 0)
 		end
 		return string.char(j)
 	end))
@@ -807,10 +807,56 @@ local currentUIColor = Color3.fromHSV(0.722222, 0.018181, 0.647058)
 local usingSlider = {
 	enabled = false
 }
+local logConfig = {
+	colors = {
+		normal = {204, 204, 204},
+		info = {97, 161, 241},
+		error = {255, 0, 0},
+		warn = {255, 115, 21}
+	},
+	stringFormat = "%s - %s  -  %s",
+	messages = 0,
+}
+local function AddLog(text, sourse, type)
+	if not type then type = "normal" end
+	repeat wait() until logList
+	local gui = createInstance("TextLabel", {
+		Name = "log",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, -15, 0, 20),
+		FontFace = Font.new(fonts.FiraSans, Enum.FontWeight.Medium),
+		Text = "\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61",
+		TextColor3 = Color3.fromRGB(204, 204, 204),
+		TextSize = 19,
+		RichText = true,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Visible = false
+	})
+	local gui2 = createInstance("UIPadding", {
+		Parent = gui,
+		PaddingLeft = UDim.new(0, 5)
+	})
+	local timeNow = os.date("%H:%M:%S", tick())
+	local ok, textResult = pcall(function()
+		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
+	end)
+	logConfig.messages += 1
+	local newTemplate = gui:Clone()
+	newTemplate.Parent = logList
+	newTemplate.Name = "log"..logConfig.messages
+	newTemplate.LayoutOrder = -logConfig.messages
+	newTemplate.Visible = true
+	if ok then
+		newTemplate.Text = textResult
+	else
+		newTemplate.Text = timeNow.."  game.ReplicatedStorage._DeepScopeCore.Logs:4727: "..textResult.."  -  DeepScope"
+	end
+end
 local guiToNode = setmetatable({}, {__mode = "k"})
 local function initFileSystem()
 	if makefolder and isfolder and writefile and isfile then
-		pcall(function()
+		local success, err = pcall(function()
 			local folders = {
 				"DeepScopeCore",
 				"DeepScopeCore/Properties",
@@ -823,8 +869,9 @@ local function initFileSystem()
 				"DeepScopeCore/Logs.txt",
 				"DeepScopeCore/Properties/Instances.dsf",
 				"DeepScopeCore/Executor/SavedScripts.dsf",
-				"DeepScopeCore/Explorer/RMD.dsf",
-				"DeepScopeCore/Explorer/API.dsf"
+				"DeepScopeCore/Explorer/RMD.json",
+				"DeepScopeCore/Explorer/API.json",
+				"DeepScopeCore/Explorer/StudioIcons.png"
 			}
 			for _, v in ipairs(folders) do
 				if not isfolder(v) then
@@ -840,6 +887,9 @@ local function initFileSystem()
 				end
 			end
 		end)
+		if not success and err then
+			AddLog("Failed to create fy")
+		end
 	end
 end
 local function writeinfo(fileName, data)
@@ -847,28 +897,12 @@ local function writeinfo(fileName, data)
 	local content = isJSON and game:GetService("HttpService"):JSONEncode(data) or data
 	writefile(fileName, content)
 end
-local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\116\111\112\97\108\121\104\47\68\101\101\112\83\99\111\112\101\47\114\101\102\115\47\104\101\97\100\115\47\109\97\105\110\47\67\108\97\115\115\73\109\97\103\101\115\46\80\78\71")
-if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103") then
-	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\83\116\117\100\105\111\73\99\111\110\115\46\112\110\103", _)
-end
-local _ = game:HttpGet("\104\116\116\112\115\58\47\47\97\110\97\109\105\110\117\115\46\103\105\116\104\117\98\46\105\111\47\114\98\120\47\106\115\111\110\47\97\112\105\47\108\97\116\101\115\116\46\106\115\111\110")
-if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\65\80\73\46\100\115\102") then
-	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\65\80\73\46\100\115\102", _)
-end
-local _ = game:HttpGet("\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\67\108\111\110\101\84\114\111\111\112\101\114\49\48\49\57\47\82\111\98\108\111\120\45\67\108\105\101\110\116\45\84\114\97\99\107\101\114\47\114\111\98\108\111\120\47\82\101\102\108\101\99\116\105\111\110\77\101\116\97\100\97\116\97\46\120\109\108")
-if not isfile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\82\77\68\46\100\115\102") then
-	writefile("\68\101\101\112\83\99\111\112\101\67\111\114\101\47\69\120\112\108\111\114\101\114\47\82\77\68\46\100\115\102", HttpService:JSONEncode(parseXML(_)))
-end
-local logConfig = {
-	colors = {
-		normal = {204, 204, 204},
-		info = {97, 161, 241},
-		error = {255, 0, 0},
-		warn = {255, 115, 21}
-	},
-	stringFormat = "%s - %s  -  %s",
-	messages = 0,
-}
+local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
+local api = game:HttpGet("https://anaminus.github.io/rbx/json/api/latest.json")
+local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
+writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
+writefile("DeepScopeCore/Explorer/API.json", api)
+writefile("DeepScopeCore/Explorer/RMD.json", HttpService:JSONEncode(parseXML(rmd)))
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
@@ -927,42 +961,6 @@ local function generateRandomString()
 		table.insert(array, characters:sub(index, index))
 	end
 	return table.concat(array)
-end
-local function AddLog(text, sourse, type)
-	if not type then type = "normal" end
-	repeat wait() until logList
-	local gui = createInstance("TextLabel", {
-		Name = "log",
-		BackgroundTransparency = 1,
-		Size = UDim2.new(1, -15, 0, 20),
-		FontFace = Font.new(fonts.FiraSans, Enum.FontWeight.Medium),
-		Text = "\97\87\89\103\101\87\57\49\73\72\78\108\90\83\66\48\97\71\108\122\76\67\66\107\98\50\53\48\73\71\86\52\99\71\120\118\97\88\81\103\89\87\53\53\98\87\57\121\90\83\69\61",
-		TextColor3 = Color3.fromRGB(204, 204, 204),
-		TextSize = 19,
-		RichText = true,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Visible = false
-	})
-	local gui2 = createInstance("UIPadding", {
-		Parent = gui,
-		PaddingLeft = UDim.new(0, 5)
-	})
-	local timeNow = os.date("%H:%M:%S", tick())
-	local ok, textResult = pcall(function()
-		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
-	end)
-	logConfig.messages += 1
-	local newTemplate = gui:Clone()
-	newTemplate.Parent = logList
-	newTemplate.Name = "log"..logConfig.messages
-	newTemplate.LayoutOrder = -logConfig.messages
-	newTemplate.Visible = true
-	if ok then
-		newTemplate.Text = textResult
-	else
-		newTemplate.Text = timeNow.."  game.ReplicatedStorage._DeepScopeCore.Logs:4727: "..textResult.."  -  DeepScope"
-	end
 end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
@@ -3484,16 +3482,7 @@ local nodesBuilt = {}
 local templates = {}
 
 local function fetchRMD()
-	local success, result = pcall(function()
-		return readfile("DeepScopeCore/Explorer/RMD.dsf")
-	end)
-	if success then
-		local data = game:GetService("HttpService"):JSONDecode(result)
-		return data
-	else
-		AddLog("Failed to fetch RMD.", "DeepScope", "error")
-		return nil
-	end
+	return HttpService:JSONDecode(readfile("DeepScopeCore/Explorer/RMD.json"))
 end
 
 local function buildExplorerData(instance)
