@@ -39,6 +39,7 @@ local LocalPlayer = cloneref(game:GetService("Players")).LocalPlayer
 local GuiService = cloneref(game:GetService("GuiService"))
 local TweenService = cloneref(game:GetService("TweenService"))
 local HttpService = cloneref(game:GetService("HttpService"))
+local CurrentCamera = cloneref(game:GetService("Workspace")).CurrentCamera
 repeat wait() until LocalPlayer.Character
 local suffixes = {
 	"",
@@ -645,6 +646,10 @@ local executorConfig = {
 		{"nil", "false", "true"},
 		"<font color='rgb(255,198,0)'><b>%s</b></font>"
 	},
+	operators = {
+		{"#", "+", "-", "*", "%", "/", "^", "=", "~", "=", "<", ">", ",", ".", "(", ")", "{", "}", "[", "]", ";", ":"},
+		"<font color='rgb(204,204,204)'>%s</font>"
+	},
 	textColor = Color3.fromRGB(204,204,204),
 	backgroundColor = Color3.fromRGB(37,37,37),
 	commentColor = Color3.fromRGB(102,102,102),
@@ -656,6 +661,7 @@ local executorConfig = {
 	propColor = Color3.fromRGB(0,139,219),
 	keywordColor = Color3.fromRGB(248,109,124),
 	boolsColor = Color3.fromRGB(255,198,0),
+	exploitColor = Color3.fromRGB(171,84,247),
 	font = Font.new(fonts.BuilderMono),
 	TextSize = 15,
 }
@@ -835,7 +841,7 @@ local function AddLog(text, sourse, type)
 		Parent = gui,
 		PaddingLeft = UDim.new(0, 5)
 	})
-	local timeNow = os.date("%H:%M:%S", tick())
+	local timeNow = os.date("%H:%M:%S")
 	local ok, textResult = pcall(function()
 		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
@@ -857,8 +863,8 @@ local function initFileSystem()
 		local success, err = pcall(function()
 			local folders = {
 				"DeepScopeCore",
-				"DeepScopeCore/Properties",
 				"DeepScopeCore/Explorer",
+				"DeepScopeCore/Properties",
 				"DeepScopeCore/Executor",
 			}
 			local files = {
@@ -880,13 +886,13 @@ local function initFileSystem()
 
 			for _, v in ipairs(files) do
 				if not isfile(v) then
-					writefile(v)
+					writefile(v, "")
 					print("created file",v)
 				end
 			end
 		end)
 		if not success and err then
-			AddLog("Failed to create fy")
+			AddLog("Failed to create KFS (Kernel File System)", "DeepScope.Kernel", "error")
 		end
 	end
 end
@@ -929,7 +935,7 @@ local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/re
 local api = game:HttpGet("https://anaminus.github.io/rbx/json/api/latest.json")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
-writefile("DeepScopeCore/Explorer/API.json", api)
+writefile("DeepScopeCore/Explorer/API.json", prettyJSON(api))
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
 local lastVelocity = Vector3.zero
 local lastTime = tick()
@@ -1054,7 +1060,7 @@ local function readData()
 	for _, v in data.UIColor do
 		table.insert(result.UIColor, v)
 	end
-	
+
 	return result
 end
 local modules = {
@@ -1184,7 +1190,7 @@ local modules = {
 
 			Loop = function()
 				if Enabled and BodyPos and BodyGyro then
-					local camCF = workspace.CurrentCamera.CFrame
+					local camCF = CurrentCamera.CFrame
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
 					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed
 
@@ -1493,9 +1499,18 @@ local modules = {
 							end
 						end
 						if table.find({
-								"writefile","readfile","isfile","makefolder","isfolder",
-								"movefileas"
+							"hookmetamethod","hookfunction","getgc","filtergc","Drawing",
+							"getgenv","getsenv","getrenv","getfenv","setfenv",
+							"decompile","saveinstance", "getrawmetatable", "setrawmetatable", "checkcaller",
+							"cloneref","clonefunction", "iscclosure","islclosure","isexecutorclosure",
+							"newcclosure","getfunctionhash", "crypt","writefile","appendfile",
+							"loadfile","readfile", "listfiles","makefolder","isfolder",
+							"isfile","delfile","delfolder", "getcustomasset","fireclickdetector",
+							"firetouchinterest","fireproximityprompt"
 							}, word) then
+							if afterWord == "(" then
+								colored = string.format("<font color='%s'><b>%s</b></font>", "#"..executorConfig.exploitColor:ToHex(), word)
+							end
 						end
 						if table.find(executorConfig.keywords[1], word) then
 							colored = string.format("<font color='%s'><b>%s</b></font>","#"..executorConfig.keywordColor:ToHex(), word)
@@ -1506,8 +1521,8 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif code:match("^Enum%.[%w_]+%.[%w_]+") then
-						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)")
+					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
+						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
 						local result = string.format(
 							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
 							"#"..executorConfig.libColor:ToHex(), enum,
@@ -3729,12 +3744,12 @@ local function createEntryForInstance(node, parentGui)
 		ZIndex = 0
 	})
 	local newTemplate = template:Clone()
-	
+
 	local instancesData = fetchRMD()
 	local classData = instancesData[node.Data.ClassName]
 
 	local index = classData and classData.ExplorerOrder or 9999
-	local iconOffset = classData and classData.ExplorerIconOffset or Vector2.new(0, 0)
+	local iconOffset = classData and Vector2.new(classData.ExplorerIconOffset, 0) or Vector2.new(0, 0)
 
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -3890,9 +3905,9 @@ local function setExplorer()
 		end
 	end)
 	local MIN_WIDTH, MIN_HEIGHT = 240, 32
-	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
-	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
+	local MAX_WIDTH, MAX_HEIGHT = CurrentCamera.ViewportSize.X-100, CurrentCamera.ViewportSize.Y-100
+	CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		MAX_WIDTH, MAX_HEIGHT = CurrentCamera.ViewportSize.X-100, CurrentCamera.ViewportSize.Y-100
 	end)
 	explorer.resizebottom.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -4186,16 +4201,16 @@ local function setColorPicker(color, gui)
 		if slider:IsA("Frame") then
 			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
 				state.sliderInfo.active = slider
-				
+
 				if state.sliderInfo.conn then
 					state.sliderInfo.conn:Disconnect()
 				end
-				
+
 				state.sliderInfo.conn = game:GetService("RunService").RenderStepped:Connect(function()
 					local mouseX = getMousePos().X
 					local relative = (mouseX - slider.AbsolutePosition.X) / slider.AbsoluteSize.X
 					local val = math.clamp(relative, 0, 1)
-					
+
 					local name = slider.Name:sub(1, 1):lower()
 					if name == "r" or name == "g" or name == "b" then
 						state[name] = math.round(val * 255)
@@ -4251,7 +4266,7 @@ local function setColorPicker(color, gui)
 			state.h, state.s, state.v = h, s, v
 			state.r, state.g, state.b = math.round(c.R * 255), math.round(c.G * 255), math.round(c.B * 255)
 			state.c, state.m, state.y, state.k = c, m, y, k
-			
+
 			updateVisuals()
 		end
 	end))
@@ -4274,9 +4289,9 @@ local function setLogMenu()
 	local logMenu = newgui.Parent.logs
 	logMenu.Visible = true
 	local MIN_WIDTH, MIN_HEIGHT = 170, 20
-	local MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
-	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		MAX_WIDTH, MAX_HEIGHT = workspace.CurrentCamera.ViewportSize.X-100, workspace.CurrentCamera.ViewportSize.Y-100
+	local MAX_WIDTH, MAX_HEIGHT = CurrentCamera.ViewportSize.X-100, CurrentCamera.ViewportSize.Y-100
+	CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		MAX_WIDTH, MAX_HEIGHT = CurrentCamera.ViewportSize.X-100, CurrentCamera.ViewportSize.Y-100
 	end)
 	logMenu.resizebottom.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -5677,12 +5692,12 @@ while true do
 							LocalPlayer.Character:SetPrimaryPartCFrame(player.PrimaryPart.CFrame * CFrame.new(0, 0, -3) * CFrame.Angles(0, math.pi, 0))
 						end
 						pcall(function()
-							workspace.CurrentCamera.CameraSubject = player.Humanoid
+							CurrentCamera.CameraSubject = player.Humanoid
 						end)
 					end
 				else
 					pcall(function()
-						workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
+						CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
 					end)
 					cheatEnabled = false
 				end
@@ -5705,7 +5720,7 @@ while true do
 						/player.Humanoid.WalkSpeed)..":1"
 			end)
 		else
-			workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
+			CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
 			cheatEnabled = false
 		end
 	else
