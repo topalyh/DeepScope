@@ -1521,16 +1521,55 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
-						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
+						-- 🔹 Подсветка типизированных функций (аргументы + возвращаемый тип)
+					elseif c:match("^function%s+[%w_]+%s*%b()") then
+						local full = c:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)")
+						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
+
+						-- Подсветим аргументы с типами
+						local highlightedArgs = args:gsub("([%w_]+)%s*:%s*([%w_]+)", function(argName, argType)
+							return string.format(
+								"<font color='%s'>%s</font><font color='%s'>: %s</font>",
+								"#" .. executorConfig.textColor:ToHex(),
+								argName,
+								"#" .. executorConfig.libColor:ToHex(),
+								argType
+							)
+						end)
+
 						local result = string.format(
-							"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
-							"#"..executorConfig.libColor:ToHex(), enum,
-							"#"..executorConfig.libColor:ToHex(), category,
-							"#"..executorConfig.propColor:ToHex(), value
+							"<font color='%s'><b>function</b></font> <font color='%s'>%s</font>(%s)",
+							"#" .. executorConfig.keywordColor:ToHex(),
+							"#" .. executorConfig.funcColor:ToHex(),
+							funcName,
+							highlightedArgs
 						)
+
+						-- Добавляем возвращаемый тип, если есть
+						if returnType and #returnType > 0 then
+							result ..= string.format("<font color='%s'>: %s</font>",
+								"#" .. executorConfig.libColor:ToHex(),
+								returnType
+							)
+						end
+
 						table.insert(tokens, result)
-						pos = pos + (enum.."."..category.."."..value)
+						pos = pos + #full
+					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
+						-- Enum.Class.Value
+						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
+						if enum and category and value then
+							local result = string.format(
+								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
+								"#" .. executorConfig.libColor:ToHex(), enum,
+								"#" .. executorConfig.libColor:ToHex(), category,
+								"#" .. executorConfig.propColor:ToHex(), value
+							)
+							table.insert(tokens, result)
+							pos = pos + #("Enum." .. category .. "." .. value)
+						else
+							table.insert(tokens, c)
+						end
 					else
 						table.insert(tokens, c)
 						pos = pos + 1
