@@ -948,7 +948,7 @@ print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
 print("RMD Loaded!")
 print("------------------------------------------------------")
-print("Fully loaded! Time took:",time-tick())
+print("Fully loaded! Time took:",tick()-time)
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
@@ -1444,6 +1444,16 @@ local modules = {
 						local str = code:sub(pos, closing)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
 						pos = closing + 1
+					elseif code:sub(pos, pos+1) == "[[" then
+						local closing = code:find("]]", pos+2, true) or len
+						local str = code:sub(pos, closing+1)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
+						pos = closing + 2
+					elseif code:sub(pos, pos+1) == "--" then
+						local closing = code:find("\n", pos+2, true) or (len + 1)
+						local com = code:sub(pos, closing-1)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), com))
+						pos = closing
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.numberColor:ToHex(), num))
@@ -1533,8 +1543,8 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif c:match("^function%s+[%w_]+%s*%b()") then
-						local full = c:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)")
+					elseif code:match("^function%s+[%w_]+%s*%b()", pos) then
+						local full = code:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)", pos)
 						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
 
 						local highlightedArgs = args:gsub("([%w_]+)%s*:%s*([%w_]+)", function(argName, argType)
@@ -1564,8 +1574,8 @@ local modules = {
 
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
-						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
+						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						if enum and category and value then
 							local result = string.format(
 								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
