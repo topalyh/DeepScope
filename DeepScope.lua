@@ -1,7 +1,6 @@
 print("Loading DS...")
 if DS_LOADED then return end
 pcall(function() getgenv().DS_LOADED = true end)
-print("Loaded!")
 local function createInstance(name, tbl)
 	local any = Instance.new(name)
 	for i, v in tbl do
@@ -859,6 +858,7 @@ local function AddLog(text, sourse, type)
 end
 local guiToNode = setmetatable({}, {__mode = "k"})
 local function initFileSystem()
+	print("Loading KFS...")
 	if makefolder and isfolder and writefile and isfile then
 		local success, err = pcall(function()
 			local folders = {
@@ -895,6 +895,7 @@ local function initFileSystem()
 			AddLog("Failed to create KFS (Kernel File System)", "DeepScope.Kernel", "error")
 		end
 	end
+	print("KFS Loaded!")
 end
 local function writeinfo(fileName, data)
 	local isJSON = fileName:match("DeepScopeCore/(.-)%.json$") ~= nil
@@ -932,11 +933,17 @@ local function prettyJSON(tbl, indent)
 	end
 end
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
+print("Loading Explorer Icons...")
 local api = game:HttpGet("https://anaminus.github.io/rbx/json/api/latest.json")
+print("Loading Properties API...")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
+print("Loading Rmd...")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
+print("Explorer Icons Loaded!")
 writefile("DeepScopeCore/Explorer/API.json", prettyJSON(api))
+print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
+print("RMD Loaded!")
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
@@ -1521,12 +1528,10 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-						-- 🔹 Подсветка типизированных функций (аргументы + возвращаемый тип)
 					elseif c:match("^function%s+[%w_]+%s*%b()") then
 						local full = c:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)")
 						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
 
-						-- Подсветим аргументы с типами
 						local highlightedArgs = args:gsub("([%w_]+)%s*:%s*([%w_]+)", function(argName, argType)
 							return string.format(
 								"<font color='%s'>%s</font><font color='%s'>: %s</font>",
@@ -1545,7 +1550,6 @@ local modules = {
 							highlightedArgs
 						)
 
-						-- Добавляем возвращаемый тип, если есть
 						if returnType and #returnType > 0 then
 							result ..= string.format("<font color='%s'>: %s</font>",
 								"#" .. executorConfig.libColor:ToHex(),
@@ -1556,7 +1560,6 @@ local modules = {
 						table.insert(tokens, result)
 						pos = pos + #full
 					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
-						-- Enum.Class.Value
 						local enum, category, value = c:match("^(Enum)%.([%w_]+)%.([%w_]+)")
 						if enum and category and value then
 							local result = string.format(
