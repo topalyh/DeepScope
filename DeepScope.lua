@@ -1,4 +1,5 @@
 print("Loading DS...")
+local time = tick()
 if DS_LOADED then return end
 pcall(function() getgenv().DS_LOADED = true end)
 local function createInstance(name, tbl)
@@ -932,6 +933,8 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
+print("------------------------------------------------------")
+initFileSystem()
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 print("Loading Explorer Icons...")
 local api = game:HttpGet("https://anaminus.github.io/rbx/json/api/latest.json")
@@ -944,6 +947,8 @@ writefile("DeepScopeCore/Explorer/API.json", prettyJSON(api))
 print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
 print("RMD Loaded!")
+print("------------------------------------------------------")
+print("Fully loaded! Time took:",time-tick())
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
