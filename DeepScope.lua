@@ -1543,7 +1543,7 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif code:match("^function%s+[%w_]+%s*%b()", pos) then
+					elseif c:match("^function%s+[%w_]+%s*%b()") then
 						local full = code:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)", pos)
 						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
 
@@ -1574,7 +1574,7 @@ local modules = {
 
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
+					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
 						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						if enum and category and value then
 							local result = string.format(
@@ -5813,3 +5813,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
