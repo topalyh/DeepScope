@@ -3698,7 +3698,7 @@ local function applySelection(instance)
 	selectionBox.Parent = workspace
 	selectionBox.Name = generateRandomString()
 end
-
+local instancesData = fetchRMD()
 local function createEntryForInstance(node, parentGui)
 	local template = createInstance("Frame", {
 		Parent = nil,
@@ -3814,10 +3814,7 @@ local function createEntryForInstance(node, parentGui)
 		ZIndex = 0
 	})
 	local newTemplate = template:Clone()
-
-	local instancesData = fetchRMD()
 	local classData = instancesData[node.Data.ClassName]
-
 	local index = classData and classData.ExplorerOrder or 9999
 	local iconOffset = classData and Vector2.new(classData.ExplorerIconOffset, 0) or Vector2.new(0, 0)
 
@@ -3853,30 +3850,53 @@ local function createEntryForInstance(node, parentGui)
 		dropdown:Destroy()
 	end
 	templates[newTemplate] = newTemplate
-	newTemplate:GetAttributeChangedSignal("Selected"):Connect(function()
-		newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("SelectedColor")
-		selectedObject = node.Instance
-		applySelection(selectedObject)
-	end)
-	newTemplate.activateregion.MouseEnter:Connect(function()
+	local function selectTemplate(template)
 		for _, v in templates do
-			if not newTemplate:GetAttribute("Selected") then
-				v.mainframe.BackgroundColor3 = v.mainframe:GetAttribute("NormalColor")
+			v:SetAttribute("Selected", false)
+			v.mainframe.BackgroundColor3 = v.mainframe:GetAttribute("NormalColor")
+		end
+		template:SetAttribute("Selected", true)
+		template.mainframe.BackgroundColor3 = template.mainframe:GetAttribute("SelectedColor")
+		selectedObject = template.Instance
+		applySelection(selectedObject)
+	end
+
+	UserInputService.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local mousePos = UserInputService:GetMouseLocation()
+			local objects = game:GetService("GuiService"):GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+			for _, obj in objects do
+				for _, template in templates do
+					if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
+						selectTemplate(template)
+						return
+					end
+				end
 			end
-			v.mainframe.add.Visible = false
 		end
-		if not newTemplate:GetAttribute("Selected") then
-			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("HoverColor")
-		else
-			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("SelectedColor")
+	end)
+
+	RunService.RenderStepped:Connect(function()
+		local mousePos = UserInputService:GetMouseLocation()
+		local objects = game:GetService("GuiService"):GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+		local hoveredTemplate = nil
+
+		for _, obj in objects do
+			for _, template in templates do
+				if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
+					hoveredTemplate = template
+					break
+				end
+			end
 		end
-		newTemplate.mainframe.add.Visible = true
-	end)
-	newTemplate.activateregion.MouseButton1Click:Connect(function()
-		newTemplate:SetAttribute("Selected", true)
-	end)
-	newTemplate.activateregion.MouseLeave:Connect(function()
-		newTemplate.mainframe.add.Visible = false
+
+		for _, template in templates do
+			local isSelected = template:GetAttribute("Selected")
+			local colorAttr = isSelected and "SelectedColor"
+				or (template == hoveredTemplate and "HoverColor" or "NormalColor")
+			template.mainframe.BackgroundColor3 = template.mainframe:GetAttribute(colorAttr)
+			template.mainframe.add.Visible = (template == hoveredTemplate)
+		end
 	end)
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
