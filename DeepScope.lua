@@ -3853,7 +3853,7 @@ local function createEntryForInstance(node, parentGui)
 		dropdown:Destroy()
 	end
 	templates[newTemplate] = newTemplate
-	newTemplate:GetPropertyAttributeSignal("Selected"):Connect(function()
+	newTemplate:GetAttributeChangedSignal("Selected"):Connect(function()
 		newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("SelectedColor")
 		selectedObject = node.Instance
 		applySelection(selectedObject)
