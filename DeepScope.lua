@@ -3877,8 +3877,8 @@ local function createEntryForInstance(node, parentGui)
 	end)
 
 	RunService.RenderStepped:Connect(function()
-		local mousePos = UserInputService:GetMouseLocation()
-		local objects = game:GetService("GuiService"):GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+		local mousePos = getMousePos()
+		local objects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
 		local hoveredTemplate = nil
 
 		for _, obj in objects do
