@@ -859,7 +859,7 @@ local function AddLog(text, sourse, type)
 end
 local guiToNode = setmetatable({}, {__mode = "k"})
 local function initFileSystem()
-	print("Loading KFS...")
+	print("Loading Kernel File System...")
 	if makefolder and isfolder and writefile and isfile then
 		local success, err = pcall(function()
 			local folders = {
@@ -882,6 +882,8 @@ local function initFileSystem()
 				if not isfolder(v) then
 					makefolder(v)
 					print("created folder",v)
+				else
+					print(("folder \"%s\" is already created"):format(v))
 				end
 			end
 
@@ -889,6 +891,8 @@ local function initFileSystem()
 				if not isfile(v) then
 					writefile(v, "")
 					print("created file",v)
+				else
+					print(("file \"%s\" is already created"):format(v))
 				end
 			end
 		end)
@@ -896,7 +900,7 @@ local function initFileSystem()
 			AddLog("Failed to create KFS (Kernel File System)", "DeepScope.Kernel", "error")
 		end
 	end
-	print("KFS Loaded!")
+	print("Kernel File System Loaded!")
 end
 local function writeinfo(fileName, data)
 	local isJSON = fileName:match("DeepScopeCore/(.-)%.json$") ~= nil
@@ -943,7 +947,7 @@ local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Rob
 print("Loading Rmd...")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 print("Explorer Icons Loaded!")
-writefile("DeepScopeCore/Explorer/API.json", prettyJSON(api))
+writefile("DeepScopeCore/Explorer/API.json", api)
 print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
 print("RMD Loaded!")
@@ -1543,7 +1547,7 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif c:match("^function%s+[%w_]+%s*%b()") then
+					elseif code:match("^function%s+[%w_]+%s*%b()", pos) then
 						local full = code:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)", pos)
 						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
 
@@ -1574,7 +1578,7 @@ local modules = {
 
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif c:match("^Enum%.[%w_]+%.[%w_]+") then
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
 						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
 						if enum and category and value then
 							local result = string.format(
@@ -3686,6 +3690,15 @@ local function attachPropertyListeners(instance, node)
 	end)
 end
 
+local function applySelection(instance)
+	local selectionBox = Instance.new("SelectionBox")
+	selectionBox.Adornee = instance
+	selectionBox.Color3 = Color3.fromRGB(85, 255, 255)
+	selectionBox.LineThickness = 0.025
+	selectionBox.Parent = workspace
+	selectionBox.Name = generateRandomString()
+end
+
 local function createEntryForInstance(node, parentGui)
 	local template = createInstance("Frame", {
 		Parent = nil,
@@ -3840,6 +3853,11 @@ local function createEntryForInstance(node, parentGui)
 		dropdown:Destroy()
 	end
 	templates[newTemplate] = newTemplate
+	newTemplate:GetPropertyAttributeSignal("Selected"):Connect(function()
+		newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("SelectedColor")
+		selectedObject = node.Instance
+		applySelection(selectedObject)
+	end)
 	newTemplate.activateregion.MouseEnter:Connect(function()
 		for _, v in templates do
 			if not newTemplate:GetAttribute("Selected") then
@@ -3858,9 +3876,6 @@ local function createEntryForInstance(node, parentGui)
 		newTemplate:SetAttribute("Selected", true)
 	end)
 	newTemplate.activateregion.MouseLeave:Connect(function()
-		if not newTemplate:GetAttribute("Selected") then
-			newTemplate.mainframe.BackgroundColor3 = newTemplate.mainframe:GetAttribute("NormalColor")
-		end
 		newTemplate.mainframe.add.Visible = false
 	end)
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
@@ -3869,7 +3884,7 @@ end
 
 local function buildChildrenNodes(instance, parentNode, parentGui)
 	local node = {
-		Instance = instance, -- привязка напрямую!
+		Instance = instance,
 		Data = {
 			Name = instance.Name,
 			ClassName = instance.ClassName,
@@ -3878,29 +3893,23 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 		Children = {}
 	}
 
-	-- создаём PropertiesData
 	nodeToProps[node] = makeProperties(instance)
 
-	-- UI элемент
 	local entry = createEntryForInstance(node, parentGui)
 	guiToNode[entry] = node
 	nodeToGui[node] = entry
 
-	-- слушаем изменения Name/Parent (переименования и перемещения)
 	attachPropertyListeners(instance, node)
 
-	-- слушаем появление детей
 	instance.ChildAdded:Connect(function(child)
 		local childNode = buildChildrenNodes(child, node, entry.dropdown)
 		table.insert(node.Children, childNode)
 		recalcAndPropagateSize(entry)
 	end)
 
-	-- слушаем удаление детей
 	instance.ChildRemoved:Connect(function(child)
 		for i, childNode in ipairs(node.Children) do
-			if childNode.Instance == child then -- сравнение по объекту!
-				-- удаляем UI
+			if childNode.Instance == child then
 				local gui = nodeToGui[childNode]
 				if gui then
 					gui:Destroy()
@@ -3908,7 +3917,6 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 				end
 				nodeToGui[childNode] = nil
 
-				-- удаляем Properties
 				nodeToProps[childNode] = nil
 
 				table.remove(node.Children, i)
@@ -3918,7 +3926,6 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 		end
 	end)
 
-	-- рекурсивно создаём дочерние ноды
 	for _, child in ipairs(instance:GetChildren()) do
 		local childNode = buildChildrenNodes(child, node, entry.dropdown)
 		table.insert(node.Children, childNode)
@@ -4187,7 +4194,6 @@ local function setColorPicker(color, gui)
 	picker.Parent = newgui.Parent
 	picker.Visible = true
 
-	-- локальное состояние
 	local state = {
 		gui = gui,
 		h = 0, s = 0, v = 1,
@@ -4200,7 +4206,6 @@ local function setColorPicker(color, gui)
 		sliderInfo = {active = nil, conn = nil},
 	}
 
-	-- если цвет передан
 	if color then
 		state.h, state.s, state.v = color:ToHSV()
 		state.r, state.g, state.b = math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255)
@@ -4208,7 +4213,6 @@ local function setColorPicker(color, gui)
 		state.h2, state.s2, state.l = modules.other.colorTranslations.rgbToHSL(state.r, state.g, state.b)
 	end
 
-	-- обновление визуалов
 	local function updateVisuals()
 		local color3 = Color3.fromHSV(state.h, state.s, state.v)
 		picker.middlebar.result.color.BackgroundColor3 = color3
@@ -4218,7 +4222,6 @@ local function setColorPicker(color, gui)
 		picker.picker.triangle.ImageColor3 = Color3.fromHSV(state.h, 1, 1)
 		picker.picker.square.BackgroundColor3 = Color3.fromHSV(state.h, 1, 1)
 
-		-- обновляем слайдеры
 		local function updateSlider(slider, val, seq)
 			slider.pointer.Position = modules.slider.GetPointerPositionFromColor(val, seq, slider)
 		end
@@ -4245,15 +4248,12 @@ local function setColorPicker(color, gui)
 			ColorSequenceKeypoint.new(1, Color3.new(state.r/255,state.g/255,1))
 		}))
 
-		-- обновляем превью в самой настройке
 		state.gui.BackgroundColor3 = color3
 		state.gui.Parent.Text = string.format("[%d, %d, %d]", state.r, state.g, state.b)
 	end
 
-	-- соединения
 	local connections = {}
 
-	-- привязка слайдеров
 	for _, slider in picker.sliders:GetChildren() do
 		if slider:IsA("Frame") then
 			table.insert(connections, slider.activateregion.MouseButton1Down:Connect(function()
@@ -4303,7 +4303,6 @@ local function setColorPicker(color, gui)
 			state.sliderInfo = {active = nil, conn = nil}
 		end
 	end))
-	-- перетаскивание окна
 	table.insert(connections, RunService.RenderStepped:Connect(function()
 		if not state.active then return end
 
@@ -4328,7 +4327,6 @@ local function setColorPicker(color, gui)
 		end
 	end))
 
-	-- закрытие
 	table.insert(connections, picker.options.close.MouseButton1Click:Connect(function()
 		state.active = false
 		local finalColor = Color3.fromHSV(state.h, state.s, state.v)
@@ -5813,4 +5811,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
