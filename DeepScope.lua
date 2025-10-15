@@ -988,14 +988,14 @@ _createForces = function(hrp)
 	local bp = Instance.new("BodyPosition")
 	bp.MaxForce = Vector3.new(1e10, 1e10, 11e10)
 	bp.D = 500
-	bp.P = 1e4
+	bp.P = 1e7
 	bp.Position = hrp.Position
 	bp.Parent = hrp
 
 	local bg = Instance.new("BodyGyro")
 	bg.MaxTorque = Vector3.new(1e10, 1e10, 1e10)
 	bg.D = 500
-	bg.P = 1e4
+	bg.P = 1e7
 	bg.CFrame = hrp.CFrame
 	bg.Parent = hrp
 
@@ -5831,4 +5831,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
