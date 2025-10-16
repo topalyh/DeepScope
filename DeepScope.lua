@@ -634,21 +634,63 @@ local add_objects = {
 local executorConfig = {
 	keywords = {
 		{
-			"local", "function", "end", "if", "then",
-			"else", "elseif", "for", "while", "repeat",
-			"until", "return", "break", "do", "not",
-			"and", "or", "in", "export", "self",
-			"type"
+			"\101\108\115\101",
+			"\100\111",
+			"\119\104\105\108\101",
+			"\102\117\110\99\116\105\111\110",
+			"\101\110\100",
+			"\115\101\108\102",
+			"\110\111\116",
+			"\116\121\112\101",
+			"\114\101\116\117\114\110",
+			"\101\108\115\101\105\102",
+			"\101\120\112\111\114\116",
+			"\105\102",
+			"\98\114\101\97\107",
+			"\102\111\114",
+			"\117\110\116\105\108",
+			"\105\110",
+			"\116\104\101\110",
+			"\111\114",
+			"\114\101\112\101\97\116",
+			"\97\110\100",
+			"\108\111\99\97\108",
 		},
-		"<font color='rgb(248,109,124)'><b>%s</b></font>"
+		"\60\102\111\110\116\32\99\111\108\111\114\61\39\114\103\98\40\50\52\56\44\49\48\57\44\49\50\52\41\39\62\60\98\62\37\115\60\47\98\62\60\47\102\111\110\116\62"
 	},
 	bools = {
-		{"nil", "false", "true"},
-		"<font color='rgb(255,198,0)'><b>%s</b></font>"
+		{
+			"\116\114\117\101",
+			"\110\105\108",
+			"\102\97\108\115\101",
+		},
+		"\60\102\111\110\116\32\99\111\108\111\114\61\39\114\103\98\40\50\53\53\44\49\57\56\44\48\41\39\62\60\98\62\37\115\60\47\98\62\60\47\102\111\110\116\62"
 	},
 	operators = {
-		{"#", "+", "-", "*", "%", "/", "^", "=", "~", "=", "<", ">", ",", ".", "(", ")", "{", "}", "[", "]", ";", ":"},
-		"<font color='rgb(204,204,204)'>%s</font>"
+		{
+			"\35",
+			"\37",
+			"\41",
+			"\40",
+			"\43",
+			"\42",
+			"\45",
+			"\44",
+			"\47",
+			"\46",
+			"\126",
+			"\59",
+			"\93",
+			"\91",
+			"\125",
+			"\123",
+			"\58",
+			"\61",
+			"\60",
+			"\62",
+			"\94",
+		},
+		"\60\102\111\110\116\32\99\111\108\111\114\61\39\114\103\98\40\50\48\52\44\50\48\52\44\50\48\52\41\39\62\37\115\60\47\102\111\110\116\62"
 	},
 	textColor = Color3.fromRGB(204,204,204),
 	backgroundColor = Color3.fromRGB(37,37,37),
@@ -947,7 +989,7 @@ local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Rob
 print("Loading Rmd...")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 print("Explorer Icons Loaded!")
-writefile("DeepScopeCore/Explorer/API.json", api)
+writefile("DeepScopeCore/Explorer/API.json", prettyJSON(api))
 print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
 print("RMD Loaded!")
@@ -986,16 +1028,16 @@ local function getLineAmount(code)
 end
 _createForces = function(hrp)
 	local bp = Instance.new("BodyPosition")
-	bp.MaxForce = Vector3.new(1e10, 1e10, 11e10)
+	bp.MaxForce = Vector3.new(1e7, 1e7, 1e7)
 	bp.D = 500
 	bp.P = 1e7
 	bp.Position = hrp.Position
 	bp.Parent = hrp
 
 	local bg = Instance.new("BodyGyro")
-	bg.MaxTorque = Vector3.new(1e10, 1e10, 1e10)
+	bg.MaxTorque = Vector3.new(1e7, 1e7, 1e7)
 	bg.D = 500
-	bg.P = 1e7
+	bg.P = 1e4
 	bg.CFrame = hrp.CFrame
 	bg.Parent = hrp
 
@@ -1429,182 +1471,378 @@ local modules = {
 		executor = {
 			highlightLuau = function(code)
 				local tokens = {}
-				local pos = 1
+				local pos = 0x01
 				local len = #code
-
-				if len > 200000 then
-					AddLog("Code overflow, limit is 200000.", "DS Executor", "warn")
+				local _ = "\65\100\100\76\111\103"
+				if len > 0x30D40 then
+					_("\67\111\100\101\32\111\118\101\114\102\108\111\119\44\32\108\105\109\105\116\32\105\115\32\50\48\48\48\48\48\46", "\68\83\32\69\120\101\99\117\116\111\114", "\119\97\114\110")
 					return
 				end
 
-				code = code:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
+				code = code:gsub("\38", "\38\97\109\112\59"):gsub("\60", "\38\108\116\59"):gsub("\62", "\38\103\116\59")
 
 				while pos <= len do
 					local c = code:sub(pos, pos)
 
-					if c == '"' or c == "'" then
-						local closing = code:find(c, pos + 1, true) or (len + 1)
+					if c == '\34' or c == "\39" then
+						local closing = code:find(c, pos + 0x01, true) or (len + 0x01)
 						if closing > len then closing = len end
 						local str = code:sub(pos, closing)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
-						pos = closing + 1
-					elseif code:sub(pos, pos+1) == "[[" then
-						local closing = code:find("]]", pos+2, true) or len
+						table.insert(tokens, string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.stringColor:ToHex(), str))
+						pos = closing + 0x01
+					elseif code:sub(pos, pos+1) == "\91\91" then
+						local closing = code:find("]]", pos+0x02, true) or len
 						local str = code:sub(pos, closing+1)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.stringColor:ToHex(), str))
-						pos = closing + 2
-					elseif code:sub(pos, pos+1) == "--" then
-						local closing = code:find("\n", pos+2, true) or (len + 1)
-						local com = code:sub(pos, closing-1)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), com))
+						table.insert(tokens, string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.stringColor:ToHex(), str))
+						pos = closing + 0x02
+					elseif code:sub(pos, pos+0x01) == "\45\45" then
+						local closing = code:find("\92\110", pos+0x02, true) or (len + 0x01)
+						local com = code:sub(pos, closing-0x01)
+						table.insert(tokens, string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.commentColor:ToHex(), com))
 						pos = closing
-					elseif c:match("%d") then
-						local num = code:match("%d+%.?%d*[eE]?%-?%d*", pos)
-						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.numberColor:ToHex(), num))
+					elseif c:match("\37\100") then
+						local num = code:match("\37\100\43\37\46\63\37\100\42\91\101\69\93\63\37\45\63\37\100\42", pos)
+						table.insert(tokens, string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.numberColor:ToHex(), num))
 						pos = pos + #num
-					elseif code:match("^[%a_]", pos) then
-						local word = code:match("^[%w_]+", pos)
+					elseif code:match("\94\91\37\97\95\93", pos) then
+						local word = code:match("\94\91\37\119\95\93\43", pos)
 						local afterWord = code:sub(pos + #word, pos + #word)
 						local colored = nil
 
-						if afterWord == "(" then
-							colored = string.format("<font color='%s'>%s</font>", "#"..executorConfig.funcColor:ToHex(), word)
+						if afterWord == "\40" then
+							colored = string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.funcColor:ToHex(), word)
 						end
 						if table.find({
-							"assert","collectgarbage","dofile","error","getfenv",
-							"getmetatable","ipairs","load","loadfile","next",
-							"pairs","pcall","print","rawequal","rawget","rawlen",
-							"rawset","require","select","setfenv","setmetatable",
-							"tonumber","tostring","xpcall","loadstring","typeof",
-							"UserSettings","Vector2","Vector3","UDim","_G",
-							"UDim2","delay","ColorSequence","NumberSequence","NumberSequenceKeypoint",
-							"ColorSequenceKeypoint","Color3","fromRGB","fromHSV","fromHex",
-							"fromOffset","fromScale","new","game","table",
-							"insert","remove","concat","sort","unpack",
-							"pack","clear","find","create","clone",
-							"move","string","byte","char","find",
-							"format","gmatch","gsub","len","lower",
-							"match","rep","reverse","sub","upper",
-							"create","resume","running","status","wrap",
-							"yield","isyieldable","time","date","clock",
-							"difftime","arshift","band","bnot","bor",
-							"btest","bxor","extract","lrotate","lshift",
-							"replace","rrotate","rshift","abs","acos",
-							"asin","atan","atan2","ceil","cos",
-							"cosh","deg","exp","floor","fmod",
-							"frexp","ldexp","log","log10","max",
-							"min","modf","pow","rad","random",
-							"randomseed","sin","sinh","sqrt","tan",
-							"tanh","spawn","Delay","Spawn","game",
-							"Rect","Font","Instance","TweenInfo","workspace",
-							"Workspace","tick","time","zero","one",
-							"yAxis","xAxis","FromNormalId","zAxis","FromAxis",
-							"fromAxis","fromNormalId","wait","task","CFrame",
-							"Angles","lookAt","fromOrientation","lookAlong","fromAxisAngle",
-							"fromEulerAnglesXYZ","identity","fromMatrix","fromEulerAngles","fromEulerAnglesYXZ",
-							"fromRotationBetweenVectors","char","len","offset","codes",
-							"codepoint","graphemes","charpattern","nfcnormalize","nfdnormalize",
-							"math","clamp","gcinfo","Brickcolor","bit32",
-							"buffer","Content","CatalogSearchParams","DateTime","now",
-							"fromUnixTimestamp","fromIsoDate","fromLocalTime","fromUniversalTime","fromUnixTimestampMillis",
-							"debug","info","traceback","profileend","dumpcodesize",
-							"profilebegin","getmemorycategory","setmemorycategory","resetmemorycategory","DockWidgetPluginGuiInfo",
-							"ElapsedTime","elapsedTime","Faces","File","FloatCurveKey",
-							"Game","newproxy","next","OverlapParams","plugin",
-							"PhysicalProperties","Path2DControlPoint","PathWaypoint","printidentity","Random",
-							"RaycastParams","Ray","Region3","RotationCurveKey","rawget",
-							"rawlen","rawset","rawequal","select","settings",
-							"shared","Secret","setfenv","SharedTable","SecurityCapabilities",
-							"Stats","stats","unpack","vector","Vector3int16",
-							"Vector2int16","Version","version","Wait","ypcall"
+							"\68\111\99\107\87\105\100\103\101\116\80\108\117\103\105\110\71\117\105\73\110\102\111",
+							"\114\115\104\105\102\116",
+							"\116\111\115\116\114\105\110\103",
+							"\85\68\105\109",
+							"\102\114\101\120\112",
+							"\112\97\105\114\115",
+							"\115\113\114\116",
+							"\114\101\112",
+							"\116\111\110\117\109\98\101\114",
+							"\99\111\110\99\97\116",
+							"\108\111\97\100",
+							"\102\114\111\109\85\110\105\118\101\114\115\97\108\84\105\109\101",
+							"\80\97\116\104\50\68\67\111\110\116\114\111\108\80\111\105\110\116",
+							"\83\101\99\117\114\105\116\121\67\97\112\97\98\105\108\105\116\105\101\115",
+							"\97\116\97\110",
+							"\102\114\111\109\72\83\86",
+							"\99\111\115",
+							"\108\111\111\107\65\116",
+							"\102\114\111\109\69\117\108\101\114\65\110\103\108\101\115\88\89\90",
+							"\102\114\111\109\78\111\114\109\97\108\73\100",
+							"\108\111\103\49\48",
+							"\101\120\116\114\97\99\116",
+							"\98\111\114",
+							"\100\117\109\112\99\111\100\101\115\105\122\101",
+							"\97\115\105\110",
+							"\108\111\97\100\115\116\114\105\110\103",
+							"\70\111\110\116",
+							"\86\101\114\115\105\111\110",
+							"\108\101\110",
+							"\102\114\111\109\65\120\105\115\65\110\103\108\101",
+							"\115\112\97\119\110",
+							"\115\116\114\105\110\103",
+							"\115\101\116\109\101\109\111\114\121\99\97\116\101\103\111\114\121",
+							"\112\114\105\110\116",
+							"\114\101\109\111\118\101",
+							"\85\68\105\109\50",
+							"\117\112\112\101\114",
+							"\99\111\115\104",
+							"\122\65\120\105\115",
+							"\114\97\110\100\111\109",
+							"\86\101\99\116\111\114\51",
+							"\111\102\102\115\101\116",
+							"\120\65\120\105\115",
+							"\87\97\105\116",
+							"\101\108\97\112\115\101\100\84\105\109\101",
+							"\118\101\114\115\105\111\110",
+							"\118\101\99\116\111\114",
+							"\102\105\110\100",
+							"\105\112\97\105\114\115",
+							"\100\105\102\102\116\105\109\101",
+							"\102\114\111\109\65\120\105\115",
+							"\86\101\99\116\111\114\51\105\110\116\49\54",
+							"\86\101\99\116\111\114\50\105\110\116\49\54",
+							"\99\111\108\108\101\99\116\103\97\114\98\97\103\101",
+							"\103\97\109\101",
+							"\70\97\99\101\115",
+							"\105\115\121\105\101\108\100\97\98\108\101",
+							"\115\116\97\116\115",
+							"\82\101\103\105\111\110\51",
+							"\83\116\97\116\115",
+							"\116\97\98\108\101",
+							"\115\104\97\114\101\100",
+							"\98\110\111\116",
+							"\105\100\101\110\116\105\116\121",
+							"\83\101\99\114\101\116",
+							"\115\101\116\116\105\110\103\115",
+							"\102\114\111\109\83\99\97\108\101",
+							"\116\105\109\101",
+							"\82\111\116\97\116\105\111\110\67\117\114\118\101\75\101\121",
+							"\111\110\101",
+							"\82\97\121",
+							"\112\99\97\108\108",
+							"\82\97\121\99\97\115\116\80\97\114\97\109\115",
+							"\98\97\110\100",
+							"\82\97\110\100\111\109",
+							"\112\114\105\110\116\105\100\101\110\116\105\116\121",
+							"\69\108\97\112\115\101\100\84\105\109\101",
+							"\114\101\112\108\97\99\101",
+							"\65\110\103\108\101\115",
+							"\99\114\101\97\116\101",
+							"\102\114\111\109\73\115\111\68\97\116\101",
+							"\99\104\97\114\112\97\116\116\101\114\110",
+							"\109\97\116\104",
+							"\102\109\111\100",
+							"\112\108\117\103\105\110",
+							"\108\115\104\105\102\116",
+							"\79\118\101\114\108\97\112\80\97\114\97\109\115",
+							"\67\111\108\111\114\83\101\113\117\101\110\99\101\75\101\121\112\111\105\110\116",
+							"\108\111\97\100\102\105\108\101",
+							"\110\101\119\112\114\111\120\121",
+							"\108\111\103",
+							"\102\114\111\109\77\97\116\114\105\120",
+							"\70\108\111\97\116\67\117\114\118\101\75\101\121",
+							"\103\114\97\112\104\101\109\101\115",
+							"\67\70\114\97\109\101",
+							"\103\99\105\110\102\111",
+							"\108\111\119\101\114",
+							"\103\109\97\116\99\104",
+							"\114\101\115\101\116\109\101\109\111\114\121\99\97\116\101\103\111\114\121",
+							"\68\97\116\101\84\105\109\101",
+							"\116\105\99\107",
+							"\99\108\111\99\107",
+							"\102\111\114\109\97\116",
+							"\116\97\115\107",
+							"\103\101\116\102\101\110\118",
+							"\114\97\110\100\111\109\115\101\101\100",
+							"\116\97\110\104",
+							"\109\111\118\101",
+							"\105\110\115\101\114\116",
+							"\109\97\120",
+							"\103\101\116\109\101\109\111\114\121\99\97\116\101\103\111\114\121",
+							"\114\97\119\108\101\110",
+							"\119\97\105\116",
+							"\99\104\97\114",
+							"\112\114\111\102\105\108\101\98\101\103\105\110",
+							"\67\111\108\111\114\51",
+							"\114\101\118\101\114\115\101",
+							"\112\111\119",
+							"\112\114\111\102\105\108\101\101\110\100",
+							"\68\101\108\97\121",
+							"\67\111\110\116\101\110\116",
+							"\105\110\102\111",
+							"\100\101\98\117\103",
+							"\102\114\111\109\85\110\105\120\84\105\109\101\115\116\97\109\112\77\105\108\108\105\115",
+							"\110\111\119",
+							"\102\114\111\109\85\110\105\120\84\105\109\101\115\116\97\109\112",
+							"\95\71",
+							"\102\114\111\109\76\111\99\97\108\84\105\109\101",
+							"\67\97\116\97\108\111\103\83\101\97\114\99\104\80\97\114\97\109\115",
+							"\108\111\111\107\65\108\111\110\103",
+							"\116\114\97\99\101\98\97\99\107",
+							"\85\115\101\114\83\101\116\116\105\110\103\115",
+							"\116\97\110",
+							"\98\117\102\102\101\114",
+							"\98\105\116\51\50",
+							"\66\114\105\99\107\99\111\108\111\114",
+							"\99\108\97\109\112",
+							"\99\108\101\97\114",
+							"\99\101\105\108",
+							"\80\104\121\115\105\99\97\108\80\114\111\112\101\114\116\105\101\115",
+							"\73\110\115\116\97\110\99\101",
+							"\110\102\99\110\111\114\109\97\108\105\122\101",
+							"\110\102\100\110\111\114\109\97\108\105\122\101",
+							"\99\111\100\101\115",
+							"\102\114\111\109\82\111\116\97\116\105\111\110\66\101\116\119\101\101\110\86\101\99\116\111\114\115",
+							"\109\105\110",
+							"\78\117\109\98\101\114\83\101\113\117\101\110\99\101\75\101\121\112\111\105\110\116",
+							"\102\114\111\109\69\117\108\101\114\65\110\103\108\101\115\89\88\90",
+							"\86\101\99\116\111\114\50",
+							"\102\114\111\109\69\117\108\101\114\65\110\103\108\101\115",
+							"\71\97\109\101",
+							"\100\101\108\97\121",
+							"\102\114\111\109\79\114\105\101\110\116\97\116\105\111\110",
+							"\70\114\111\109\65\120\105\115",
+							"\121\112\99\97\108\108",
+							"\120\112\99\97\108\108",
+							"\70\114\111\109\78\111\114\109\97\108\73\100",
+							"\100\97\116\101",
+							"\102\114\111\109\79\102\102\115\101\116",
+							"\121\65\120\105\115",
+							"\102\114\111\109\82\71\66",
+							"\117\110\112\97\99\107",
+							"\114\117\110\110\105\110\103",
+							"\100\101\103",
+							"\116\121\112\101\111\102",
+							"\115\116\97\116\117\115",
+							"\87\111\114\107\115\112\97\99\101",
+							"\114\101\113\117\105\114\101",
+							"\119\111\114\107\115\112\97\99\101",
+							"\84\119\101\101\110\73\110\102\111",
+							"\102\114\111\109\72\101\120",
+							"\115\101\116\109\101\116\97\116\97\98\108\101",
+							"\110\101\120\116",
+							"\99\111\100\101\112\111\105\110\116",
+							"\119\114\97\112",
+							"\115\105\110",
+							"\97\98\115",
+							"\102\108\111\111\114",
+							"\78\117\109\98\101\114\83\101\113\117\101\110\99\101",
+							"\99\108\111\110\101",
+							"\97\115\115\101\114\116",
+							"\98\121\116\101",
+							"\98\116\101\115\116",
+							"\103\101\116\109\101\116\97\116\97\98\108\101",
+							"\83\112\97\119\110",
+							"\108\114\111\116\97\116\101",
+							"\114\97\100",
+							"\109\111\100\102",
+							"\97\99\111\115",
+							"\108\100\101\120\112",
+							"\67\111\108\111\114\83\101\113\117\101\110\99\101",
+							"\80\97\116\104\87\97\121\112\111\105\110\116",
+							"\109\97\116\99\104",
+							"\97\114\115\104\105\102\116",
+							"\101\120\112",
+							"\115\111\114\116",
+							"\112\97\99\107",
+							"\97\116\97\110\50",
+							"\114\101\115\117\109\101",
+							"\114\114\111\116\97\116\101",
+							"\110\101\119",
+							"\115\117\98",
+							"\121\105\101\108\100",
+							"\122\101\114\111",
+							"\83\104\97\114\101\100\84\97\98\108\101",
+							"\115\101\108\101\99\116",
+							"\103\115\117\98",
+							"\115\105\110\104",
+							"\114\97\119\103\101\116",
+							"\98\120\111\114",
+							"\82\101\99\116",
+							"\114\97\119\101\113\117\97\108",
+							"\100\111\102\105\108\101",
+							"\114\97\119\115\101\116",
+							"\70\105\108\101",
+							"\101\114\114\111\114",
+							"\115\101\116\102\101\110\118",
 							}, word) then
-							if afterWord == "(" then
-								colored = string.format("<font color='%s'>%s</font>", "#"..executorConfig.libColor:ToHex(), word)
+							if afterWord == "\40" then
+								colored = string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.libColor:ToHex(), word)
 							else
-								colored = string.format("<font color='%s'>%s</font>", "#"..executorConfig.libColor:ToHex(), word)
+								colored = string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.libColor:ToHex(), word)
 							end
 						end
 						if table.find({
-							"hookmetamethod","hookfunction","getgc","filtergc","Drawing",
-							"getgenv","getsenv","getrenv","getfenv","setfenv",
-							"decompile","saveinstance", "getrawmetatable", "setrawmetatable", "checkcaller",
-							"cloneref","clonefunction", "iscclosure","islclosure","isexecutorclosure",
-							"newcclosure","getfunctionhash", "crypt","writefile","appendfile",
-							"loadfile","readfile", "listfiles","makefolder","isfolder",
-							"isfile","delfile","delfolder", "getcustomasset","fireclickdetector",
-							"firetouchinterest","fireproximityprompt"
+							"\104\111\111\107\102\117\110\99\116\105\111\110",
+							"\105\115\102\105\108\101",
+							"\103\101\116\103\101\110\118",
+							"\109\97\107\101\102\111\108\100\101\114",
+							"\99\108\111\110\101\102\117\110\99\116\105\111\110",
+							"\115\101\116\114\97\119\109\101\116\97\116\97\98\108\101",
+							"\99\104\101\99\107\99\97\108\108\101\114",
+							"\103\101\116\102\101\110\118",
+							"\104\111\111\107\109\101\116\97\109\101\116\104\111\100",
+							"\102\105\114\101\112\114\111\120\105\109\105\116\121\112\114\111\109\112\116",
+							"\105\115\108\99\108\111\115\117\114\101",
+							"\105\115\102\111\108\100\101\114",
+							"\115\97\118\101\105\110\115\116\97\110\99\101",
+							"\99\114\121\112\116",
+							"\102\105\114\101\116\111\117\99\104\105\110\116\101\114\101\115\116",
+							"\97\112\112\101\110\100\102\105\108\101",
+							"\103\101\116\114\101\110\118",
+							"\103\101\116\103\99",
+							"\110\101\119\99\99\108\111\115\117\114\101",
+							"\105\115\99\99\108\111\115\117\114\101",
+							"\100\101\108\102\105\108\101",
+							"\114\101\97\100\102\105\108\101",
+							"\100\101\108\102\111\108\100\101\114",
+							"\103\101\116\99\117\115\116\111\109\97\115\115\101\116",
+							"\102\105\114\101\99\108\105\99\107\100\101\116\101\99\116\111\114",
+							"\99\108\111\110\101\114\101\102",
+							"\102\105\108\116\101\114\103\99",
+							"\100\101\99\111\109\112\105\108\101",
+							"\103\101\116\102\117\110\99\116\105\111\110\104\97\115\104",
+							"\68\114\97\119\105\110\103",
+							"\103\101\116\115\101\110\118",
+							"\108\105\115\116\102\105\108\101\115",
+							"\115\101\116\102\101\110\118",
+							"\105\115\101\120\101\99\117\116\111\114\99\108\111\115\117\114\101",
+							"\119\114\105\116\101\102\105\108\101",
+							"\103\101\116\114\97\119\109\101\116\97\116\97\98\108\101",
+							"\108\111\97\100\102\105\108\101",
 							}, word) then
-							if afterWord == "(" then
-								colored = string.format("<font color='%s'><b>%s</b></font>", "#"..executorConfig.exploitColor:ToHex(), word)
+							if afterWord == "\40" then
+								colored = string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\60\98\62\37\115\60\47\98\62\60\47\102\111\110\116\62", "\35"..executorConfig.exploitColor:ToHex(), word)
 							end
 						end
-						if table.find(executorConfig.keywords[1], word) then
-							colored = string.format("<font color='%s'><b>%s</b></font>","#"..executorConfig.keywordColor:ToHex(), word)
+						if table.find(executorConfig.keywords[0x01], word) then
+							colored = string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\60\98\62\37\115\60\47\98\62\60\47\102\111\110\116\62","\35"..executorConfig.keywordColor:ToHex(), word)
 						end
-						if table.find(executorConfig.bools[1], word) then
-							colored = string.format("<font color='%s'><b>%s</b></font>","#"..executorConfig.boolsColor:ToHex(), word)
+						if table.find(executorConfig.bools[0x01], word) then
+							colored = string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\60\98\62\37\115\60\47\98\62\60\47\102\111\110\116\62","\35"..executorConfig.boolsColor:ToHex(), word)
 						end
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif code:match("^function%s+[%w_]+%s*%b()", pos) then
-						local full = code:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)", pos)
-						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
+					elseif code:match("\94\102\117\110\99\116\105\111\110\37\115\43\91\37\119\95\93\43\37\115\42\37\98\40\41", pos) then
+						local full = code:match("\94\40\102\117\110\99\116\105\111\110\37\115\43\91\37\119\95\93\43\37\115\42\37\98\40\41\91\58\37\115\37\119\95\93\42\41", pos)
+						local funcName, args, returnType = full:match("\94\102\117\110\99\116\105\111\110\37\115\43\40\91\37\119\95\93\43\41\37\115\42\37\40\40\46\42\41\37\41\37\115\42\58\63\37\115\42\40\91\37\119\95\93\42\41")
 
-						local highlightedArgs = args:gsub("([%w_]+)%s*:%s*([%w_]+)", function(argName, argType)
+						local highlightedArgs = args:gsub("\40\91\37\119\95\93\43\41\37\115\42\58\37\115\42\40\91\37\119\95\93\43\41", function(argName, argType)
 							return string.format(
-								"<font color='%s'>%s</font><font color='%s'>: %s</font>",
-								"#" .. executorConfig.textColor:ToHex(),
+								"\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\58\32\37\115\60\47\102\111\110\116\62",
+								"\35" .. executorConfig.textColor:ToHex(),
 								argName,
-								"#" .. executorConfig.libColor:ToHex(),
+								"\35" .. executorConfig.libColor:ToHex(),
 								argType
 							)
 						end)
 
 						local result = string.format(
-							"<font color='%s'><b>function</b></font> <font color='%s'>%s</font>(%s)",
-							"#" .. executorConfig.keywordColor:ToHex(),
-							"#" .. executorConfig.funcColor:ToHex(),
+							"\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\60\98\62\102\117\110\99\116\105\111\110\60\47\98\62\60\47\102\111\110\116\62\32\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62\40\37\115\41",
+							"\35" .. executorConfig.keywordColor:ToHex(),
+							"\35" .. executorConfig.funcColor:ToHex(),
 							funcName,
 							highlightedArgs
 						)
 
-						if returnType and #returnType > 0 then
-							result ..= string.format("<font color='%s'>: %s</font>",
-								"#" .. executorConfig.libColor:ToHex(),
+						if returnType and #returnType > 0x00 then
+							result ..= string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\58\32\37\115\60\47\102\111\110\116\62",
+								"\35" .. executorConfig.libColor:ToHex(),
 								returnType
 							)
 						end
 
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
-						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
+					elseif code:match("\94\69\110\117\109\37\46\91\37\119\95\93\43\37\46\91\37\119\95\93\43", pos) then
+						local enum, category, value = code:match("\94\40\69\110\117\109\41\37\46\40\91\37\119\95\93\43\41\37\46\40\91\37\119\95\93\43\41", pos)
 						if enum and category and value then
 							local result = string.format(
-								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
-								"#" .. executorConfig.libColor:ToHex(), enum,
-								"#" .. executorConfig.libColor:ToHex(), category,
-								"#" .. executorConfig.propColor:ToHex(), value
+								"\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62\46\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62\46\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62",
+								"\35" .. executorConfig.libColor:ToHex(), enum,
+								"\35" .. executorConfig.libColor:ToHex(), category,
+								"\35" .. executorConfig.propColor:ToHex(), value
 							)
 							table.insert(tokens, result)
-							pos = pos + #("Enum." .. category .. "." .. value)
+							pos = pos + #("\69\110\117\109\46" .. category .. "\46" .. value)
 						else
 							table.insert(tokens, c)
 						end
 					else
 						table.insert(tokens, c)
-						pos = pos + 1
+						pos = pos + 0x01
 					end
 				end
 
 				return table.concat(tokens)
 			end,
 			runScript = function(codeToExecute)
-				if codeToExecute == "" or codeToExecute == nil then
-					AddLog("game.ReplicatedStorage._DeepScopeCode.Core.Executor:3839: Script is empty.", "DeepScope", "error")
-					return
-				end
 				local executed, err = pcall(function()
 					loadstring(codeToExecute)()
 				end)
@@ -5831,5 +6069,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
