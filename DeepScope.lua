@@ -1880,7 +1880,7 @@ local modules = {
 					local x = label.CursorPosition
 					if x ~= -1 then
 						local cutText = label.Text:sub(1, x)
-						local pos = TextService:GetTextSize(cutText, label.TextSize, Font.new(fonts.BuilderMono), Vector2.new(1e6, 1e6))
+						local pos = label.TextBounds
 						label.cursor.Position = UDim2.fromOffset(pos.X, pos.Y)
 						label.cursor.Visible = true
 					else
@@ -6098,4 +6098,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
