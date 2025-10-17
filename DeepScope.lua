@@ -986,8 +986,8 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
-initFileSystem()
 print("------------------------------------------------------")
+initFileSystem()
 print("Loading Explorer Icons...")
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 print("Loading Properties API...")
@@ -1481,7 +1481,7 @@ local modules = {
 				local pos = 0x01
 				local len = #code
 				local _ = "\65\100\100\76\111\103"
-				if len > 0x031000-0x000299-0x000007-0x000020 then
+				if len > 0x030D40 then
 					_("\67\111\100\101\32\111\118\101\114\102\108\111\119\44\32\108\105\109\105\116\32\105\115\32\50\48\48\48\48\48\46", "\68\83\32\69\120\101\99\117\116\111\114", "\119\97\114\110")
 					return
 				end
@@ -1879,7 +1879,7 @@ local modules = {
 				label:GetPropertyChangedSignal("CursorPosition"):Connect(function()
 					local x = label.CursorPosition
 					if x ~= -1 then
-						local cutText = label.Text:sub(1, x)
+						local cutText = label.Text:sub(1, x - 1)
 						local pos = label.TextBounds
 						label.cursor.Position = UDim2.fromOffset(pos.X, pos.Y)
 						label.cursor.Visible = true
