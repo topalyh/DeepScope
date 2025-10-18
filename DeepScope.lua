@@ -1508,7 +1508,7 @@ local modules = {
 						table.insert(tokens, string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.commentColor:ToHex(), com))
 						pos = closing
 					elseif c:match("\37\100") then
-						local num = code:match("\37\100\43\37\46\63\37\100\42\91\101\69\120\88\93\63\37\45\63\37\100\42", pos)
+						local num = code:match("\37\100\43\37\46\63\37\100\42\91\101\69\120\88\98\66\93\63\37\45\63\37\100\42", pos)
 						table.insert(tokens, string.format("\60\102\111\110\116\32\99\111\108\111\114\61\39\37\115\39\62\37\115\60\47\102\111\110\116\62", "\35"..executorConfig.numberColor:ToHex(), num))
 						pos = pos + #num
 					elseif code:match("\94\91\37\97\95\93", pos) then
@@ -3930,7 +3930,12 @@ local function makeProperties(instance)
 		ClassName = instance.ClassName,
 		Name = instance.Name,
 		Parent = instance.Parent and instance.Parent.Name or "nil",
-		UniqueId = instance.UniqueId,
+		UniqueId = (function()
+			local success, id = pcall(function()
+				return instance.UniqueId
+			end)
+			return success and id or 0
+		end)(),
 		Tags = (function()
 			local success, tags = pcall(function()
 				return instance:GetTags()
@@ -5092,6 +5097,110 @@ function CoreSettings:CreateSetting(name, value, type)
 				color.Text = formatStr:format(table.unpack(rgb))
 			end
 		end)
+	elseif type == "Dropdown" then
+		local options = value[2]
+		local firstVariant = value[1] or options[1]
+		local dropdownButton = createInstance("TextButton", {
+			Parent = newTemplate,
+			Name = "dropdown",
+			AnchorPoint = Vector2.new(0, 1),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0.5, 4, 0.9, 0),
+			Size = UDim2.new(0.5, -8, 0.8, 0),
+			FontFace = Font.new(fonts.BuilderSans, Enum.FontWeight.Bold),
+			Text = firstVariant,
+			TextColor3 = Color3.new(1, 1, 1),
+			TextScaled = true,
+			BorderColor3 = Color3.new(0, 0, 0),
+			BorderSizePixel = 0,
+		})
+		newTemplate:SetAttribute("Value", firstVariant)
+		dropdownButton:SetAttribute("Opened", false)
+		createInstance("UIStroke", {
+			Parent = dropdownButton,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Color3.new(1, 1, 1),
+			LineJoinMode = Enum.LineJoinMode.Miter
+		})
+		createInstance("UIGradient", {
+			Parent = dropdownButton.UIStroke,
+			Enabled = false,
+			Rotation = 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0),
+				NumberSequenceKeypoint.new(0.969, 0),
+				NumberSequenceKeypoint.new(0.97, 1),
+				NumberSequenceKeypoint.new(1, 1)
+			})
+		})
+		dropdownButton.MouseButton1Click:Connect(function()
+			if not dropdownButton:GetAttribute("Opened") then
+				dropdownButton.UIStroke.UIGradient.Enabled = true
+				dropdownButton:SetAttribute("Opened", true)
+				local dropdownPos = dropdownButton.AbsolutePosition
+				local dropdown = createInstance("ScrollingFrame", {
+					Parent = newgui.Parent,
+					Name = generateRandomString().."_Dropdown",
+					AutomaticSize = Enum.AutomaticSize.Y,
+					BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+					Position = UDim2.fromOffset(dropdownPos.X, dropdownPos.Y),
+					Size = UDim2.fromOffset(dropdownButton.AbsoluteSize.X, 0),
+					CanvasSize = UDim2.fromOffset(0, 0),
+					ScrollBarThickness = 0
+				})
+				createInstance("UIListLayout", {Parent = dropdown,})
+				createInstance("UISizeConstraint", {Parent = dropdown, MaxSize = Vector2.new(1e308, 300)})
+				createInstance("UIPadding", {Parent = dropdown, PaddingTop = UDim.new(0, 3)})
+				createInstance("UIStroke", {
+					Parent = dropdown,
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					Color = Color3.new(1, 1, 1),
+					LineJoinMode = Enum.LineJoinMode.Miter
+				})
+				createInstance("UIGradient", {
+					Parent = dropdown.UIStroke,
+					Enabled = false,
+					Rotation = -90,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0, 0),
+						NumberSequenceKeypoint.new(0.969, 0),
+						NumberSequenceKeypoint.new(0.97, 1),
+						NumberSequenceKeypoint.new(1, 1)
+					})
+				})
+				for _, v in options do
+					local option = createInstance("TextButton", {
+						Parent = dropdown,
+						Name = generateRandomString().."_"..v,
+						BackgroundTransparency = 1,
+						BorderSizePixel = 0,
+						FontFace = Font.new(fonts.BuilderSans, Enum.FontWeight.Bold),
+						Text = v,
+						TextColor3 = Color3.new(1, 1, 1),
+						TextScaled = true,
+					})
+					option.MouseEnter:Connect(function()
+						for _, v in dropdown:GetChildren() do
+							if v:IsA("TextButton") then
+								v.BackgroundTransparency = 1
+							end
+						end
+						option.BackgroundTransparency = 0.9
+					end)
+					option.MouseLeave:Connect(function()
+						option.BackgroundTransparency = 1
+					end)
+					option.MouseButton1Click:Connect(function()
+						dropdownButton.Text = v
+						dropdownButton:SetAttribute("Opened", false)
+						dropdownButton.UIStroke.UIGradient.Enabled = false
+						dropdown:Destroy()
+						newTemplate:SetAttribute("Value", firstVariant)
+					end)
+				end
+			end
+		end)
 	end
 end
 function CoreSettings:CreateSeparator(name)
@@ -5328,6 +5437,26 @@ CoreSettings:CreateSetting("Text Size", {NumberRange.new(5, 25), executorConfig.
 CoreSettings:CreateSeparator("Misc")
 CoreSettings:CreateSetting("Constraints Visible", false, "Switch")
 CoreSettings:CreateSetting("Custom Cursor", false, "Switch")
+CoreSettings:CreateSeparator("DS")
+CoreSettings:CreateSetting("Cheat Enabled", false, "Switch")
+CoreSettings:CreateSetting("Mode", {{"spectate","follow"}, "follow"}, "Dropdown")
+CoreSettings:CreateSetting("Format Mode", {
+	{
+		"Thousand",
+		"Million",
+		"Billion",
+		"Trillion",
+		"Quadrillion",
+		"Quintillion",
+		"Sextillion",
+		"Septillion",
+		"Octillion",
+		"Nonillion",
+		"Decillion",
+		"Undecillion"
+	},
+	"Thousand"
+}, "Dropdown")
 local conn = nil
 local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
