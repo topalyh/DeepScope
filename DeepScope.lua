@@ -4136,7 +4136,7 @@ local function createEntryForInstance(node, parentGui)
 	UserInputService.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			local mousePos = UserInputService:GetMouseLocation()
-			local objects = game:GetService("GuiService"):GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+			local objects = LocalPlayer.Character:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
 			for _, obj in objects do
 				for _, template in templates do
 					if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
@@ -4148,7 +4148,7 @@ local function createEntryForInstance(node, parentGui)
 		end
 	end)
 
-	RunService.RenderStepped:Connect(function()
+	--[[RunService.RenderStepped:Connect(function()
 		local mousePos = getMousePos()
 		local objects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
 		local hoveredTemplate = nil
@@ -4169,7 +4169,7 @@ local function createEntryForInstance(node, parentGui)
 			template.mainframe.BackgroundColor3 = template.mainframe:GetAttribute(colorAttr)
 			template.mainframe.add.Visible = (template == hoveredTemplate)
 		end
-	end)
+	end)]]
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
 end
@@ -5138,7 +5138,7 @@ function CoreSettings:CreateSetting(name, value, type)
 			if not dropdownButton:GetAttribute("Opened") then
 				dropdownButton.UIStroke.UIGradient.Enabled = true
 				dropdownButton:SetAttribute("Opened", true)
-				local dropdownPos = dropdownButton.AbsolutePosition
+				local dropdownPos = dropdownButton.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)
 				local dropdown = createInstance("ScrollingFrame", {
 					Parent = newgui.Parent,
 					Name = generateRandomString().."_Dropdown",
@@ -5149,26 +5149,11 @@ function CoreSettings:CreateSetting(name, value, type)
 					CanvasSize = UDim2.fromOffset(0, 0),
 					ScrollBarThickness = 0
 				})
-				createInstance("UIListLayout", {Parent = dropdown,})
+				createInstance("UIListLayout", {Parent = dropdown})
 				createInstance("UISizeConstraint", {Parent = dropdown, MaxSize = Vector2.new(1e308, 300)})
 				createInstance("UIPadding", {Parent = dropdown, PaddingTop = UDim.new(0, 3)})
-				createInstance("UIStroke", {
-					Parent = dropdown,
-					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					Color = Color3.new(1, 1, 1),
-					LineJoinMode = Enum.LineJoinMode.Miter
-				})
-				createInstance("UIGradient", {
-					Parent = dropdown.UIStroke,
-					Enabled = false,
-					Rotation = -90,
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 0),
-						NumberSequenceKeypoint.new(0.969, 0),
-						NumberSequenceKeypoint.new(0.97, 1),
-						NumberSequenceKeypoint.new(1, 1)
-					})
-				})
+				createInstance("UIStroke", {Parent = dropdown,ApplyStrokeMode = Enum.ApplyStrokeMode.Border,Color = Color3.new(1, 1, 1),LineJoinMode = Enum.LineJoinMode.Miter})
+				createInstance("UIGradient", {Parent = dropdown.UIStroke,Enabled = false,Rotation = -90,Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0),NumberSequenceKeypoint.new(0.969, 0),NumberSequenceKeypoint.new(0.97, 1),NumberSequenceKeypoint.new(1, 1)})})
 				for _, v in options do
 					local option = createInstance("TextButton", {
 						Parent = dropdown,
@@ -5439,9 +5424,8 @@ CoreSettings:CreateSetting("Constraints Visible", false, "Switch")
 CoreSettings:CreateSetting("Custom Cursor", false, "Switch")
 CoreSettings:CreateSeparator("DS")
 CoreSettings:CreateSetting("Cheat Enabled", false, "Switch")
-CoreSettings:CreateSetting("Mode", {"follow", {"spectate","follow"}}, "Dropdown")
+CoreSettings:CreateSetting("Mode", {{"spectate","follow"}, "follow"}, "Dropdown")
 CoreSettings:CreateSetting("Format Mode", {
-	"Thousand",
 	{
 		"Thousand",
 		"Million",
@@ -5455,7 +5439,8 @@ CoreSettings:CreateSetting("Format Mode", {
 		"Nonillion",
 		"Decillion",
 		"Undecillion"
-	}
+	},
+	"Thousand"
 }, "Dropdown")
 local conn = nil
 local currentCursor = nil
@@ -6227,4 +6212,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
