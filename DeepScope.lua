@@ -5137,6 +5137,7 @@ function CoreSettings:CreateSetting(name, value, type)
 		dropdownButton.MouseButton1Click:Connect(function()
 			if not dropdownButton:GetAttribute("Opened") then
 				dropdownButton.UIStroke.UIGradient.Enabled = true
+				newgui.Parent.settings.list.ScrollingEnabled = false
 				dropdownButton:SetAttribute("Opened", true)
 				local dropdownPos = dropdownButton.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)
 				local dropdown = createInstance("ScrollingFrame", {
@@ -5180,6 +5181,7 @@ function CoreSettings:CreateSetting(name, value, type)
 						dropdownButton.Text = v
 						dropdownButton:SetAttribute("Opened", false)
 						dropdownButton.UIStroke.UIGradient.Enabled = false
+						newgui.Parent.settings.list.ScrollingEnabled = true
 						dropdown:Destroy()
 						newTemplate:SetAttribute("Value", firstVariant)
 					end)
