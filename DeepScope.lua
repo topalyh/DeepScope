@@ -5139,22 +5139,30 @@ function CoreSettings:CreateSetting(name, value, type)
 				dropdownButton.UIStroke.UIGradient.Enabled = true
 				newgui.Parent.settings.list.ScrollingEnabled = false
 				dropdownButton:SetAttribute("Opened", true)
-				local dropdownPos = dropdownButton.AbsolutePosition - Vector2.new(0, GuiService.TopbarInset.Height)
-				local dropdown = createInstance("ScrollingFrame", {
+				local dropdownPos = dropdownButton.AbsolutePosition + Vector2.new(0, GuiService.TopbarInset.Height)
+				local frame = createInstance("Frame", {
 					Parent = newgui.Parent,
-					Name = generateRandomString().."_Dropdown",
+					Name = "Dropdown_"..generateRandomString(),
 					AutomaticSize = Enum.AutomaticSize.Y,
 					BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 					Position = UDim2.fromOffset(dropdownPos.X, dropdownPos.Y),
 					Size = UDim2.fromOffset(dropdownButton.AbsoluteSize.X, 0),
-					CanvasSize = UDim2.fromOffset(0, 0),
+					BorderColor3 = Color3.new(0, 0, 0),
+					BorderSizePixel = 0
+				})
+				createInstance("UIStroke", {Parent = frame, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, LineJoinMode = Enum.LineJoinMode.Miter})
+				createInstance("UIGradient", {Parent = frame.UIStroke, Rotation = -90, Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0),NumberSequenceKeypoint.new(0.969, 0),NumberSequenceKeypoint.new(0.97, 1),NumberSequenceKeypoint.new(1, 1)})})
+				local dropdown = createInstance("ScrollingFrame", {
+					Parent = frame,
+					AutomaticSize = Enum.AutomaticSize.Y,
+					BackgroundTransparency = 1,
+					Size = UDim2.fromScale(1, 0),
+					AutomaticCanvasSize = Enum.AutomaticSize.Y,
+					CanvasSize = UDim2.fromScale(0, 0),
 					ScrollBarThickness = 0
 				})
 				createInstance("UIListLayout", {Parent = dropdown})
 				createInstance("UISizeConstraint", {Parent = dropdown, MaxSize = Vector2.new(1e308, 300)})
-				createInstance("UIPadding", {Parent = dropdown, PaddingTop = UDim.new(0, 3)})
-				createInstance("UIStroke", {Parent = dropdown,ApplyStrokeMode = Enum.ApplyStrokeMode.Border,Color = Color3.new(1, 1, 1),LineJoinMode = Enum.LineJoinMode.Miter})
-				createInstance("UIGradient", {Parent = dropdown.UIStroke,Enabled = false,Rotation = -90,Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0),NumberSequenceKeypoint.new(0.969, 0),NumberSequenceKeypoint.new(0.97, 1),NumberSequenceKeypoint.new(1, 1)})})
 				for _, v in options do
 					local option = createInstance("TextButton", {
 						Parent = dropdown,
