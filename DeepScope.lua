@@ -5439,8 +5439,9 @@ CoreSettings:CreateSetting("Constraints Visible", false, "Switch")
 CoreSettings:CreateSetting("Custom Cursor", false, "Switch")
 CoreSettings:CreateSeparator("DS")
 CoreSettings:CreateSetting("Cheat Enabled", false, "Switch")
-CoreSettings:CreateSetting("Mode", {{"spectate","follow"}, "follow"}, "Dropdown")
+CoreSettings:CreateSetting("Mode", {"follow", {"spectate","follow"}}, "Dropdown")
 CoreSettings:CreateSetting("Format Mode", {
+	"Thousand",
 	{
 		"Thousand",
 		"Million",
@@ -5454,8 +5455,7 @@ CoreSettings:CreateSetting("Format Mode", {
 		"Nonillion",
 		"Decillion",
 		"Undecillion"
-	},
-	"Thousand"
+	}
 }, "Dropdown")
 local conn = nil
 local currentCursor = nil
@@ -6227,3 +6227,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
