@@ -41,6 +41,7 @@ local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 local HttpService: HttpService = cloneref(game:GetService("HttpService"))
 local CurrentCamera: Camera = cloneref(game:GetService("Workspace")).CurrentCamera
 local TextService: TextService = cloneref(game:GetService("TextService"))
+local coreModules = {}
 repeat wait() until LocalPlayer.Character
 local suffixes = {
 	"",
@@ -705,7 +706,7 @@ local executorConfig = {
 	keywordColor = Color3.fromRGB(248,109,124),
 	boolsColor = Color3.fromRGB(255,198,0),
 	exploitColor = Color3.fromRGB(171,84,247),
-	font = Font.new(fonts.BuilderMono),
+	font = Enum.Font.Code,
 	TextSize = 15,
 	json = {
 		stringColor = Color3.fromRGB(124,220,254),
@@ -771,26 +772,122 @@ local function base64Decode(a)
 		return string.char(j)
 	end))
 end
-local function parseXML(xml)
-	local data = {}
 
-	for block in xml:gmatch('<Item class="ReflectionMetadataClass">(.-)</Item>') do
-		local name = block:match('<string name="Name">(.-)</string>')
-		if name then
-			local order = tonumber(block:match('<string name="ExplorerOrder">(.-)</string>'))
-			local icon = tonumber(block:match('<string name="ExplorerImageIndex">(.-)</string>'))
-			local category = block:match('<string name="ClassCategory">(.-)</string>')
+local function ParseXML(xml)
+	local func = function()
+		-- Only exists to parse RMD
+		-- from https://github.com/jonathanpoelen/xmlparser
 
-			data[name] = {
-				Name = name or "Unknown",
-				ClassCategory = category or "Unknown",
-				ExplorerOrder = order or 9999,
-				ExplorerIconOffset = (icon or 0)*16,
-			}
+		local entities, tentities = {}, nil
+
+		local function defaultEntityTable()
+			return { quot='"', apos='\'', lt='<', gt='>', amp='&', tab='\t', nbsp=' ', }
 		end
-	end
 
-	return data
+		local function replaceEntities(s, entities)
+			return s:gsub('&([^;]+);', entities)
+		end
+
+		local function createEntityTable(docEntities, resultEntities)
+			entities = resultEntities or defaultEntityTable()
+			for _,e in pairs(docEntities) do
+				e.value = replaceEntities(e.value, entities)
+				entities[e.name] = e.value
+			end
+			return entities
+		end
+
+		-- http://lua-users.org/wiki/StringTrim
+		local trim = function(s)
+			local from = s:match"^%s*()"
+			return from > #s and "" or s:match(".*%S", from)
+		end
+
+		local gtchar = string.byte('>', 1)
+		local slashchar = string.byte('/', 1)
+		local D = string.byte('D', 1)
+		local E = string.byte('E', 1)
+
+		local function parse(s, evalEntities)
+			-- remove comments
+			s = s:gsub('<!%-%-(.-)%-%->', '')
+
+			if evalEntities then
+				local pos = s:find('<[_%w]')
+				if pos then
+					s:sub(1, pos):gsub('<!ENTITY%s+([_%w]+)%s+(.)(.-)%2', function(name, q, entity)
+						entities[#entities+1] = {name=name, value=entity}
+					end)
+					tentities = createEntityTable(entities)
+					s = replaceEntities(s:sub(pos), tentities)
+				end
+			end
+
+			local t, l = {}, {}
+
+			local addtext = function(txt)
+				txt = txt:match'^%s*(.*%S)' or ''
+				if #txt ~= 0 then
+					t[#t+1] = {text=txt}
+				end		
+			end
+
+			s:gsub('<([?!/]?)([-:_%w]+)%s*(/?>?)([^<]*)', function(type, name, closed, txt)
+				-- open
+				if #type == 0 then
+					local a = {}
+					if #closed == 0 then
+						local len = 0
+						for all,aname,_,value,starttxt in string.gmatch(txt, "(.-([-_%w]+)%s*=%s*(.)(.-)%3%s*(/?>?))") do
+							len = len + #all
+							a[aname] = value
+							if #starttxt ~= 0 then
+								txt = txt:sub(len+1)
+								closed = starttxt
+								break
+							end
+						end
+					end
+					t[#t+1] = {tag=name, attrs=a, children={}}
+
+					if closed:byte(1) ~= slashchar then
+						l[#l+1] = t
+						t = t[#t].children
+					end
+
+					addtext(txt)
+					-- close
+				elseif '/' == type then
+					t = l[#l]
+					l[#l] = nil
+
+					addtext(txt)
+					-- ENTITY
+				elseif '!' == type then
+					if E == name:byte(1) then
+						txt:gsub('([_%w]+)%s+(.)(.-)%2', function(name, q, entity)
+							entities[#entities+1] = {name=name, value=entity}
+						end, 1)
+					end
+					-- elseif '?' == type then
+					--	 print('?	' .. name .. ' // ' .. attrs .. '$$')
+					-- elseif '-' == type then
+					--	 print('comment	' .. name .. ' // ' .. attrs .. '$$')
+					-- else
+					--	 print('o	' .. #p .. ' // ' .. name .. ' // ' .. attrs .. '$$')
+				end
+			end)
+
+			return {children=t, entities=entities, tentities=tentities}
+		end
+		local function parseText(txt)
+			return parse(txt)
+		end
+		return parseText
+	end
+	local newEnv = setmetatable({},{__index = getfenv()})
+	setfenv(func,newEnv)
+	return func()
 end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -951,11 +1048,6 @@ local function initFileSystem()
 	end
 	print("Kernel File System Loaded!")
 end
-local function writeinfo(fileName, data)
-	local isJSON = fileName:match("DeepScopeCore/(.-)%.json$") ~= nil
-	local content = isJSON and game:GetService("HttpService"):JSONEncode(data) or data
-	writefile(fileName, content)
-end
 local function prettyJSON(tbl, indent)
 	indent = indent or 0
 	local padding = string.rep("  ", indent)
@@ -986,21 +1078,23 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
-print("------------------------------------------------------")
+print("------------------- File System ----------------------")
 initFileSystem()
+print("------------------- File System ----------------------")
+print("---------------------- Others ------------------------")
 print("Loading Explorer Icons...")
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 print("Loading Properties API...")
-local api = game:HttpGet("https://anaminus.github.io/rbx/json/api/latest.json")
+local api = game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
 print("Loading RMD...")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 print("Explorer Icons Loaded!")
 writefile("DeepScopeCore/Explorer/API.json", api)
 print("Properties API Loaded!")
-writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(parseXML(rmd)))
+writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(ParseXML(rmd)))
 print("RMD Loaded!")
-print("------------------------------------------------------")
+print("---------------------- Others ------------------------")
 print("Fully loaded! Time took:",tick()-time)
 local lastVelocity = Vector3.zero
 local lastTime = tick()
@@ -1217,7 +1311,6 @@ local modules = {
 			DefaultKey = Enum.KeyCode.F,
 
 			UpdateFlying = function(enabled, flyspeed)
-				flySpeed = flyspeed or 1
 				if enabled then
 					_createForces(humanoidRootPart)
 					humanoid.PlatformStand = true
@@ -1891,7 +1984,6 @@ local modules = {
 		}
 	}
 }
-local coreModules = {}
 coreModules.Lib = {}
 coreModules.Lib.Settings = {}
 coreModules.Lib.AdvancedFormat = game:HttpGet("https://raw.githubusercontent.com/topalyh/AdvancedFormat-Module/refs/heads/main/Sourse%20code.lua")
@@ -1904,6 +1996,238 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	end
 	modules.other.fly.UpdateMoveDirection(processed)
 end)
+function coreModules.Lib:FetchRMD()
+	local rawXML = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
+	local parsed = ParseXML(rawXML)
+	local classList = parsed.children[1].children[1].children
+	local enumList = parsed.children[1].children[2].children
+	local propertyOrders = {}
+
+	local classes,enums = {},{}
+	for _,class in pairs(classList) do
+		local className = ""
+		for _,child in pairs(class.children) do
+			if child.tag == "Properties" then
+				local data = {Properties = {}, Functions = {}}
+				local props = child.children
+				for _,prop in pairs(props) do
+					local name = prop.attrs.name
+					name = name:sub(1,1):upper()..name:sub(2)
+					data[name] = prop.children[1].text
+				end
+				className = data.Name
+				classes[className] = data
+			elseif child.attrs.class == "ReflectionMetadataProperties" then
+				local members = child.children
+				for _,member in pairs(members) do
+					if member.attrs.class == "ReflectionMetadataMember" then
+						local data = {}
+						if member.children[1].tag == "Properties" then
+							local props = member.children[1].children
+							for _,prop in pairs(props) do
+								if prop.attrs then
+									local name = prop.attrs.name
+									name = name:sub(1,1):upper()..name:sub(2)
+									data[name] = prop.children[1].text
+								end
+							end
+							if data.PropertyOrder then
+								local orders = propertyOrders[className]
+								if not orders then orders = {} propertyOrders[className] = orders end
+								orders[data.Name] = tonumber(data.PropertyOrder)
+							end
+							classes[className].Properties[data.Name] = data
+						end
+					end
+				end
+			elseif child.attrs.class == "ReflectionMetadataFunctions" then
+				local members = child.children
+				for _,member in pairs(members) do
+					if member.attrs.class == "ReflectionMetadataMember" then
+						local data = {}
+						if member.children[1].tag == "Properties" then
+							local props = member.children[1].children
+							for _,prop in pairs(props) do
+								if prop.attrs then
+									local name = prop.attrs.name
+									name = name:sub(1,1):upper()..name:sub(2)
+									data[name] = prop.children[1].text
+								end
+							end
+							classes[className].Functions[data.Name] = data
+						end
+					end
+				end
+			end
+		end
+	end
+
+	for _,enum in pairs(enumList) do
+		local enumName = ""
+		for _,child in pairs(enum.children) do
+			if child.tag == "Properties" then
+				local data = {Items = {}}
+				local props = child.children
+				for _,prop in pairs(props) do
+					local name = prop.attrs.name
+					name = name:sub(1,1):upper()..name:sub(2)
+					data[name] = prop.children[1].text
+				end
+				enumName = data.Name
+				enums[enumName] = data
+			elseif child.attrs.class == "ReflectionMetadataEnumItem" then
+				local data = {}
+				if child.children[1].tag == "Properties" then
+					local props = child.children[1].children
+					for _,prop in pairs(props) do
+						local name = prop.attrs.name
+						name = name:sub(1,1):upper()..name:sub(2)
+						data[name] = prop.children[1].text
+					end
+					enums[enumName].Items[data.Name] = data
+				end
+			end
+		end
+	end
+
+	writefile("DeepScopeCore/Explorer/RMD.json", HttpService:JSONEncode({Classes = classes, Enums = enums, PropertyOrders = propertyOrders}))
+	return {Classes = classes, Enums = enums, PropertyOrders = propertyOrders}
+end
+function coreModules.Lib:FetchAPI()
+	local api = HttpService:JSONDecode("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
+	
+	local classes,enums = {},{}
+	local categoryOrder,seenCategories = {},{}
+
+	local function insertAbove(t,item,aboveItem)
+		local findPos = table.find(t,item)
+		if not findPos then return end
+		table.remove(t,findPos)
+
+		local pos = table.find(t,aboveItem)
+		if not pos then return end
+		table.insert(t,pos,item)
+	end
+	
+	for _,class in pairs(api.Classes) do
+		local newClass = {}
+		newClass.Name = class.Name
+		newClass.Superclass = class.Superclass
+		newClass.Properties = {}
+		newClass.Functions = {}
+		newClass.Events = {}
+		newClass.Callbacks = {}
+		newClass.Tags = {}
+
+		if class.Tags then for c,tag in pairs(class.Tags) do newClass.Tags[tag] = true end end
+		for __,member in pairs(class.Members) do
+			local newMember = {}
+			newMember.Name = member.Name
+			newMember.Class = class.Name
+			newMember.Security = member.Security
+			newMember.Tags ={}
+			if member.Tags then for c,tag in pairs(member.Tags) do newMember.Tags[tag] = true end end
+
+			local mType = member.MemberType
+			if mType == "Property" then
+				local propCategory = member.Category or "Other"
+				propCategory = propCategory:match("^%s*(.-)%s*$")
+				if not seenCategories[propCategory] then
+					categoryOrder[#categoryOrder+1] = propCategory
+					seenCategories[propCategory] = true
+				end
+				newMember.ValueType = member.ValueType
+				newMember.Category = propCategory
+				newMember.Serialization = member.Serialization
+				table.insert(newClass.Properties,newMember)
+			elseif mType == "Function" then
+				newMember.Parameters = {}
+				newMember.ReturnType = member.ReturnType.Name
+				for c,param in pairs(member.Parameters) do
+					table.insert(newMember.Parameters,{Name = param.Name, Type = param.Type.Name})
+				end
+				table.insert(newClass.Functions,newMember)
+			elseif mType == "Event" then
+				newMember.Parameters = {}
+				for c,param in pairs(member.Parameters) do
+					table.insert(newMember.Parameters,{Name = param.Name, Type = param.Type.Name})
+				end
+				table.insert(newClass.Events,newMember)
+			end
+		end
+
+		classes[class.Name] = newClass
+	end
+
+	for _,class in pairs(classes) do
+		class.Superclass = classes[class.Superclass]
+	end
+
+	for _,enum in pairs(api.Enums) do
+		local newEnum = {}
+		newEnum.Name = enum.Name
+		newEnum.Items = {}
+		newEnum.Tags = {}
+
+		if enum.Tags then for c,tag in pairs(enum.Tags) do newEnum.Tags[tag] = true end end
+		for __,item in pairs(enum.Items) do
+			local newItem = {}
+			newItem.Name = item.Name
+			newItem.Value = item.Value
+			table.insert(newEnum.Items,newItem)
+		end
+
+		enums[enum.Name] = newEnum
+	end
+
+	local function getMember(class,member)
+		if not classes[class] or not classes[class][member] then return end
+		local result = {}
+
+		local currentClass = classes[class]
+		while currentClass do
+			for _,entry in pairs(currentClass[member]) do
+				result[#result+1] = entry
+			end
+			currentClass = currentClass.Superclass
+		end
+
+		table.sort(result,function(a,b) return a.Name < b.Name end)
+		return result
+	end
+
+	insertAbove(categoryOrder,"Behavior","Tuning")
+	insertAbove(categoryOrder,"Appearance","Data")
+	insertAbove(categoryOrder,"Attachments","Axes")
+	insertAbove(categoryOrder,"Cylinder","Slider")
+	insertAbove(categoryOrder,"Localization","Jump Settings")
+	insertAbove(categoryOrder,"Surface","Motion")
+	insertAbove(categoryOrder,"Surface Inputs","Surface")
+	insertAbove(categoryOrder,"Part","Surface Inputs")
+	insertAbove(categoryOrder,"Assembly","Surface Inputs")
+	insertAbove(categoryOrder,"Character","Controls")
+	categoryOrder[#categoryOrder+1] = "Unscriptable"
+	categoryOrder[#categoryOrder+1] = "Attributes"
+
+	local categoryOrderMap = {}
+	for i = 1,#categoryOrder do
+		categoryOrderMap[categoryOrder[i]] = i
+	end
+
+	writefile("DeepScopeCore/Explorer/API.json", HttpService:JSONEncode({
+		Classes = classes,
+		Enums = enums,
+		CategoryOrder = categoryOrderMap,
+		GetMember = getMember
+	}))
+
+	return {
+		Classes = classes,
+		Enums = enums,
+		CategoryOrder = categoryOrderMap,
+		GetMember = getMember
+	}
+end
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
 		modules.other.fly.UpdateMoveDirection(processed)
@@ -3650,9 +3974,6 @@ local function createGui()
 	return gui2
 end
 local newgui = createGui()
-local function getMousePos()
-	return game.UserInputService:GetMouseLocation()
-end
 local function makeFakeScripts()
 	local folder = createInstance("Folder", {
 		Parent = game.ReplicatedStorage,
@@ -3699,7 +4020,9 @@ local function makeFakeScripts()
 		Name = "Executor"
 	})
 end
-
+local function getMousePos()
+	return game.UserInputService:GetMouseLocation()
+end
 local function notify(icon, text, countdown)
 	if not countdown then countdown = 3 end
 	local template = createInstance("Frame", {
