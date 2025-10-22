@@ -5791,8 +5791,8 @@ if game.PlaceId == 537413528 then
 		CFrame.new(-49.884, 42.9, 1371.862),
 		CFrame.new(-49.883, 42.9, 8611.861),
 		CFrame.new(-49.883, -352.1, 8956.861),
-		CFrame.new(-55.883, -361.1, 9490.861),
-		CFrame.new(-55.883, -361.1, 9491.861),
+		CFrame.new(-55.883, -361.1, 9488.861),
+		CFrame.new(-55.883, -361.1, 941.861),
 	}
 
 	-- ⏱ Задержки на каждой точке
@@ -5800,7 +5800,7 @@ if game.PlaceId == 537413528 then
 		[1] = 0,
 		[2] = 0,
 		[3] = 0,
-		[4] = 0, -- здесь ждём 10 секунд
+		[4] = 0,
 		[5] = 10,
 		[6] = 0,
 	}
@@ -5812,6 +5812,17 @@ if game.PlaceId == 537413528 then
 	local startCFrame, endCFrame, duration, startTime
 	local attachment, beam, bodyP
 	local isWaiting = false
+
+	-- 🧠 вспомогательная функция
+	local function setupPhysics(char)
+		if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+		if bodyP then bodyP:Destroy() end
+		bodyP = Instance.new("BodyPosition")
+		bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+		bodyP.P = 50000
+		bodyP.D = 1250
+		bodyP.Parent = char.HumanoidRootPart
+	end
 
 	local function startMove()
 		if enabled then return end
@@ -5825,37 +5836,33 @@ if game.PlaceId == 537413528 then
 		connection = RunService.Heartbeat:Connect(function(dt)
 			if not enabled or isWaiting then return end
 
+			local char = LocalPlayer.Character
+			if not (char and char:FindFirstChild("HumanoidRootPart")) then return end
+			if not bodyP or bodyP.Parent ~= char.HumanoidRootPart then
+				setupPhysics(char)
+			end
+
 			local now = tick()
 			local alpha = math.clamp((now - startTime) / duration, 0, 1)
 			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
+			bodyP.Position = newPos
 
-			local char = LocalPlayer.Character
-			if char and char:FindFirstChild("HumanoidRootPart") then
-				if not bodyP then
-					bodyP = Instance.new("BodyPosition")
-					bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-					bodyP.P = 50000
-					bodyP.D = 1250
-					bodyP.Position = newPos
-					bodyP.Parent = char.HumanoidRootPart
-				else
-					bodyP.Position = newPos
-				end
+			if not attachment and not beam then
+				attachment = Instance.new("Attachment")
+				attachment.Parent = workspace
+				attachment.WorldCFrame = endCFrame
 
-				if not attachment and not beam then
-					attachment = Instance.new("Attachment")
-					attachment.Parent = workspace
-					attachment.WorldCFrame = endCFrame
-
-					beam = Instance.new("Beam")
-					beam.Parent = workspace
-					beam.LightEmission = 0
-					beam.FaceCamera = true
-					beam.Attachment0 = attachment
-					pcall(function()
-						beam.Attachment1 = char.PrimaryPart.RootAttachment
-					end)
-				end
+				beam = Instance.new("Beam")
+				beam.Parent = workspace
+				beam.LightEmission = 0
+				beam.Texture = "rbxassetid://138007024966757"
+				beam.TextureSpeed = -1
+				beam.TextureMode = 2
+				beam.FaceCamera = true
+				beam.Attachment0 = attachment
+				pcall(function()
+					beam.Attachment1 = char.PrimaryPart.RootAttachment
+				end)
 			end
 
 			if alpha >= 1 then
@@ -5909,6 +5916,16 @@ if game.PlaceId == 537413528 then
 		isWaiting = false
 	end
 
+	-- 🔁 перезапуск после смерти
+	LocalPlayer.CharacterAdded:Connect(function(char)
+		if enabled then
+			repeat task.wait() until char:FindFirstChild("HumanoidRootPart")
+			task.wait(0.5)
+			setupPhysics(char)
+		end
+	end)
+
+	-- ⚙️ UI переключатель
 	CoreSettings:CreateSeparator("Addons")
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 
@@ -6690,4 +6707,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
