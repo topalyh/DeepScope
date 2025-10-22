@@ -5791,14 +5791,16 @@ if game.PlaceId == 537413528 then
 		CFrame.new(-49.884, 22.9, 1371.862),
 		CFrame.new(-49.883, 22.9, 8611.861),
 		CFrame.new(-49.883, -352.1, 8956.861),
-		CFrame.new(-55.883, -361.1, 9488.861),
+		CFrame.new(-55.883, -361.1, 9490.861),
 	}
 
-	local moveSpeed = 200
+	local moveSpeed = 350
 	local enabled = false
 	local connection
 	local currentPoint = 1
 	local startCFrame, endCFrame, duration, startTime
+	local attachment = nil
+	local beam = nil
 	local bodyP = nil
 
 	local function startMove()
@@ -5823,8 +5825,20 @@ if game.PlaceId == 537413528 then
 				bodyP.Position = newPos
 				bodyP.Parent = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 			end
-
 			local char = LocalPlayer.Character
+			if not attachment and not beam then
+				attachment = Instance.new("Attachment")
+				attachment.Parent = workspace
+				attachment.WorldCFrame = endCFrame
+				beam = Instance.new("Beam")
+				beam.LightEmission = 0
+				beam.Texture = "rbxassetid://138007024966757"
+				beam.TextureLength = -1
+				beam.FaceCamera = true
+				beam.Attachment0 = attachment
+				beam.Attachment1 = char.PrimaryPart and char.PrimaryPart.RootAttachment
+			end
+
 			if bodyP then
 				bodyP.Position = newPos
 			end
@@ -5833,11 +5847,22 @@ if game.PlaceId == 537413528 then
 				currentPoint += 1
 				if currentPoint > #points then
 					currentPoint = 1
+					task.spawn(function()
+						wait(10)
+						startCFrame = points[currentPoint]
+						endCFrame = points[currentPoint + 1] or points[1]
+						duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
+						startTime = tick()
+					end)
+				else
+					startCFrame = points[currentPoint]
+					endCFrame = points[currentPoint + 1] or points[1]
+					duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
+					startTime = tick()
 				end
-				startCFrame = points[currentPoint]
-				endCFrame = points[currentPoint + 1] or points[1]
-				duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
-				startTime = tick()
+			end
+			if attachment then
+				attachment.WorldCFrame = endCFrame
 			end
 		end)
 	end
@@ -5850,9 +5875,15 @@ if game.PlaceId == 537413528 then
 			connection:Disconnect()
 			connection = nil
 		end
-		if bodyPosition then
-			bodyPosition:Destroy()
-			bodyPosition = nil
+		if bodyP then
+			bodyP:Destroy()
+			bodyP = nil
+		end
+		if attachment and beam then
+			attachment:Destroy()
+			beam:Destroy()
+			attachment = nil
+			beam = nil
 		end
 	end
 
