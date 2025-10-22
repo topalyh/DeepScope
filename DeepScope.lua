@@ -1358,7 +1358,7 @@ local modules = {
 				if Enabled and BodyPos and BodyGyro then
 					local camCF = CurrentCamera.CFrame
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
-					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt * 20
+					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt * 60
 
 					currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
 
@@ -5786,15 +5786,19 @@ CoreSettings:CreateSetting("Format Mode", {
 	}
 }, "Dropdown")
 if game.PlaceId == 537413528 then
+	local RunService = game:GetService("RunService")
+	local Players = game:GetService("Players")
+	local LocalPlayer = Players.LocalPlayer
+
 	local points = {
 		CFrame.new(-49.884, 356.9, 288.862),
-		CFrame.new(-49.884, 22.9, 1371.862),
-		CFrame.new(-49.883, 22.9, 8611.861),
+		CFrame.new(-49.884, 32.9, 1371.862),
+		CFrame.new(-49.883, 32.9, 8611.861),
 		CFrame.new(-49.883, -352.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9490.861),
 	}
 
-	local moveSpeed = 350
+	local moveSpeed = 400
 	local enabled = false
 	local connection
 	local currentPoint = 1
@@ -5802,6 +5806,7 @@ if game.PlaceId == 537413528 then
 	local attachment = nil
 	local beam = nil
 	local bodyP = nil
+	local isWaiting = false -- добавляем флаг ожидания
 
 	local function startMove()
 		if enabled then return end
@@ -5813,30 +5818,37 @@ if game.PlaceId == 537413528 then
 		startTime = tick()
 
 		connection = RunService.Heartbeat:Connect(function(dt)
-			if not enabled then return end
+			if not enabled or isWaiting then return end
+
 			local now = tick()
 			local alpha = math.clamp((now - startTime) / duration, 0, 1)
 			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
+
 			if not bodyP then
 				bodyP = Instance.new("BodyPosition")
-				bodyP.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+				bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
 				bodyP.P = 50000
 				bodyP.D = 1250
 				bodyP.Position = newPos
 				bodyP.Parent = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 			end
+
 			local char = LocalPlayer.Character
-			if not attachment and not beam then
+			if not attachment and not beam and char and char.PrimaryPart then
 				attachment = Instance.new("Attachment")
 				attachment.Parent = workspace
 				attachment.WorldCFrame = endCFrame
+
 				beam = Instance.new("Beam")
+				beam.Parent = workspace
 				beam.LightEmission = 0
 				beam.Texture = "rbxassetid://138007024966757"
 				beam.TextureLength = -1
 				beam.FaceCamera = true
 				beam.Attachment0 = attachment
-				beam.Attachment1 = char.PrimaryPart and char.PrimaryPart.RootAttachment
+				pcall(function()
+					beam.Attachment1 = char.PrimaryPart:FindFirstChildOfClass("Attachment")
+				end)
 			end
 
 			if bodyP then
@@ -5847,8 +5859,10 @@ if game.PlaceId == 537413528 then
 				currentPoint += 1
 				if currentPoint > #points then
 					currentPoint = 1
+					isWaiting = true -- включаем ожидание
 					task.spawn(function()
 						wait(10)
+						isWaiting = false -- снимаем ожидание
 						startCFrame = points[currentPoint]
 						endCFrame = points[currentPoint + 1] or points[1]
 						duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
@@ -5861,6 +5875,7 @@ if game.PlaceId == 537413528 then
 					startTime = tick()
 				end
 			end
+
 			if attachment then
 				attachment.WorldCFrame = endCFrame
 			end
@@ -5885,6 +5900,7 @@ if game.PlaceId == 537413528 then
 			attachment = nil
 			beam = nil
 		end
+		isWaiting = false
 	end
 
 	-- UI часть
