@@ -5792,6 +5792,7 @@ if game.PlaceId == 537413528 then
 		CFrame.new(-49.883, 42.9, 8611.861),
 		CFrame.new(-49.883, -352.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9490.861),
+		CFrame.new(-55.883, -361.1, 9491.861),
 	}
 
 	-- ⏱ Задержки на каждой точке
@@ -5799,8 +5800,9 @@ if game.PlaceId == 537413528 then
 		[1] = 0,
 		[2] = 0,
 		[3] = 0,
-		[4] = 10, -- здесь ждём 10 секунд
-		[5] = 0,
+		[4] = 0, -- здесь ждём 10 секунд
+		[5] = 10,
+		[6] = 0,
 	}
 
 	local moveSpeed = 400
@@ -6688,3 +6690,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
