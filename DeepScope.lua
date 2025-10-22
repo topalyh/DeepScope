@@ -3721,7 +3721,7 @@ local function createGui()
 		ClearTextOnFocus = false,
 		MultiLine = true,
 		Size = UDim2.fromOffset(1e6, 1e6),
-		FontFace = executorConfig.font,
+		Font = executorConfig.font,
 		Text = [[print("Hello DeepScope!")]],
 		TextTransparency = 1,
 		TextColor3 = Color3.fromRGB(204, 204, 204),
@@ -3738,7 +3738,7 @@ local function createGui()
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 2,
-		FontFace = executorConfig.font,
+		Font = executorConfig.font,
 		Text = [[print("Hello DeepScope!")]],
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
@@ -6626,4 +6626,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
