@@ -5787,12 +5787,12 @@ CoreSettings:CreateSetting("Format Mode", {
 }, "Dropdown")
 if game.PlaceId == 537413528 then
 	local points = {
-		CFrame.new(-49.884, 356.9, 288.862),
-		CFrame.new(-49.884, 42.9, 1371.862),
-		CFrame.new(-49.883, 42.9, 8611.861),
-		CFrame.new(-49.883, -352.1, 8956.861),
+		CFrame.new(0, 0, 0),
+		CFrame.new(-89.884, 82.9, 1371.862),
+		CFrame.new(-89.883, 82.9, 8611.861),
+		CFrame.new(-89.883, -352.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9488.861),
-		CFrame.new(-55.883, -361.1, 941.861),
+		CFrame.new(-55.883, -361.1, 9489.861),
 	}
 
 	-- ⏱ Задержки на каждой точке
@@ -5801,8 +5801,8 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 18,
-		[6] = 0,
+		[5] = 5,
+		[6] = 18,
 	}
 
 	local moveSpeed = 400
@@ -6708,3 +6708,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
