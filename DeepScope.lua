@@ -1,6 +1,6 @@
 print("Loading DS...")
 local time = tick()
-if DS_LOADED then return end
+if DS_LOADED then warn("DS Is already loaded!") return end
 pcall(function() getgenv().DS_LOADED = true end)
 local function createInstance(name, tbl)
 	local any = Instance.new(name)
@@ -753,26 +753,35 @@ local function fromJSONFONT(str)
 	local font = str:match("font%[(.*)%]")
 	return Font.new(font)
 end
-local function base64Decode(a)
+local function to_base64(data)
 	local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-	a = a:gsub('[^'..b..'=]', '')
-	return (a:gsub(',', function(c)
-		if c == '=' then return '' end
-		local d, f = '', (b:find(c) - 1)
-		for g = 6, 1, -1 do
-			d = d .. (f % 2^g - f % 2^(g-1) > 0 and '1' or '0')
-		end
-		return d
-	end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(h)
-		if #h ~= 8 then return '' end
-		local j = 0
-		for k = 1, 8 do
-			j = j + (h:sub(k,k) == '1' and 2^(8 - k) or 0)
-		end
-		return string.char(j)
-	end))
+	return ((data:gsub('.', function(x) 
+		local r,b='',x:byte()
+		for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
+		return r;
+	end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+		if (#x < 6) then return '' end
+		local c=0
+		for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
+		return b:sub(c+1,c+1)
+	end)..({ '', '==', '=' })[#data%3+1])
 end
 
+function from_base64(data)
+	local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+	data = string.gsub(data, '[^'..b..'=]', '')
+	return (data:gsub('.', function(x)
+		if (x == '=') then return '' end
+		local r,f='',(b:find(x)-1)
+		for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end
+		return r;
+	end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+		if (#x ~= 8) then return '' end
+		local c=0
+		for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
+		return string.char(c)
+	end))
+end
 local function ParseXML(xml)
 	local func = function()
 		-- Only exists to parse RMD
@@ -883,7 +892,7 @@ local function ParseXML(xml)
 		local function parseText(txt)
 			return parse(txt)
 		end
-		return parseText
+		return parseText(xml)
 	end
 	local newEnv = setmetatable({},{__index = getfenv()})
 	setfenv(func,newEnv)
@@ -1020,8 +1029,8 @@ local function initFileSystem()
 				"DeepScopeCore/Logs.txt",
 				"DeepScopeCore/Properties/Instances.dsf",
 				"DeepScopeCore/Executor/SavedScripts.dsf",
-				"DeepScopeCore/Explorer/RMD.json",
-				"DeepScopeCore/Explorer/API.json",
+				"DeepScopeCore/Explorer/RMD.dat",
+				"DeepScopeCore/Explorer/API.dat",
 				"DeepScopeCore/Explorer/StudioIcons.png"
 			}
 			for _, v in ipairs(folders) do
@@ -1084,9 +1093,9 @@ print("------------------- File System ----------------------")
 print("---------------------- Others ------------------------")
 print("Loading Explorer Icons...")
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
-print("Loading Properties API...")
+print("Loading Properties API... (may take a while)")
 local api = game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
-print("Loading RMD...")
+print("Loading RMD... (may take a while)")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 print("Explorer Icons Loaded!")
@@ -1158,7 +1167,44 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
+function coreModules.Lib:EncryptCode(code)
+	local text = ""
+	for i = 1, #code do
+		local result, err = pcall(function()
+			return utf8.codepoint(code, i)
+		end)
+		if err then
+			text ..= utf8.char(0xFFFD)
+		else
+			text ..= code:sub(i,i)
+		end
+	end
+	local result = {}
+	for _, v in utf8.codes(text) do
+		local hex = string.format("%x", v)
 
+		local garbage = ""
+		local garbage2 = ""
+		for i = 1, 50 do
+			local first, ending = math.random(0, 32), math.random(126, 255)
+			local first2, ending2 = math.random(0, 32), math.random(126, 255)
+			if first == 0 then
+				first = 0xFFFD
+			end
+			garbage ..= utf8.char(first)..utf8.char(ending)
+		end
+		for i = 1, 50 do
+			local first2, ending2 = math.random(0, 32), math.random(126, 255)
+			if first2 == 0 then
+				first2 = 0xFFFD
+			end
+			garbage2 = utf8.char(first2)..utf8.char(ending2)
+		end
+
+		table.insert(result, garbage2.."0x"..hex..garbage)
+	end
+	return table.concat(result)
+end
 local function saveData(dataToSave)
 	local data = dataToSave or {}
 	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
@@ -1346,11 +1392,11 @@ local modules = {
 				moveDirection = direction.Magnitude > 0 and direction.Unit or Vector3.new()
 			end,
 
-			Loop = function()
+			Loop = function(dt)
 				if Enabled and BodyPos and BodyGyro then
 					local camCF = CurrentCamera.CFrame
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
-					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed
+					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt
 
 					currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
 
@@ -1960,6 +2006,7 @@ local modules = {
 				local lines = getLineAmount(code)
 				local padding = 15
 				local size = linesGui.TextBounds.X + padding
+				local liveTween = nil
 				linesGui.Text = lines
 				linesGui.Size = UDim2.fromOffset(size, 1e6)
 				linesGui.Parent.Size = UDim2.new(0, size, 1, -30)
@@ -1973,13 +2020,20 @@ local modules = {
 					local x = label.CursorPosition
 					if x ~= -1 then
 						local cutText = label.Text:sub(1, x - 1)
-						local pos = label.TextBounds
+						local pos = TextService:GetTextSize(label.Text, label.FontSize, label.Font, Vector2.new())
 						label.cursor.Position = UDim2.fromOffset(pos.X, pos.Y)
 						label.cursor.Visible = true
 					else
+						liveTween = nil
 						label.cursor.Visible = false
 					end
 				end)
+				if not liveTween then
+					label.cursor.BackgroundTransparency = 0
+					liveTween = TweenService:Create(label.cursor, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, -1, true), {
+						BackgroundTransparency = 1
+					}):Play()
+				end
 			end,
 		}
 	}
@@ -2094,7 +2148,7 @@ function coreModules.Lib:FetchRMD()
 	return {Classes = classes, Enums = enums, PropertyOrders = propertyOrders}
 end
 function coreModules.Lib:FetchAPI()
-	local api = HttpService:JSONDecode("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
+	local api = game:HttpGet(("http://setup.roblox.com/%s-API-Dump.json"):format(game:HttpGet("http://setup.roblox.com/versionQTStudio")))
 	
 	local classes,enums = {},{}
 	local categoryOrder,seenCategories = {},{}
@@ -2233,10 +2287,8 @@ UserInputService.InputEnded:Connect(function(processed)
 		modules.other.fly.UpdateMoveDirection(processed)
 	end
 end)
-spawn(function()
-	while RunService.Heartbeat:Wait() do
-		modules.other.fly.Loop()
-	end
+RunService.RenderStepped:Connect(function(dt)
+	modules.other.fly.Loop(dt)
 end)
 
 local function createGui()
@@ -3707,7 +3759,7 @@ local function createGui()
 		ClearTextOnFocus = false,
 		MultiLine = true,
 		Size = UDim2.fromOffset(1e6, 1e6),
-		FontFace = Font.new("rbxassetid://16658246179"),
+		FontFace = executorConfig.font,
 		Text = [[print("Hello DeepScope!")]],
 		TextTransparency = 1,
 		TextColor3 = Color3.fromRGB(204, 204, 204),
@@ -3724,7 +3776,7 @@ local function createGui()
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 2,
-		FontFace = Font.new(fonts.BuilderMono),
+		FontFace = executorConfig.font,
 		Text = [[print("Hello DeepScope!")]],
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
@@ -4141,10 +4193,6 @@ local explorerData = {}
 local nodesBuilt = {}
 local templates = {}
 
-local function fetchRMD()
-	return HttpService:JSONDecode(readfile("DeepScopeCore/Explorer/RMD.json"))
-end
-
 local function buildExplorerData(instance)
 	if not instance or not instance.Parent and instance ~= game then
 		return nil
@@ -4293,7 +4341,7 @@ local function applySelection(instance)
 	selectionBox.Parent = workspace
 	selectionBox.Name = generateRandomString()
 end
-local instancesData = fetchRMD()
+local RMD = coreModules.Lib:FetchRMD()
 local function createEntryForInstance(node, parentGui)
 	local template = createInstance("Frame", {
 		Parent = nil,
@@ -4409,9 +4457,9 @@ local function createEntryForInstance(node, parentGui)
 		ZIndex = 0
 	})
 	local newTemplate = template:Clone()
-	local classData = instancesData[node.Data.ClassName]
+	local classData = RMD.Classes[node.Data.ClassName]
 	local index = classData and classData.ExplorerOrder or 9999
-	local iconOffset = classData and Vector2.new(classData.ExplorerIconOffset, 0) or Vector2.new(0, 0)
+	local iconOffset = classData and Vector2.new(classData.ExplorerImageIndex*16, 0) or Vector2.new(0, 0)
 
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -5775,6 +5823,77 @@ CoreSettings:CreateSetting("Format Mode", {
 		"Undecillion"
 	}
 }, "Dropdown")
+if game.PlaceId == 537413528 then
+	local points = {
+		CFrame.new(-49.884, 356.9, 288.862),
+		CFrame.new(-49.884, 22.9, 1371.862),
+		CFrame.new(-49.883, 22.9, 8611.861),
+		CFrame.new(-49.883, -352.1, 8956.861),
+		CFrame.new(-55.883, -361.1, 9488.861),
+	}
+
+	local moveSpeed = 200
+	local enabled = false
+	local connection
+	local currentPoint = 1
+	local startCFrame, endCFrame, duration, startTime
+
+	local function startMove()
+		if enabled then return end
+		enabled = true
+		currentPoint = 1
+		startCFrame = points[currentPoint]
+		endCFrame = points[currentPoint + 1] or points[1]
+		duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
+		startTime = tick()
+
+		connection = RunService.Heartbeat:Connect(function(dt)
+			if not enabled then return end
+			local now = tick()
+			local alpha = math.clamp((now - startTime) / duration, 0, 1)
+			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
+			local newCFrame = CFrame.new(newPos) * startCFrame.Rotation
+
+			local char = LocalPlayer.Character
+			if char and char.PrimaryPart then
+				char:SetPrimaryPartCFrame(newCFrame)
+			end
+
+			if alpha >= 1 then
+				currentPoint += 1
+				if currentPoint > #points then
+					currentPoint = 1
+				end
+				startCFrame = points[currentPoint]
+				endCFrame = points[currentPoint + 1] or points[1]
+				duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
+				startTime = tick()
+			end
+		end)
+	end
+
+	-- остановка
+	local function disable()
+		if not enabled then return end
+		enabled = false
+		if connection then
+			connection:Disconnect()
+			connection = nil
+		end
+	end
+
+	-- UI часть
+	CoreSettings:CreateSeparator("Addons")
+	CoreSettings:CreateSetting("Auto farm", false, "Switch")
+
+	newgui.Parent.settings.list["Auto farm"]:GetAttributeChangedSignal("Value"):Connect(function()
+		if newgui.Parent.settings.list["Auto farm"]:GetAttribute("Value") == true then
+			startMove()
+		else
+			disable()
+		end
+	end)
+end
 local conn = nil
 local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
@@ -5782,7 +5901,7 @@ newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):
 		UserInputService.MouseIconEnabled = false
 		currentCursor = createInstance("ImageLabel", {
 			Parent = newgui.Parent,
-			Name = base64Decode(generateRandomString()),
+			Name = to_base64(generateRandomString()),
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Size = UDim2.fromOffset(75, 75),
