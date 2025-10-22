@@ -5801,8 +5801,8 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 5,
-		[6] = 18,
+		[5] = 0,
+		[6] = 20,
 	}
 
 	local moveSpeed = 400
@@ -5822,7 +5822,17 @@ if game.PlaceId == 537413528 then
 		bodyP.P = 50000
 		bodyP.D = 1250
 		bodyP.Parent = char.HumanoidRootPart
-		beam.Attachment1 = char.PrimaryPart.RootAttachment
+		beam = Instance.new("Beam")
+		beam.Parent = workspace
+		beam.LightEmission = 0
+		beam.Texture = "rbxassetid://138007024966757"
+		beam.TextureSpeed = -1
+		beam.TextureMode = 2
+		beam.FaceCamera = true
+		beam.Attachment0 = attachment
+		pcall(function()
+			beam.Attachment1 = char.PrimaryPart.RootAttachment
+		end)
 	end
 
 	local function startMove()
@@ -6708,4 +6718,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
