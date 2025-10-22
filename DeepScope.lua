@@ -5961,12 +5961,9 @@ if game.PlaceId == 537413528 then
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 	local uiSwitch = newgui.Parent.settings.list["Auto farm"]
 	LocalPlayer.CharacterAdded:Connect(function()
-		if uiSwitch:GetAttribute("Value") == true then
-			wait(2)
-			startMove()
-		end
+		disable()
+		startMove()
 	end)
-
 	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
 		if uiSwitch:GetAttribute("Value") == true then
 			startMove()
@@ -6749,3 +6746,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
