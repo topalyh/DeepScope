@@ -1167,44 +1167,6 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
-function coreModules.Lib:EncryptCode(code)
-	local text = ""
-	for i = 1, #code do
-		local result, err = pcall(function()
-			return utf8.codepoint(code, i)
-		end)
-		if err then
-			text ..= utf8.char(0xFFFD)
-		else
-			text ..= code:sub(i,i)
-		end
-	end
-	local result = {}
-	for _, v in utf8.codes(text) do
-		local hex = string.format("%x", v)
-
-		local garbage = ""
-		local garbage2 = ""
-		for i = 1, 50 do
-			local first, ending = math.random(0, 32), math.random(126, 255)
-			local first2, ending2 = math.random(0, 32), math.random(126, 255)
-			if first == 0 then
-				first = 0xFFFD
-			end
-			garbage ..= utf8.char(first)..utf8.char(ending)
-		end
-		for i = 1, 50 do
-			local first2, ending2 = math.random(0, 32), math.random(126, 255)
-			if first2 == 0 then
-				first2 = 0xFFFD
-			end
-			garbage2 = utf8.char(first2)..utf8.char(ending2)
-		end
-
-		table.insert(result, garbage2.."0x"..hex..garbage)
-	end
-	return table.concat(result)
-end
 local function saveData(dataToSave)
 	local data = dataToSave or {}
 	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
@@ -6664,3 +6626,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
