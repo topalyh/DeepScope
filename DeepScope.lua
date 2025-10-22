@@ -5786,16 +5786,21 @@ CoreSettings:CreateSetting("Format Mode", {
 	}
 }, "Dropdown")
 if game.PlaceId == 537413528 then
-	local RunService = game:GetService("RunService")
-	local Players = game:GetService("Players")
-	local LocalPlayer = Players.LocalPlayer
-
 	local points = {
 		CFrame.new(-49.884, 356.9, 288.862),
-		CFrame.new(-49.884, 32.9, 1371.862),
-		CFrame.new(-49.883, 32.9, 8611.861),
+		CFrame.new(-49.884, 42.9, 1371.862),
+		CFrame.new(-49.883, 42.9, 8611.861),
 		CFrame.new(-49.883, -352.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9490.861),
+	}
+
+	-- ⏱ Задержки на каждой точке
+	local waitTimes = {
+		[1] = 0,
+		[2] = 0,
+		[3] = 0,
+		[4] = 10, -- здесь ждём 10 секунд
+		[5] = 0,
 	}
 
 	local moveSpeed = 400
@@ -5803,10 +5808,8 @@ if game.PlaceId == 537413528 then
 	local connection
 	local currentPoint = 1
 	local startCFrame, endCFrame, duration, startTime
-	local attachment = nil
-	local beam = nil
-	local bodyP = nil
-	local isWaiting = false -- добавляем флаг ожидания
+	local attachment, beam, bodyP
+	local isWaiting = false
 
 	local function startMove()
 		if enabled then return end
@@ -5824,45 +5827,47 @@ if game.PlaceId == 537413528 then
 			local alpha = math.clamp((now - startTime) / duration, 0, 1)
 			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
 
-			if not bodyP then
-				bodyP = Instance.new("BodyPosition")
-				bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-				bodyP.P = 50000
-				bodyP.D = 1250
-				bodyP.Position = newPos
-				bodyP.Parent = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-			end
-
 			local char = LocalPlayer.Character
-			if not attachment and not beam and char and char.PrimaryPart then
-				attachment = Instance.new("Attachment")
-				attachment.Parent = workspace
-				attachment.WorldCFrame = endCFrame
+			if char and char:FindFirstChild("HumanoidRootPart") then
+				if not bodyP then
+					bodyP = Instance.new("BodyPosition")
+					bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+					bodyP.P = 50000
+					bodyP.D = 1250
+					bodyP.Position = newPos
+					bodyP.Parent = char.HumanoidRootPart
+				else
+					bodyP.Position = newPos
+				end
 
-				beam = Instance.new("Beam")
-				beam.Parent = workspace
-				beam.LightEmission = 0
-				beam.Texture = "rbxassetid://138007024966757"
-				beam.TextureLength = -1
-				beam.FaceCamera = true
-				beam.Attachment0 = attachment
-				pcall(function()
-					beam.Attachment1 = char.PrimaryPart:FindFirstChildOfClass("Attachment")
-				end)
-			end
+				if not attachment and not beam then
+					attachment = Instance.new("Attachment")
+					attachment.Parent = workspace
+					attachment.WorldCFrame = endCFrame
 
-			if bodyP then
-				bodyP.Position = newPos
+					beam = Instance.new("Beam")
+					beam.Parent = workspace
+					beam.LightEmission = 0
+					beam.FaceCamera = true
+					beam.Attachment0 = attachment
+					pcall(function()
+						beam.Attachment1 = char.PrimaryPart.RootAttachment
+					end)
+				end
 			end
 
 			if alpha >= 1 then
 				currentPoint += 1
 				if currentPoint > #points then
 					currentPoint = 1
-					isWaiting = true -- включаем ожидание
+				end
+
+				local waitTime = waitTimes[currentPoint] or 0
+				if waitTime > 0 then
+					isWaiting = true
 					task.spawn(function()
-						wait(10)
-						isWaiting = false -- снимаем ожидание
+						wait(waitTime)
+						isWaiting = false
 						startCFrame = points[currentPoint]
 						endCFrame = points[currentPoint + 1] or points[1]
 						duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
@@ -5882,7 +5887,6 @@ if game.PlaceId == 537413528 then
 		end)
 	end
 
-	-- остановка
 	local function disable()
 		if not enabled then return end
 		enabled = false
@@ -5903,7 +5907,6 @@ if game.PlaceId == 537413528 then
 		isWaiting = false
 	end
 
-	-- UI часть
 	CoreSettings:CreateSeparator("Addons")
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 
