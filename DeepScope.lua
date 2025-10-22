@@ -1949,7 +1949,7 @@ local modules = {
 				return table.concat(tokens)
 			end,
 			highlightJSON = function(json)
-				
+
 			end,
 			runScript = function(codeToExecute)
 				local executed, err = pcall(function()
@@ -2111,7 +2111,7 @@ function coreModules.Lib:FetchRMD()
 end
 function coreModules.Lib:FetchAPI()
 	local api = game:HttpGet(("http://setup.roblox.com/%s-API-Dump.json"):format(game:HttpGet("http://setup.roblox.com/versionQTStudio")))
-	
+
 	local classes,enums = {},{}
 	local categoryOrder,seenCategories = {},{}
 
@@ -2124,7 +2124,7 @@ function coreModules.Lib:FetchAPI()
 		if not pos then return end
 		table.insert(t,pos,item)
 	end
-	
+
 	for _,class in pairs(api.Classes) do
 		local newClass = {}
 		newClass.Name = class.Name
@@ -5792,7 +5792,6 @@ if game.PlaceId == 537413528 then
 		CFrame.new(-89.883, 82.9, 8611.861),
 		CFrame.new(-89.883, -352.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9488.861),
-		CFrame.new(-55.883, -361.1, 9489.861),
 	}
 
 	-- ⏱ Задержки на каждой точке
@@ -5801,11 +5800,10 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 0,
-		[6] = 20,
+		[5] = 20
 	}
 
-	local moveSpeed = 400
+	local moveSpeed = 350
 	local enabled = false
 	local connection
 	local currentPoint = 1
@@ -5830,9 +5828,6 @@ if game.PlaceId == 537413528 then
 		beam.TextureMode = 2
 		beam.FaceCamera = true
 		beam.Attachment0 = attachment
-		pcall(function()
-			beam.Attachment1 = char.PrimaryPart.RootAttachment
-		end)
 	end
 
 	local function startMove()
@@ -6718,5 +6713,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
