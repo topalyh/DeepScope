@@ -5801,7 +5801,7 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 10,
+		[5] = 18,
 		[6] = 0,
 	}
 
@@ -5822,6 +5822,7 @@ if game.PlaceId == 537413528 then
 		bodyP.P = 50000
 		bodyP.D = 1250
 		bodyP.Parent = char.HumanoidRootPart
+		beam.Attachment1 = char.PrimaryPart.RootAttachment
 	end
 
 	local function startMove()
