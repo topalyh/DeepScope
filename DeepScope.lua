@@ -5959,8 +5959,13 @@ if game.PlaceId == 537413528 then
 	end
 	CoreSettings:CreateSeparator("Addons")
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
-
 	local uiSwitch = newgui.Parent.settings.list["Auto farm"]
+	LocalPlayer.CharacterAdded:Connect(function()
+		if uiSwitch:GetAttribute("Value") == true then
+			wait(2)
+			startMove()
+		end
+	end)
 
 	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
 		if uiSwitch:GetAttribute("Value") == true then
