@@ -1358,7 +1358,7 @@ local modules = {
 				if Enabled and BodyPos and BodyGyro then
 					local camCF = CurrentCamera.CFrame
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
-					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt
+					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt * 20
 
 					currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
 
@@ -5799,7 +5799,7 @@ if game.PlaceId == 537413528 then
 	local connection
 	local currentPoint = 1
 	local startCFrame, endCFrame, duration, startTime
-	local bodyPosition = nil
+	local bodyP = nil
 
 	local function startMove()
 		if enabled then return end
@@ -5815,18 +5815,18 @@ if game.PlaceId == 537413528 then
 			local now = tick()
 			local alpha = math.clamp((now - startTime) / duration, 0, 1)
 			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
-			local newCFrame = CFrame.new(newPos)
-			if not bodyPosition then
-				bodyPosition = Instance.new("BodyPosition")
-				bodyPosition.MaxForce = Vector3.new(1000000, 1000000, 1000000)
-				bodyPosition.P = 100000
-				bodyPosition.D = 500
-				bodyPosition.Parent = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			if not bodyP then
+				bodyP = Instance.new("BodyPosition")
+				bodyP.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+				bodyP.P = 50000
+				bodyP.D = 1250
+				bodyP.Position = newPos
+				bodyP.Parent = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 			end
 
 			local char = LocalPlayer.Character
-			if char and char.PrimaryPart and bodyPosition then
-				bodyPosition.Position = Vector3.new(newCFrame)
+			if bodyP then
+				bodyP.Position = newPos
 			end
 
 			if alpha >= 1 then
