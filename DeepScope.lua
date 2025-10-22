@@ -784,9 +784,6 @@ function from_base64(data)
 end
 local function ParseXML(xml)
 	local func = function()
-		-- Only exists to parse RMD
-		-- from https://github.com/jonathanpoelen/xmlparser
-
 		local entities, tentities = {}, nil
 
 		local function defaultEntityTable()
@@ -806,7 +803,6 @@ local function ParseXML(xml)
 			return entities
 		end
 
-		-- http://lua-users.org/wiki/StringTrim
 		local trim = function(s)
 			local from = s:match"^%s*()"
 			return from > #s and "" or s:match(".*%S", from)
@@ -818,7 +814,6 @@ local function ParseXML(xml)
 		local E = string.byte('E', 1)
 
 		local function parse(s, evalEntities)
-			-- remove comments
 			s = s:gsub('<!%-%-(.-)%-%->', '')
 
 			if evalEntities then
@@ -842,7 +837,6 @@ local function ParseXML(xml)
 			end
 
 			s:gsub('<([?!/]?)([-:_%w]+)%s*(/?>?)([^<]*)', function(type, name, closed, txt)
-				-- open
 				if #type == 0 then
 					local a = {}
 					if #closed == 0 then
@@ -865,25 +859,17 @@ local function ParseXML(xml)
 					end
 
 					addtext(txt)
-					-- close
 				elseif '/' == type then
 					t = l[#l]
 					l[#l] = nil
 
 					addtext(txt)
-					-- ENTITY
 				elseif '!' == type then
 					if E == name:byte(1) then
 						txt:gsub('([_%w]+)%s+(.)(.-)%2', function(name, q, entity)
 							entities[#entities+1] = {name=name, value=entity}
 						end, 1)
 					end
-					-- elseif '?' == type then
-					--	 print('?	' .. name .. ' // ' .. attrs .. '$$')
-					-- elseif '-' == type then
-					--	 print('comment	' .. name .. ' // ' .. attrs .. '$$')
-					-- else
-					--	 print('o	' .. #p .. ' // ' .. name .. ' // ' .. attrs .. '$$')
 				end
 			end)
 
@@ -1087,10 +1073,10 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
-print("------------------- File System ----------------------")
+print("-----------------File System ----------------------")
 initFileSystem()
-print("------------------- File System ----------------------")
-print("---------------------- Others ------------------------")
+print("-----------------File System ----------------------")
+print("--------------------Others ------------------------")
 print("Loading Explorer Icons...")
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 print("Loading Properties API... (may take a while)")
@@ -1103,7 +1089,7 @@ writefile("DeepScopeCore/Explorer/API.json", api)
 print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(ParseXML(rmd)))
 print("RMD Loaded!")
-print("---------------------- Others ------------------------")
+print("--------------------Others ------------------------")
 print("Fully loaded! Time took:",tick()-time)
 local lastVelocity = Vector3.zero
 local lastTime = tick()
@@ -5787,170 +5773,206 @@ CoreSettings:CreateSetting("Format Mode", {
 }, "Dropdown")
 if game.PlaceId == 537413528 then
 	local points = {
-		CFrame.new(0, 0, 0),
-		CFrame.new(-89.884, 82.9, 1371.862),
-		CFrame.new(-89.883, 82.9, 8611.861),
-		CFrame.new(-89.883, -352.1, 8956.861),
-		CFrame.new(-55.883, -359.1, 9492.861),
+		CFrame.new(-49.884, 356.9, 288.862),
+		CFrame.new(-49.884, 82.9, 1371.862),
+		CFrame.new(-49.883, 82.9, 8611.861),
+		CFrame.new(-49.883, -352.1, 8956.861),
+		CFrame.new(-55.883, -361.1, 9490.861),
 	}
 
-	-- ⏱ Задержки на каждой точке
 	local waitTimes = {
 		[1] = 0,
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 20
+		[5] = 180,
 	}
 
-	local moveSpeed = 350
+	local moveSpeed = 400
 	local enabled = false
-	local connection
+	local connection = nil
 	local currentPoint = 1
 	local startCFrame, endCFrame, duration, startTime
-	local attachment, beam, bodyP
+	local bodyP = nil
+	local attachment, beam = nil, nil
 	local isWaiting = false
-
-	-- 🧠 вспомогательная функция
-	local function setupPhysics(char)
-		if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-		if bodyP then bodyP:Destroy() end
-		bodyP = Instance.new("BodyPosition")
-		bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-		bodyP.P = 50000
-		bodyP.D = 1250
-		bodyP.Parent = char.HumanoidRootPart
-		beam = Instance.new("Beam")
-		beam.Parent = workspace
-		beam.LightEmission = 0
-		beam.Texture = "rbxassetid://138007024966757"
-		beam.TextureSpeed = -1
-		beam.TextureMode = 2
-		beam.FaceCamera = true
-		beam.Attachment0 = attachment
-	end
-
-	local function startMove()
-		if enabled then return end
-		enabled = true
-		currentPoint = 1
-		startCFrame = points[currentPoint]
-		endCFrame = points[currentPoint + 1] or points[1]
-		duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
-		startTime = tick()
-
-		connection = RunService.Heartbeat:Connect(function(dt)
-			if not enabled or isWaiting then return end
-
-			local char = LocalPlayer.Character
-			if not (char and char:FindFirstChild("HumanoidRootPart")) then return end
-			if not bodyP or bodyP.Parent ~= char.HumanoidRootPart then
-				setupPhysics(char)
-			end
-
-			local now = tick()
-			local alpha = math.clamp((now - startTime) / duration, 0, 1)
-			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
-			bodyP.Position = newPos
-
-			if not attachment and not beam then
-				attachment = Instance.new("Attachment")
-				attachment.Parent = workspace
-				attachment.WorldCFrame = endCFrame
-
-				beam = Instance.new("Beam")
-				beam.Parent = workspace
-				beam.LightEmission = 0
-				beam.Texture = "rbxassetid://138007024966757"
-				beam.TextureSpeed = -1
-				beam.TextureMode = 2
-				beam.FaceCamera = true
-				beam.Attachment0 = attachment
-				pcall(function()
-					beam.Attachment1 = char.PrimaryPart.RootAttachment
-				end)
-			end
-
-			if alpha >= 1 then
-				currentPoint += 1
-
-				-- если достиг последней точки
-				if currentPoint > #points then
-					currentPoint = 1
-
-					-- моментальный телепорт в стартовую точку
-					local char = LocalPlayer.Character
-					if bodyP then
-						bodyP.Position = points[currentPoint].Position
-					end
-				end
-				local waitTime = waitTimes[currentPoint] or 0
-				if waitTime > 0 then
-					isWaiting = true
-					task.spawn(function()
-						wait(waitTime)
-						isWaiting = false
-						startCFrame = points[currentPoint]
-						endCFrame = points[currentPoint + 1] or points[1]
-						duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
-						startTime = tick()
-					end)
-				else
-					if currentPoint > #points then
-						startCFrame = points[currentPoint]
-						endCFrame = points[currentPoint + 1] or points[1]
-						duration = 2
-						startTime = tick()
-					end
-				end
-			end
-
-			if attachment then
-				attachment.WorldCFrame = endCFrame
-			end
-		end)
-	end
-
-	local function disable()
-		if not enabled then return end
-		enabled = false
-		if connection then
-			connection:Disconnect()
-			connection = nil
+	local function tryGetHRP()
+		local char = LocalPlayer.Character
+		if char then
+			return char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
 		end
+		return nil
+	end
+
+	local function cleanupVisuals()
+		if attachment then
+			attachment:Destroy()
+			attachment = nil
+		end
+		if beam then
+			beam:Destroy()
+			beam = nil
+		end
+	end
+
+	local function cleanupBodyP()
 		if bodyP then
 			bodyP:Destroy()
 			bodyP = nil
 		end
-		if attachment and beam then
-			attachment:Destroy()
-			beam:Destroy()
-			attachment = nil
-			beam = nil
+	end
+	local function recalcSegment()
+		startCFrame = points[currentPoint]
+		endCFrame = points[currentPoint + 1] or points[1]
+		duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
+		startTime = tick()
+	end
+	local function ensureMovementSetup()
+		local hrp = tryGetHRP()
+		if hrp and not bodyP then
+			bodyP = Instance.new("BodyPosition")
+			bodyP.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+			bodyP.P = 5e4
+			bodyP.D = 1250
+			bodyP.Position = startCFrame.Position
+			bodyP.Parent = hrp
 		end
-		isWaiting = false
+
+		local char = LocalPlayer.Character
+		if char and not attachment and not beam and endCFrame then
+			attachment = Instance.new("Attachment")
+			attachment.Parent = workspace
+			attachment.WorldCFrame = endCFrame
+
+			beam = Instance.new("Beam")
+			beam.Parent = workspace
+			beam.LightEmission = 0
+			beam.Texture = "rbxassetid://138007024966757"
+			beam.TextureLength = -1
+			beam.FaceCamera = true
+			beam.Attachment0 = attachment
+			pcall(function()
+				if char.PrimaryPart and char.PrimaryPart:FindFirstChild("RootAttachment") then
+					beam.Attachment1 = char.PrimaryPart.RootAttachment
+				elseif char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("RootAttachment") then
+					beam.Attachment1 = char.HumanoidRootPart.RootAttachment
+				end
+			end)
+		end
+	end
+	local function onHeartbeat()
+		if not enabled or isWaiting then return end
+		local hrp = tryGetHRP()
+		if not hrp then return end
+
+		if not startCFrame or not endCFrame then
+			recalcSegment()
+		end
+
+		local now = tick()
+		local alpha = duration > 0 and math.clamp((now - startTime) / duration, 0, 1) or 1
+		local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
+
+		if not bodyP then
+			ensureMovementSetup()
+		end
+		if bodyP then
+			bodyP.Position = newPos
+		end
+
+		if attachment and endCFrame then
+			attachment.WorldCFrame = endCFrame
+		end
+
+		if alpha >= 1 then
+			currentPoint += 1
+
+			if currentPoint > #points then
+				currentPoint = 1
+				local char = LocalPlayer.Character
+				if char and char.PrimaryPart then
+					char:SetPrimaryPartCFrame(points[currentPoint])
+				elseif char and char:FindFirstChild("HumanoidRootPart") then
+					char.HumanoidRootPart.CFrame = points[currentPoint]
+				end
+				if bodyP then
+					bodyP.Position = points[currentPoint].Position
+				end
+
+				recalcSegment()
+				return
+			end
+			local waitTime = waitTimes[currentPoint] or 0
+			if waitTime > 0 then
+				isWaiting = true
+				task.spawn(function()
+					task.wait(waitTime)
+					if enabled then
+						isWaiting = false
+						recalcSegment()
+					end
+				end)
+			else
+				recalcSegment()
+			end
+		end
+	end
+	local function startMove()
+		if enabled then return end
+		enabled = true
+		currentPoint = 1
+		recalcSegment()
+		ensureMovementSetup()
+
+		if not connection then
+			connection = RunService.Heartbeat:Connect(onHeartbeat)
+		end
+		LocalPlayer.CharacterAdded:Connect(function(char)
+			task.wait(0.1)
+			cleanupBodyP()
+			cleanupVisuals()
+			if enabled then
+				recalcSegment()
+				ensureMovementSetup()
+			end
+		end)
+		if LocalPlayer.Character then
+			local humanoid = LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
+			if humanoid then
+				humanoid.Died:Connect(function()
+					cleanupBodyP()
+					cleanupVisuals()
+				end)
+			end
+		end
 	end
 
-	-- 🔁 перезапуск после смерти
-	LocalPlayer.CharacterAdded:Connect(function(char)
-		if enabled then
-			repeat task.wait() until char:FindFirstChild("HumanoidRootPart")
-			task.wait(0.5)
-			setupPhysics(char)
+	local function disable()
+		enabled = false
+		isWaiting = false
+		if connection then
+			connection:Disconnect()
+			connection = nil
 		end
-	end)
-
-	-- ⚙️ UI переключатель
+		cleanupBodyP()
+		cleanupVisuals()
+	end
 	CoreSettings:CreateSeparator("Addons")
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 
-	newgui.Parent.settings.list["Auto farm"]:GetAttributeChangedSignal("Value"):Connect(function()
-		if newgui.Parent.settings.list["Auto farm"]:GetAttribute("Value") == true then
+	local uiSwitch = newgui.Parent.settings.list["Auto farm"]
+
+	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
+		if uiSwitch:GetAttribute("Value") == true then
 			startMove()
 		else
 			disable()
 		end
 	end)
+
+	if uiSwitch:GetAttribute("Value") == true then
+		startMove()
+	end
 end
 local conn = nil
 local currentCursor = nil
