@@ -5785,7 +5785,7 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 18,
+		[5] = 15,
 	}
 
 	local moveSpeed = 400
@@ -5848,7 +5848,8 @@ if game.PlaceId == 537413528 then
 			beam.Parent = workspace
 			beam.LightEmission = 0
 			beam.Texture = "rbxassetid://138007024966757"
-			beam.TextureLength = -1
+			beam.TextureSpeed = -1
+			beam.TextureMode = 2
 			beam.FaceCamera = true
 			beam.Attachment0 = attachment
 			pcall(function()
@@ -6750,3 +6751,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
