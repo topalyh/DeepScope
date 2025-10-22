@@ -1358,7 +1358,7 @@ local modules = {
 				if Enabled and BodyPos and BodyGyro then
 					local camCF = CurrentCamera.CFrame
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
-					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt
+					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt * 1000
 
 					currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
 
@@ -5808,7 +5808,6 @@ if game.PlaceId == 537413528 then
 		endCFrame = points[currentPoint + 1] or points[1]
 		duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
 		startTime = tick()
-
 		connection = RunService.Heartbeat:Connect(function(dt)
 			if not enabled then return end
 			local now = tick()
@@ -5818,6 +5817,7 @@ if game.PlaceId == 537413528 then
 
 			local char = LocalPlayer.Character
 			if char and char.PrimaryPart then
+				char.PrimaryPart.Anchored = true
 				char:SetPrimaryPartCFrame(newCFrame)
 			end
 
@@ -5838,6 +5838,7 @@ if game.PlaceId == 537413528 then
 	local function disable()
 		if not enabled then return end
 		enabled = false
+		LocalPlayer.Character.PrimaryPart.Anchored = true
 		if connection then
 			connection:Disconnect()
 			connection = nil
@@ -6626,5 +6627,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
