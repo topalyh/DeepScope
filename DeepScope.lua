@@ -1167,6 +1167,44 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
+function coreModules.Lib:EncryptCode(code)
+	local text = ""
+	for i = 1, #code do
+		local result, err = pcall(function()
+			return utf8.codepoint(code, i)
+		end)
+		if err then
+			text ..= utf8.char(0xFFFD)
+		else
+			text ..= code:sub(i,i)
+		end
+	end
+	local result = {}
+	for _, v in utf8.codes(text) do
+		local hex = string.format("%x", v)
+
+		local garbage = ""
+		local garbage2 = ""
+		for i = 1, 50 do
+			local first, ending = math.random(0, 32), math.random(126, 255)
+			local first2, ending2 = math.random(0, 32), math.random(126, 255)
+			if first == 0 then
+				first = 0xFFFD
+			end
+			garbage ..= utf8.char(first)..utf8.char(ending)
+		end
+		for i = 1, 50 do
+			local first2, ending2 = math.random(0, 32), math.random(126, 255)
+			if first2 == 0 then
+				first2 = 0xFFFD
+			end
+			garbage2 = utf8.char(first2)..utf8.char(ending2)
+		end
+
+		table.insert(result, garbage2.."0x"..hex..garbage)
+	end
+	return table.concat(result)
+end
 local function saveData(dataToSave)
 	local data = dataToSave or {}
 	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
@@ -1358,7 +1396,7 @@ local modules = {
 				if Enabled and BodyPos and BodyGyro then
 					local camCF = CurrentCamera.CFrame
 					local moveVec = moveDirection.Magnitude > 0 and moveDirection.Unit or Vector3.new()
-					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt * 1000
+					local targetVelocity = camCF:VectorToWorldSpace(moveVec) * flySpeed * dt
 
 					currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
 
@@ -3721,7 +3759,7 @@ local function createGui()
 		ClearTextOnFocus = false,
 		MultiLine = true,
 		Size = UDim2.fromOffset(1e6, 1e6),
-		Font = executorConfig.font,
+		FontFace = executorConfig.font,
 		Text = [[print("Hello DeepScope!")]],
 		TextTransparency = 1,
 		TextColor3 = Color3.fromRGB(204, 204, 204),
@@ -3738,7 +3776,7 @@ local function createGui()
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 2,
-		Font = executorConfig.font,
+		FontFace = executorConfig.font,
 		Text = [[print("Hello DeepScope!")]],
 		TextColor3 = Color3.fromRGB(204, 204, 204),
 		TextSize = 15,
@@ -5799,6 +5837,7 @@ if game.PlaceId == 537413528 then
 	local connection
 	local currentPoint = 1
 	local startCFrame, endCFrame, duration, startTime
+	local bodyPosition = nil
 
 	local function startMove()
 		if enabled then return end
@@ -5808,17 +5847,24 @@ if game.PlaceId == 537413528 then
 		endCFrame = points[currentPoint + 1] or points[1]
 		duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
 		startTime = tick()
+
 		connection = RunService.Heartbeat:Connect(function(dt)
 			if not enabled then return end
 			local now = tick()
 			local alpha = math.clamp((now - startTime) / duration, 0, 1)
 			local newPos = startCFrame.Position:Lerp(endCFrame.Position, alpha)
-			local newCFrame = CFrame.new(newPos) * startCFrame.Rotation
+			local newCFrame = CFrame.new(newPos)
+			if not bodyPosition then
+				bodyPosition = Instance.new("BodyPosition")
+				bodyPosition.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+				bodyPosition.P = 100000
+				bodyPosition.D = 500
+				bodyPosition.Parent = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			end
 
 			local char = LocalPlayer.Character
-			if char and char.PrimaryPart then
-				char.PrimaryPart.Anchored = true
-				char:SetPrimaryPartCFrame(newCFrame)
+			if char and char.PrimaryPart and bodyPosition then
+				bodyPosition.Position = Vector3.new(newCFrame)
 			end
 
 			if alpha >= 1 then
@@ -5838,10 +5884,13 @@ if game.PlaceId == 537413528 then
 	local function disable()
 		if not enabled then return end
 		enabled = false
-		LocalPlayer.Character.PrimaryPart.Anchored = true
 		if connection then
 			connection:Disconnect()
 			connection = nil
+		end
+		if bodyPosition then
+			bodyPosition:Destroy()
+			bodyPosition = nil
 		end
 	end
 
@@ -6627,6 +6676,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
