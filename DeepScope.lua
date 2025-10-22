@@ -5883,24 +5883,24 @@ if game.PlaceId == 537413528 then
 					if bodyP then
 						bodyP.Position = points[currentPoint].Position
 					end
-				end
-
-				local waitTime = waitTimes[currentPoint] or 0
-				if waitTime > 0 then
-					isWaiting = true
-					task.spawn(function()
-						wait(waitTime)
-						isWaiting = false
+				else
+					local waitTime = waitTimes[currentPoint] or 0
+					if waitTime > 0 then
+						isWaiting = true
+						task.spawn(function()
+							wait(waitTime)
+							isWaiting = false
+							startCFrame = points[currentPoint]
+							endCFrame = points[currentPoint + 1] or points[1]
+							duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
+							startTime = tick()
+						end)
+					else
 						startCFrame = points[currentPoint]
 						endCFrame = points[currentPoint + 1] or points[1]
 						duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
 						startTime = tick()
-					end)
-				else
-					startCFrame = points[currentPoint]
-					endCFrame = points[currentPoint + 1] or points[1]
-					duration = (endCFrame.Position - startCFrame.Position).Magnitude / moveSpeed
-					startTime = tick()
+					end
 				end
 			end
 
