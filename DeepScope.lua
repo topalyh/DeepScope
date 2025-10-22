@@ -5873,8 +5873,16 @@ if game.PlaceId == 537413528 then
 
 			if alpha >= 1 then
 				currentPoint += 1
+
+				-- если достиг последней точки
 				if currentPoint > #points then
 					currentPoint = 1
+
+					-- моментальный телепорт в стартовую точку
+					local char = LocalPlayer.Character
+					if bodyP then
+						bodyP.Position = points[currentPoint].Position
+					end
 				end
 
 				local waitTime = waitTimes[currentPoint] or 0
