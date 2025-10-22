@@ -5791,7 +5791,7 @@ if game.PlaceId == 537413528 then
 		CFrame.new(-89.884, 82.9, 1371.862),
 		CFrame.new(-89.883, 82.9, 8611.861),
 		CFrame.new(-89.883, -352.1, 8956.861),
-		CFrame.new(-55.883, -361.1, 9488.861),
+		CFrame.new(-55.883, -359.1, 9492.861),
 	}
 
 	-- ⏱ Задержки на каждой точке
@@ -5899,7 +5899,7 @@ if game.PlaceId == 537413528 then
 					if currentPoint > #points then
 						startCFrame = points[currentPoint]
 						endCFrame = points[currentPoint + 1] or points[1]
-						duration = 0
+						duration = 2
 						startTime = tick()
 					end
 				end
