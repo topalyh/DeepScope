@@ -5773,9 +5773,9 @@ CoreSettings:CreateSetting("Format Mode", {
 }, "Dropdown")
 if game.PlaceId == 537413528 then
 	local points = {
-		CFrame.new(-49.884, 356.9, 288.862),
-		CFrame.new(-49.884, 82.9, 1371.862),
-		CFrame.new(-49.883, 82.9, 8611.861),
+		CFrame.new(-164.266, 356.9, 288.862),
+		CFrame.new(-164.266, 82.9, 1371.862),
+		CFrame.new(-164.266, 82.9, 8611.861),
 		CFrame.new(-49.883, -352.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9490.861),
 	}
@@ -5785,7 +5785,7 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 180,
+		[5] = 18,
 	}
 
 	local moveSpeed = 400
@@ -5961,9 +5961,13 @@ if game.PlaceId == 537413528 then
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 	local uiSwitch = newgui.Parent.settings.list["Auto farm"]
 	LocalPlayer.CharacterAdded:Connect(function()
-		disable()
-		startMove()
+		if uiSwitch:GetAttribute("Value") == true then
+			wait(1)
+			disable()
+			startMove()
+		end
 	end)
+
 	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
 		if uiSwitch:GetAttribute("Value") == true then
 			startMove()
@@ -6746,4 +6750,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
