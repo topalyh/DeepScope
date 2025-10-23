@@ -5848,7 +5848,8 @@ if game.PlaceId == 537413528 then
 			beam.Parent = workspace
 			beam.LightEmission = 0
 			beam.Texture = "rbxassetid://138007024966757"
-			beam.TextureLength = -1
+			beam.TextureSpeed = -1
+			beam.TextureMode = 2
 			beam.FaceCamera = true
 			beam.Attachment0 = attachment
 			pcall(function()
@@ -5993,22 +5994,40 @@ if game.PlaceId == 537413528 then
 			table.remove(houses, table.find(houses, child))
 		end
 	end)
+	local bodyP2 = nil
+	local currentCFrame = CFrame.new()
 	task.spawn(function()
-		while task.wait(2) do
+		while task.wait(0.1) do
 			if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
-				local closestHouse = nil
-				local closestDistance = math.huge
-				for _, house in houses do
-					local distance = (LocalPlayer.Character.HumanoidRootPart.Position - house.PrimaryPart.Position).Magnitude
-					if distance < closestDistance then
-						closestHouse = house
-						closestDistance = distance
+				if not bodyP2 then
+					bodyP2 = Instance.new("BodyPosition")
+					bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+					bodyP2.P = 5e4
+					bodyP2.D = 1250
+					bodyP2.Position = startCFrame.Position
+					bodyP2.Parent = LocalPlayer.Character.PrimaryPart
+				end
+				local selectedHouse = nil
+				for _, v in houses do
+					local house = houses[math.random(1, #houses)]
+					if house then
+						selectedHouse = house
 					end
 				end
-				if closestHouse then
-					LocalPlayer.Character:SetPrimaryPartCFrame(closestHouse.PrimaryPart.CFrame * CFrame.new(0, 0, 4.4))
-					table.remove(houses, table.find(houses, closestHouse))
+				if selectedHouse then
+					currentCFrame = selectedHouse.PrimaryPart.CFrame * CFrame.new(0, 0, 4.4)
+					table.remove(houses, table.find(houses, selectedHouse))
+				else
+					currentCFrame = CFrame.new(0, 0, 0)
 				end
+			else
+				if bodyP2 then
+					bodyP2:Destroy()
+					bodyP2 = nil
+				end
+			end
+			if bodyP2 then
+				bodyP2.Position = currentCFrame.Position
 			end
 		end
 	end)
