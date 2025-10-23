@@ -5774,9 +5774,9 @@ CoreSettings:CreateSetting("Format Mode", {
 if game.PlaceId == 537413528 then
 	local points = {
 		CFrame.new(-164.266, 356.9, 288.862),
-		CFrame.new(-164.266, 82.9, 1371.862),
-		CFrame.new(-164.266, 82.9, 8611.861),
-		CFrame.new(-49.883, -352.1, 8956.861),
+		CFrame.new(-164.266, 77.9, 1371.862),
+		CFrame.new(-164.266, 77.9, 8611.861),
+		CFrame.new(-49.883, 200.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9490.861),
 	}
 
@@ -5988,17 +5988,21 @@ if game.PlaceId == 537413528 then
 		houses = workspace:WaitForChild("Houses"):GetChildren()
 	end)
 	local bodyP2 = nil
+	local bodyG2 = nil
 	local currentCFrame = CFrame.new(0, 100, 0)
 	task.spawn(function()
 		while task.wait(2) do
 			if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
-				if not bodyP2 then
+				if not bodyP2 and not bodyG2 then
 					bodyP2 = Instance.new("BodyPosition")
 					bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
 					bodyP2.P = 5e4
 					bodyP2.D = 1250
 					bodyP2.Position = currentCFrame.Position
 					bodyP2.Parent = LocalPlayer.Character.PrimaryPart
+					bodyG2 = Instance.new("BodyGyro")
+					bodyG2.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+					bodyG2.Parent = LocalPlayer.Character.PrimaryPart
 				end
 				local selectedHouse = nil
 				for _, v in houses do
@@ -6006,15 +6010,16 @@ if game.PlaceId == 537413528 then
 					v:SetAttribute("Touched", false)
 				end
 				if selectedHouse then
-					local offset = CFrame.new(0, 3, 4.4)
+					local offset = CFrame.new(0, 3, -1)
 					currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
 					selectedHouse.Door.DoorInnerTouch.Touched:Connect(function()
 						selectedHouse:SetAttribute("Touched", true)
 					end)
 					if selectedHouse:GetAttribute("Touched") == true then
-						offset = CFrame.new(0, 10, 4.4)
+						offset = CFrame.new(0, 10, -1)
 						task.delay(5, function()
 							selectedHouse:SetAttribute("Touched", false)
+							offset = CFrame.new(0, 3, -1)
 						end)
 					end
 				else
@@ -6025,9 +6030,14 @@ if game.PlaceId == 537413528 then
 					bodyP2:Destroy()
 					bodyP2 = nil
 				end
+				if bodyG2 then
+					bodyG2:Destroy()
+					bodyG2 = nil
+				end
 			end
-			if bodyP2 then
+			if bodyP2 and bodyG2 then
 				bodyP2.Position = currentCFrame.Position
+				bodyG2.CFrame = currentCFrame
 			end
 		end
 	end)
