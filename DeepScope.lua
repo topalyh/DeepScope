@@ -5832,7 +5832,7 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 0,
+		[5] = 18,
 	}
 
 	local moveSpeed = 300
@@ -6089,17 +6089,17 @@ if game.PlaceId == 537413528 then
 		if updateThread then return end
 		updateThread = task.spawn(function()
 			while enabled do
-				task.wait()
+				task.wait(0.5)
 				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 					createBodyMovers()
 
 					-- выбираем последнюю найденную "house" (можешь изменить)
-					local selectedHouse = houses[#houses]
+					local selectedHouse = math.random(houses[#houses])
 					if selectedHouse and selectedHouse.PrimaryPart then
 						local offset = CFrame.new(0, 3, -1.5)
 						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
 					else
-						currentCFrame = CFrame.new(0, -300, 0)
+						currentCFrame = CFrame.new(0, -400, 0)
 					end
 				else
 					destroyBodyMovers()
