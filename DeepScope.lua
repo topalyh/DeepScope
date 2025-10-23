@@ -5959,9 +5959,11 @@ if game.PlaceId == 537413528 then
 	end
 	CoreSettings:CreateSeparator("Addons")
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
+	CoreSettings:CreateSetting("Auto Trick Or Treat", false, "Switch")
+	local uiSwitch2 = newgui.Parent.settings.list["Auto Trick Or Treat"]
 	local uiSwitch = newgui.Parent.settings.list["Auto farm"]
 	LocalPlayer.CharacterAdded:Connect(function()
-		if uiSwitch:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
+		if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 			wait(2)
 			disable()
 			startMove()
@@ -5969,19 +5971,17 @@ if game.PlaceId == 537413528 then
 	end)
 
 	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
-		if uiSwitch:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
+		if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 			startMove()
 		else
 			disable()
 		end
 	end)
 
-	if uiSwitch:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
+	if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 		startMove()
 	end
 	
-	CoreSettings:CreateSetting("Auto Trick Or Treat", false, "Switch")
-	local uiSwitch2 = newgui.Parent.settings.list["Auto Trick Or Treat"]
 	local houses = {}
 	workspace.Houses.ChildAdded:Connect(function(child)
 		if child.Name == "TrickOrTreatHouse" then
@@ -5999,7 +5999,7 @@ if game.PlaceId == 537413528 then
 				local closestHouse = nil
 				local closestDistance = math.huge
 				for _, house in houses do
-					local distance = (LocalPlayer.Character.HumanoidRootPart.Position - house.HousePart.Position).Magnitude
+					local distance = (LocalPlayer.Character.HumanoidRootPart.Position - house.PrimaryPart.Position).Magnitude
 					if distance < closestDistance then
 						closestHouse = house
 						closestDistance = distance
