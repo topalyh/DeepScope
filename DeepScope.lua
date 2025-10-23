@@ -6032,61 +6032,140 @@ if game.PlaceId == 537413528 then
 	if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 		startMove()
 	end
-	local connection2
+	
 	local houses = {}
-	connection2 = RunService.RenderStepped:Connect(function()
-		houses = workspace:WaitForChild("Houses"):GetChildren()
-	end)
-	local bodyP2 = nil
-	local bodyG2 = nil
+	local connection2
+	local bodyP2, bodyG2
 	local currentCFrame = CFrame.new(0, 100, 0)
+	local enabled = false
+	local updateThread = nil
+
+	-- функции для создания и удаления физики
+	local function createBodyMovers()
+		local char = LocalPlayer.Character
+		if not char then return end
+		local root = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
+		if not root then return end
+
+		if not bodyP2 then
+			bodyP2 = Instance.new("BodyPosition")
+			bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+			bodyP2.P = 5e4
+			bodyP2.D = 1250
+			bodyP2.Position = currentCFrame.Position
+			bodyP2.Parent = root
+		end
+		if not bodyG2 then
+			bodyG2 = Instance.new("BodyGyro")
+			bodyG2.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+			bodyG2.CFrame = currentCFrame
+			bodyG2.Parent = root
+		end
+	end
+
+	local function destroyBodyMovers()
+		if bodyP2 then
+			bodyP2:Destroy()
+			bodyP2 = nil
+		end
+		if bodyG2 then
+			bodyG2:Destroy()
+			bodyG2 = nil
+		end
+	end
+
+	-- безопасное обновление списка домов (не каждый кадр)
 	task.spawn(function()
-		while task.wait(2) do
-			if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
-				if not bodyP2 and not bodyG2 then
-					bodyP2 = Instance.new("BodyPosition")
-					bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-					bodyP2.P = 5e4
-					bodyP2.D = 1250
-					bodyP2.Position = currentCFrame.Position
-					bodyP2.Parent = LocalPlayer.Character.PrimaryPart
-					bodyG2 = Instance.new("BodyGyro")
-					bodyG2.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
-					bodyG2.Parent = LocalPlayer.Character.PrimaryPart
-					runCommand("noclip")
+		while task.wait(0.5) do
+			pcall(function()
+				local housesFolder = workspace:FindFirstChild("Houses")
+				if housesFolder then
+					houses = housesFolder:GetChildren()
 				end
-				local selectedHouse = nil
-				for _, v in houses do
-					selectedHouse = v
-				end
-				if selectedHouse then
-					local offset = CFrame.new(0, 3, -0.7)
-					currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
-					task.delay(7, function()
-						offset = CFrame.new(0, 10, -0.7)
-						task.delay(5, function()
-							offset = CFrame.new(0, 3, -0.7)
-						end)
-					end)
-				else
-					currentCFrame = CFrame.new(0, 100, 0)
-				end
-			else
-				if bodyP2 then
-					bodyP2:Destroy()
-					bodyP2 = nil
-				end
-				if bodyG2 then
-					bodyG2:Destroy()
-					bodyG2 = nil
-				end
-			end
-			if bodyP2 and bodyG2 then
-				bodyP2.Position = currentCFrame.Position
-				bodyG2.CFrame = currentCFrame
-			end
+			end)
 		end
 	end)
+
+	-- основной поток движения
+	local function startMoving()
+		if updateThread then return end
+		updateThread = task.spawn(function()
+			while enabled do
+				task.wait(2)
+				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
+					createBodyMovers()
+					runCommand("noclip")
+
+					-- выбираем последнюю найденную "house" (можешь изменить)
+					local selectedHouse = houses[#houses]
+					if selectedHouse and selectedHouse.PrimaryPart then
+						local offset = CFrame.new(0, 3, -0.9)
+						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
+					else
+						currentCFrame = CFrame.new(0, 100, 0)
+					end
+				else
+					destroyBodyMovers()
+				end
+
+				-- применяем позицию
+				if bodyP2 and bodyG2 then
+					bodyP2.Position = currentCFrame.Position
+					bodyG2.CFrame = currentCFrame
+				end
+			end
+		end)
+	end
+
+	-- обработчик смерти
+	local function hookCharacter(char)
+		local humanoid = char:WaitForChild("Humanoid", 5)
+		if humanoid then
+			humanoid.Died:Connect(function()
+				destroyBodyMovers()
+			end)
+		end
+	end
+
+	-- перезапуск при респавне
+	LocalPlayer.CharacterAdded:Connect(function(char)
+		task.wait(1)
+		hookCharacter(char)
+		if enabled and uiSwitch2:GetAttribute("Value") == true then
+			createBodyMovers()
+		end
+	end)
+
+	-- включение/выключение режима
+	local function enableMode()
+		if enabled then return end
+		enabled = true
+		createBodyMovers()
+		startMoving()
+	end
+
+	local function disableMode()
+		enabled = false
+		destroyBodyMovers()
+		if updateThread then
+			task.cancel(updateThread)
+			updateThread = nil
+		end
+	end
+
+	-- подключение к UI
+	uiSwitch2:GetAttributeChangedSignal("Value"):Connect(function()
+		if uiSwitch2:GetAttribute("Value") == true then
+			enableMode()
+		else
+			disableMode()
+		end
+	end)
+
+	-- сразу активировать если уже включено
+	if uiSwitch2:GetAttribute("Value") == true then
+		enableMode()
+	end
 end
 local conn = nil
 local currentCursor = nil
