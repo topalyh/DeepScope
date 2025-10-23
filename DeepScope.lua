@@ -2457,7 +2457,7 @@ local function createGui()
 		Name = "explorer",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		Position = UDim2.fromOffset(0, 88),
-		Size = UDim2.fromOffset(400, CurrentCamera.ViewportSize.Y),
+		Size = UDim2.fromOffset(400, CurrentCamera.ViewportSize.Y-1),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
@@ -4397,10 +4397,12 @@ local function createEntryForInstance(node, parentGui)
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 0
 	})
-	local newTemplate = template:Clone()
 	local classData = RMD.Classes[node.Data.ClassName]
-	local index = classData and classData.ExplorerOrder or 9999
-	local iconOffset = classData and Vector2.new(classData.ExplorerImageIndex*16, 0) or Vector2.new(0, 0)
+	local explorerImageIndex = classData and classData.ExplorerImageIndex or 0
+	local explorerOrder = classData and classData.ExplorerOrder or 9999
+	local newTemplate = template:Clone()
+	local index = explorerOrder
+	local iconOffset = Vector2.new(explorerImageIndex*16, 0)
 
 	newTemplate.Parent = parentGui
 	newTemplate.Name = node.Data.Name
@@ -6089,12 +6091,12 @@ if game.PlaceId == 537413528 then
 		if updateThread then return end
 		updateThread = task.spawn(function()
 			while enabled do
-				task.wait(2)
+				task.wait(0.5)
 				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 					createBodyMovers()
 
 					-- выбираем последнюю найденную "house" (можешь изменить)
-					local selectedHouse = houses[#houses]
+					local selectedHouse = math.random(houses[#houses])
 					if selectedHouse and selectedHouse.PrimaryPart then
 						local offset = CFrame.new(0, 3, -1.5)
 						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
@@ -6893,7 +6895,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
-
