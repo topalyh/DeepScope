@@ -6003,7 +6003,7 @@ if game.PlaceId == 537413528 then
 					bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
 					bodyP2.P = 5e4
 					bodyP2.D = 1250
-					bodyP2.Position = startCFrame.Position
+					bodyP2.Position = currentCFrame.Position
 					bodyP2.Parent = LocalPlayer.Character.PrimaryPart
 				end
 				local selectedHouse = nil
@@ -6798,3 +6798,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
