@@ -6572,6 +6572,10 @@ end)
 local Noclipping = nil
 registerCommand("noclip", function()
 	wait(0.1)
+	if Noclipping then
+		Noclipping:Disconnect()
+		Noclipping = nil
+	end
 	local function NoclipLoop()
 		if LocalPlayer.Character ~= nil then
 			for _, child in pairs(LocalPlayer.Character:GetDescendants()) do
