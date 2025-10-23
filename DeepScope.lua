@@ -5771,6 +5771,56 @@ CoreSettings:CreateSetting("Format Mode", {
 		"Undecillion"
 	}
 }, "Dropdown")
+local commands = {}
+local function registerCommand(name, callback)
+	local template = createInstance("TextButton", {
+		Parent = newgui.Parent.commandbar.commandlist,
+		Name = name,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(195, 15),
+		FontFace = Font.new(fonts.SourceSansPro, Enum.FontWeight.Bold),
+		Text = name,
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local piece2 = createInstance("UIPadding", {
+		Parent = template,
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5)
+	})
+	commands[name] = callback
+end
+local function runCommand(input)
+	if input == "" then
+		return
+	end
+	if input:sub(1, 1) == commandPrefix then
+		input = input:sub(2)
+	end
+
+	local parts = input:split(" ")
+	local commandName = parts[1]:lower()
+	local args = {}
+
+	for i = 2, #parts do
+		table.insert(args, parts[i])
+	end
+
+	local command = commands[commandName]
+	if command then
+		local success, err = pcall(function()
+			command(args)
+		end)
+		if not success then
+			AddLog("game.ReplicatedStorage._DeepScopeCore.Command:2733: "..err, "DeepScope", "error")
+		end
+	else
+		AddLog("Unknown command: "..commandName, "DeepScope", "warn")
+	end
+end
 if game.PlaceId == 537413528 then
 	local points = {
 		CFrame.new(-164.266, 356.9, 288.862),
@@ -6003,25 +6053,21 @@ if game.PlaceId == 537413528 then
 					bodyG2 = Instance.new("BodyGyro")
 					bodyG2.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
 					bodyG2.Parent = LocalPlayer.Character.PrimaryPart
+					runCommand("noclip")
 				end
 				local selectedHouse = nil
 				for _, v in houses do
 					selectedHouse = v
-					v:SetAttribute("Touched", false)
 				end
 				if selectedHouse then
-					local offset = CFrame.new(0, 3, -1)
+					local offset = CFrame.new(0, 3, -0.7)
 					currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
-					selectedHouse.Door.DoorInnerTouch.Touched:Connect(function()
-						selectedHouse:SetAttribute("Touched", true)
-					end)
-					if selectedHouse:GetAttribute("Touched") == true then
-						offset = CFrame.new(0, 10, -1)
+					task.delay(7, function()
+						offset = CFrame.new(0, 10, -0.7)
 						task.delay(5, function()
-							selectedHouse:SetAttribute("Touched", false)
-							offset = CFrame.new(0, 3, -1)
+							offset = CFrame.new(0, 3, -0.7)
 						end)
-					end
+					end)
 				else
 					currentCFrame = CFrame.new(0, 100, 0)
 				end
@@ -6270,58 +6316,8 @@ LocalPlayer.Character.Humanoid.Seated:Connect(function(active, seat)
 		notify("rbxassetid://6525485104", "You cant seat on VehicleSeat while Flying!", 6)
 	end
 end)
-local commands = {}
 local function checkIfR15(char)
 	return char:FindFirstChild("UpperTorso") ~= nil
-end
-local function registerCommand(name, callback)
-	local template = createInstance("TextButton", {
-		Parent = newgui.Parent.commandbar.commandlist,
-		Name = name,
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(195, 15),
-		FontFace = Font.new(fonts.SourceSansPro, Enum.FontWeight.Bold),
-		Text = name,
-		TextColor3 = Color3.new(1, 1, 1),
-		TextSize = 16,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-	})
-	local piece2 = createInstance("UIPadding", {
-		Parent = template,
-		PaddingLeft = UDim.new(0, 5),
-		PaddingRight = UDim.new(0, 5)
-	})
-	commands[name] = callback
-end
-local function runCommand(input)
-	if input == "" then
-		return
-	end
-	if input:sub(1, 1) == commandPrefix then
-		input = input:sub(2)
-	end
-
-	local parts = input:split(" ")
-	local commandName = parts[1]:lower()
-	local args = {}
-
-	for i = 2, #parts do
-		table.insert(args, parts[i])
-	end
-
-	local command = commands[commandName]
-	if command then
-		local success, err = pcall(function()
-			command(args)
-		end)
-		if not success then
-			AddLog("game.ReplicatedStorage._DeepScopeCore.Command:2733: "..err, "DeepScope", "error")
-		end
-	else
-		AddLog("Unknown command: "..commandName, "DeepScope", "warn")
-	end
 end
 textBox.FocusLost:Connect(function()
 	textBox.Parent:SetAttribute("Hovering", false)
