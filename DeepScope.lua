@@ -5785,10 +5785,10 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 15,
+		[5] = 18,
 	}
 
-	local moveSpeed = 400
+	local moveSpeed = 300
 	local enabled = false
 	local connection = nil
 	local currentPoint = 1
@@ -5848,8 +5848,7 @@ if game.PlaceId == 537413528 then
 			beam.Parent = workspace
 			beam.LightEmission = 0
 			beam.Texture = "rbxassetid://138007024966757"
-			beam.TextureSpeed = -1
-			beam.TextureMode = 2
+			beam.TextureLength = -1
 			beam.FaceCamera = true
 			beam.Attachment0 = attachment
 			pcall(function()
@@ -5962,24 +5961,57 @@ if game.PlaceId == 537413528 then
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 	local uiSwitch = newgui.Parent.settings.list["Auto farm"]
 	LocalPlayer.CharacterAdded:Connect(function()
-		if uiSwitch:GetAttribute("Value") == true then
-			wait(1)
+		if uiSwitch:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
+			wait(2)
 			disable()
 			startMove()
 		end
 	end)
 
 	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
-		if uiSwitch:GetAttribute("Value") == true then
+		if uiSwitch:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 			startMove()
 		else
 			disable()
 		end
 	end)
 
-	if uiSwitch:GetAttribute("Value") == true then
+	if uiSwitch:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 		startMove()
 	end
+	
+	CoreSettings:CreateSetting("Auto Trick Or Treat", false, "Switch")
+	local uiSwitch2 = newgui.Parent.settings.list["Auto Trick Or Treat"]
+	local houses = {}
+	workspace.Houses.ChildAdded:Connect(function(child)
+		if child.Name == "TrickOrTreatHouse" then
+			table.insert(houses, child)
+		end
+	end)
+	workspace.Houses.ChildRemoved:Connect(function(child)
+		if child.Name == "TrickOrTreatHouse" then
+			table.remove(houses, table.find(houses, child))
+		end
+	end)
+	task.spawn(function()
+		while task.wait(2) do
+			if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
+				local closestHouse = nil
+				local closestDistance = math.huge
+				for _, house in houses do
+					local distance = (LocalPlayer.Character.HumanoidRootPart.Position - house.HousePart.Position).Magnitude
+					if distance < closestDistance then
+						closestHouse = house
+						closestDistance = distance
+					end
+				end
+				if closestHouse then
+					LocalPlayer.Character:SetPrimaryPartCFrame(closestHouse.PrimaryPart.CFrame * CFrame.new(0, 0, 4.4))
+					table.remove(houses, table.find(houses, closestHouse))
+				end
+			end
+		end
+	end)
 end
 local conn = nil
 local currentCursor = nil
@@ -6751,4 +6783,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
