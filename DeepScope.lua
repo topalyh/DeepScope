@@ -5826,7 +5826,7 @@ if game.PlaceId == 537413528 then
 		CFrame.new(-164.266, 356.9, 288.862),
 		CFrame.new(-164.266, 77.9, 1371.862),
 		CFrame.new(-164.266, 77.9, 8611.861),
-		CFrame.new(-49.883, 200.1, 8956.861),
+		CFrame.new(-49.883, 300.1, 8956.861),
 		CFrame.new(-55.883, -361.1, 9490.861),
 	}
 
@@ -6099,7 +6099,7 @@ if game.PlaceId == 537413528 then
 					-- выбираем последнюю найденную "house" (можешь изменить)
 					local selectedHouse = houses[#houses]
 					if selectedHouse and selectedHouse.PrimaryPart then
-						local offset = CFrame.new(0, 3, -0.9)
+						local offset = CFrame.new(0, 3, -1.3)
 						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
 					else
 						currentCFrame = CFrame.new(0, 100, 0)
@@ -6582,12 +6582,10 @@ registerCommand("noclip", function()
 		end
 	end
 	Noclipping = RunService.Stepped:Connect(NoclipLoop)
-	notify(nil, "Noclip enabled")
 end)
 registerCommand("unnoclip", function()
 	if Noclipping then
 		Noclipping:Disconnect()
-		notify(nil, "Noclip disabled")
 	end
 end)
 registerCommand("rejoin", function()
@@ -6615,7 +6613,8 @@ registerCommand("serverhop", function(args, speaker)
 	if #servers > 0 then
 		game["Teleport Service"]:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
 	else
-		return notify(nil, "Could't find a server.")
+		notify(nil, "Could't find a server.")
+		return
 	end
 end)
 registerCommand("exit", function()
