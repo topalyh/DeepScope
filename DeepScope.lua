@@ -5984,20 +5984,19 @@ if game.PlaceId == 537413528 then
 	end
 	
 	local houses = {}
+	for _, v in workspace.Houses:GetChildren() do
+		table.insert(houses, v)
+	end
 	workspace.Houses.ChildAdded:Connect(function(child)
-		if child.Name == "TrickOrTreatHouse" then
-			table.insert(houses, child)
-		end
+		table.insert(houses, child)
 	end)
 	workspace.Houses.ChildRemoved:Connect(function(child)
-		if child.Name == "TrickOrTreatHouse" then
-			table.remove(houses, table.find(houses, child))
-		end
+		table.remove(houses, table.find(houses, child))
 	end)
 	local bodyP2 = nil
 	local currentCFrame = CFrame.new()
 	task.spawn(function()
-		while task.wait(0.1) do
+		while task.wait(0.5) do
 			if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 				if not bodyP2 then
 					bodyP2 = Instance.new("BodyPosition")
@@ -6009,10 +6008,7 @@ if game.PlaceId == 537413528 then
 				end
 				local selectedHouse = nil
 				for _, v in houses do
-					local house = houses[math.random(1, #houses)]
-					if house then
-						selectedHouse = house
-					end
+					selectedHouse = v
 				end
 				if selectedHouse then
 					currentCFrame = selectedHouse.PrimaryPart.CFrame * CFrame.new(0, 0, 4.4)
