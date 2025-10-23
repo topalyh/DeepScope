@@ -1085,10 +1085,14 @@ print("Loading RMD... (may take a while)")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 print("Explorer Icons Loaded!")
-writefile("DeepScopeCore/Explorer/API.json", api)
-print("Properties API Loaded!")
-writefile("DeepScopeCore/Explorer/RMD.json", prettyJSON(ParseXML(rmd)))
-print("RMD Loaded!")
+local rmdAndAPILoaded = false
+spawn(function()
+	writefile("DeepScopeCore/Explorer/API.dat", api)
+	print("Properties API Loaded!")
+	writefile("DeepScopeCore/Explorer/RMD.dat", prettyJSON(ParseXML(rmd)))
+	print("RMD Loaded!")
+	rmdAndAPILoaded = true
+end)
 print("--------------------Others ------------------------")
 print("Fully loaded! Time took:",tick()-time)
 local lastVelocity = Vector3.zero
@@ -4546,6 +4550,10 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 end
 
 local function setExplorer()
+	if not rmdAndAPILoaded then
+		notify(nil, "Please wait until RMD and API is loaded!")
+		return
+	end
 	explorerUsing = true
 	explorerData = {}
 	local explorer = newgui.Parent.explorer
@@ -6036,7 +6044,7 @@ if game.PlaceId == 537413528 then
 	local houses = {}
 	local connection2
 	local bodyP2, bodyG2
-	local currentCFrame = CFrame.new(0, 100, 0)
+	local currentCFrame = CFrame.new(0, -300, 0)
 	local enabled = false
 	local updateThread = nil
 
@@ -6076,7 +6084,7 @@ if game.PlaceId == 537413528 then
 
 	-- безопасное обновление списка домов (не каждый кадр)
 	task.spawn(function()
-		while task.wait(0.5) do
+		while task.wait(5) do
 			pcall(function()
 				local housesFolder = workspace:FindFirstChild("Houses")
 				if housesFolder then
@@ -6091,17 +6099,17 @@ if game.PlaceId == 537413528 then
 		if updateThread then return end
 		updateThread = task.spawn(function()
 			while enabled do
-				task.wait(2)
+				task.wait(0.1)
 				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 					createBodyMovers()
 
 					-- выбираем последнюю найденную "house" (можешь изменить)
 					local selectedHouse = houses[#houses]
 					if selectedHouse and selectedHouse.PrimaryPart then
-						local offset = CFrame.new(0, 3, -1.3)
+						local offset = CFrame.new(0, 3, -1.5)
 						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
 					else
-						currentCFrame = CFrame.new(0, 100, 0)
+						currentCFrame = CFrame.new(0, -300, 0)
 					end
 				else
 					destroyBodyMovers()
@@ -6133,11 +6141,13 @@ if game.PlaceId == 537413528 then
 		enabled = true
 		createBodyMovers()
 		startMoving()
+		LocalPlayer.Character.Humanoid.PlatformStand = true
 	end
 
 	local function disableMode()
 		enabled = false
 		destroyBodyMovers()
+		LocalPlayer.Character.Humanoid.PlatformStand = false
 		if updateThread then
 			task.cancel(updateThread)
 			updateThread = nil
