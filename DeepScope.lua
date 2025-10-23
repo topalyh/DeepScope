@@ -6046,7 +6046,7 @@ if game.PlaceId == 537413528 then
 		if not char then return end
 		local root = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
 		if not root then return end
-
+		runCommand("noclip")
 		if not bodyP2 then
 			bodyP2 = Instance.new("BodyPosition")
 			bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
@@ -6094,7 +6094,6 @@ if game.PlaceId == 537413528 then
 				task.wait(2)
 				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 					createBodyMovers()
-					runCommand("noclip")
 
 					-- выбираем последнюю найденную "house" (можешь изменить)
 					local selectedHouse = houses[#houses]
@@ -6127,14 +6126,6 @@ if game.PlaceId == 537413528 then
 		end
 	end
 
-	-- перезапуск при респавне
-	LocalPlayer.CharacterAdded:Connect(function(char)
-		task.wait(1)
-		hookCharacter(char)
-		if enabled and uiSwitch2:GetAttribute("Value") == true then
-			createBodyMovers()
-		end
-	end)
 
 	-- включение/выключение режима
 	local function enableMode()
@@ -6152,7 +6143,14 @@ if game.PlaceId == 537413528 then
 			updateThread = nil
 		end
 	end
-
+	-- перезапуск при респавне
+	LocalPlayer.CharacterAdded:Connect(function(char)
+		task.wait(1)
+		if enabled and uiSwitch2:GetAttribute("Value") == true then
+			disableMode()
+			enableMode()
+		end
+	end)
 	-- подключение к UI
 	uiSwitch2:GetAttributeChangedSignal("Value"):Connect(function()
 		if uiSwitch2:GetAttribute("Value") == true then
