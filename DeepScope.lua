@@ -2003,8 +2003,7 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	modules.other.fly.UpdateMoveDirection(processed)
 end)
 function coreModules.Lib:FetchRMD()
-	local rawXML = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
-	local parsed = ParseXML(rawXML)
+	local parsed = HttpService:JSONDecode(readfile("DeepScopeCore/Explorer/RMD.dat"))
 	local classList = parsed.children[1].children[1].children
 	local enumList = parsed.children[1].children[2].children
 	local propertyOrders = {}
@@ -2095,8 +2094,6 @@ function coreModules.Lib:FetchRMD()
 			end
 		end
 	end
-
-	writefile("DeepScopeCore/Explorer/RMD.json", HttpService:JSONEncode({Classes = classes, Enums = enums, PropertyOrders = propertyOrders}))
 	return {Classes = classes, Enums = enums, PropertyOrders = propertyOrders}
 end
 function coreModules.Lib:FetchAPI()
@@ -2219,14 +2216,6 @@ function coreModules.Lib:FetchAPI()
 	for i = 1,#categoryOrder do
 		categoryOrderMap[categoryOrder[i]] = i
 	end
-
-	writefile("DeepScopeCore/Explorer/API.json", HttpService:JSONEncode({
-		Classes = classes,
-		Enums = enums,
-		CategoryOrder = categoryOrderMap,
-		GetMember = getMember
-	}))
-
 	return {
 		Classes = classes,
 		Enums = enums,
@@ -4457,9 +4446,9 @@ local function createEntryForInstance(node, parentGui)
 	end
 
 	UserInputService.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
 			local mousePos = UserInputService:GetMouseLocation()
-			local objects = LocalPlayer.Character:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+			local objects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
 			for _, obj in objects do
 				for _, template in templates do
 					if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
@@ -5843,7 +5832,7 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 18,
+		[5] = 0,
 	}
 
 	local moveSpeed = 300
@@ -6044,7 +6033,7 @@ if game.PlaceId == 537413528 then
 	local houses = {}
 	local connection2
 	local bodyP2, bodyG2
-	local currentCFrame = CFrame.new(0, -300, 0)
+	local currentCFrame = CFrame.new(0, -400, 0)
 	local enabled = false
 	local updateThread = nil
 
@@ -6055,6 +6044,7 @@ if game.PlaceId == 537413528 then
 		local root = char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart
 		if not root then return end
 		runCommand("noclip")
+		runCommand("spin")
 		if not bodyP2 then
 			bodyP2 = Instance.new("BodyPosition")
 			bodyP2.MaxForce = Vector3.new(1e6, 1e6, 1e6)
@@ -6099,7 +6089,7 @@ if game.PlaceId == 537413528 then
 		if updateThread then return end
 		updateThread = task.spawn(function()
 			while enabled do
-				task.wait(0.1)
+				task.wait()
 				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 					createBodyMovers()
 
@@ -6282,6 +6272,10 @@ game.Players.ChildRemoved:Connect(function(plr)
 	end
 end)
 local db = false
+for _, v in newgui:GetChildren() do
+	v:SetAttribute("OriginalPosition", v.Position)
+	v:SetAttribute("OriginalSize", v.Size)
+end
 newgui.hidebutton.MouseButton1Click:Connect(function()
 	if not db then
 		guiHiden = not guiHiden
@@ -6289,11 +6283,12 @@ newgui.hidebutton.MouseButton1Click:Connect(function()
 		for _, v in newgui:GetChildren() do
 			if v.Name ~= "hidebutton" then
 				if guiHiden then
-					v:TweenPosition(UDim2.fromScale(v.Position.X.Scale, v.Position.Y.Scale - 3), "InOut", "Quad", 0.5, true)
+					v:TweenPosition(UDim2.fromScale(0, -8), "InOut", "Quad", 0.5, true)
+					v:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Quad", 0.5, true)
 				else
-					v:TweenPosition(UDim2.fromScale(v.Position.X.Scale, v.Position.Y.Scale + 3), "InOut", "Quad", 0.5, true)
+					v:TweenPosition(v:GetAttribute("OriginalPosition"), "InOut", "Quad", 0.5, true)
+					v:TweenSize(v:GetAttribute("OriginalSize"), "InOut", "Quad", 0.5, true)
 				end
-				task.wait(0.05)
 			end
 		end
 		delay(1, function()
