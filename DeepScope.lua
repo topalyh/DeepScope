@@ -2457,7 +2457,7 @@ local function createGui()
 		Name = "explorer",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		Position = UDim2.fromOffset(0, 88),
-		Size = UDim2.fromOffset(240, 160),
+		Size = UDim2.fromOffset(400, CurrentCamera.ViewportSize.Y),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		Visible = false
@@ -6893,6 +6893,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
