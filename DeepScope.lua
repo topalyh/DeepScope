@@ -6003,9 +6003,20 @@ if game.PlaceId == 537413528 then
 				local selectedHouse = nil
 				for _, v in houses do
 					selectedHouse = v
+					v:SetAttribute("Touched", false)
 				end
 				if selectedHouse then
-					currentCFrame = selectedHouse.PrimaryPart.CFrame * CFrame.new(0, 0, 4.4)
+					local offset = CFrame.new(0, 3, 4.4)
+					currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
+					workspace.Houses[selectedHouse].Door.DoorInnerTouch.Touched:Connect(function()
+						selectedHouse:SetAttribute("Touched", true)
+					end)
+					if selectedHouse:GetAttribute("Touched") == true then
+						offset = CFrame.new(0, 10, 4.4)
+						task.delay(5, function()
+							selectedHouse:SetAttribute("Touched", false)
+						end)
+					end
 				else
 					currentCFrame = CFrame.new(0, 100, 0)
 				end
