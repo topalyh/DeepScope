@@ -5982,21 +5982,15 @@ if game.PlaceId == 537413528 then
 	if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 		startMove()
 	end
-	
+	local connection2
 	local houses = {}
-	for _, v in workspace.Houses:GetChildren() do
-		table.insert(houses, v)
-	end
-	workspace.Houses.ChildAdded:Connect(function(child)
-		table.insert(houses, child)
-	end)
-	workspace.Houses.ChildRemoved:Connect(function(child)
-		table.remove(houses, table.find(houses, child))
+	connection2 = RunService.RenderStepped:Connect(function()
+		houses = workspace:WaitForChild("Houses"):GetChildren()
 	end)
 	local bodyP2 = nil
-	local currentCFrame = CFrame.new()
+	local currentCFrame = CFrame.new(0, 100, 0)
 	task.spawn(function()
-		while task.wait(0.5) do
+		while task.wait(2) do
 			if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 				if not bodyP2 then
 					bodyP2 = Instance.new("BodyPosition")
@@ -6012,9 +6006,8 @@ if game.PlaceId == 537413528 then
 				end
 				if selectedHouse then
 					currentCFrame = selectedHouse.PrimaryPart.CFrame * CFrame.new(0, 0, 4.4)
-					table.remove(houses, table.find(houses, selectedHouse))
 				else
-					currentCFrame = CFrame.new(0, 0, 0)
+					currentCFrame = CFrame.new(0, 100, 0)
 				end
 			else
 				if bodyP2 then
@@ -6798,4 +6791,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
