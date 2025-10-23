@@ -6094,7 +6094,7 @@ if game.PlaceId == 537413528 then
 					createBodyMovers()
 
 					-- выбираем последнюю найденную "house" (можешь изменить)
-					local selectedHouse = houses[math.random(1, #houses)
+					local selectedHouse = houses[math.random(1, #houses)]
 					if selectedHouse and selectedHouse.PrimaryPart then
 						local offset = CFrame.new(0, 3, -1.5)
 						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
@@ -6893,4 +6893,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
