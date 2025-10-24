@@ -5834,7 +5834,7 @@ if game.PlaceId == 537413528 then
 		[2] = 0,
 		[3] = 0,
 		[4] = 0,
-		[5] = 18,
+		[5] = 17,
 	}
 
 	local moveSpeed = 300
@@ -6031,7 +6031,7 @@ if game.PlaceId == 537413528 then
 	if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 		startMove()
 	end
-	
+
 	local houses = {}
 	local connection2
 	local bodyP2, bodyG2
@@ -6096,7 +6096,7 @@ if game.PlaceId == 537413528 then
 					createBodyMovers()
 
 					-- выбираем последнюю найденную "house" (можешь изменить)
-					local selectedHouse = math.random(houses[#houses])
+					local selectedHouse = houses[#houses]
 					if selectedHouse and selectedHouse.PrimaryPart then
 						local offset = CFrame.new(0, 3, -1.5)
 						currentCFrame = selectedHouse.PrimaryPart.CFrame * offset
@@ -6285,11 +6285,11 @@ newgui.hidebutton.MouseButton1Click:Connect(function()
 		for _, v in newgui:GetChildren() do
 			if v.Name ~= "hidebutton" then
 				if guiHiden then
-					v:TweenPosition(UDim2.fromScale(0, -8), "InOut", "Quad", 0.5, true)
-					v:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Quad", 0.5, true)
+					v:TweenPosition(UDim2.fromScale(10, 0), "InOut", "Quad", 1, true)
+					v:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Quad", 1, true)
 				else
-					v:TweenPosition(v:GetAttribute("OriginalPosition"), "InOut", "Quad", 0.5, true)
-					v:TweenSize(v:GetAttribute("OriginalSize"), "InOut", "Quad", 0.5, true)
+					v:TweenPosition(v:GetAttribute("OriginalPosition"), "InOut", "Quad", 1, true)
+					v:TweenSize(v:GetAttribute("OriginalSize"), "InOut", "Quad", 1, true)
 				end
 			end
 		end
