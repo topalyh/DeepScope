@@ -715,6 +715,22 @@ local executorConfig = {
 		nullColor = Color3.fromRGB(74,156,214),
 	}
 }
+local assets = {
+	"ConstraintDetails.png",
+	"Explorer.png",
+	"Properties.png",
+	"InsertObject.png",
+	"Select.png",
+	"Move.png",
+	"Scale.png",
+	"Rotate.png",
+	"Part_Block.png",
+	"Part_CornerWedge.png",
+	"Part_Wedge.png",
+	"Part_Cylinder.png",
+	"Part_Sphere.png",
+	"ShowWelds.png",
+}
 local math = math
 local table = table
 local Color3 = Color3
@@ -883,6 +899,23 @@ local function ParseXML(xml)
 	local newEnv = setmetatable({},{__index = getfenv()})
 	setfenv(func,newEnv)
 	return func()
+end
+local function getAsset(name)
+	local function parseAsset()
+		local asset, err = pcall(function()
+			return game:HttpGet(("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/assets/icons/toolbar/%s"):format(name))
+		end)
+		if asset then
+			return asset
+		else
+			warn("Error while fetching asset: "..err)
+			return
+		end
+	end
+	local asset = parseAsset()
+	if asset then
+		return getcustomasset(asset)
+	end
 end
 local explorerBlacklistInstances = {"cheatGui", "ServerScriptService"}
 local currentUnit = "K"
@@ -1972,7 +2005,7 @@ local modules = {
 					local x = label.CursorPosition
 					if x ~= -1 then
 						local cutText = label.Text:sub(1, x - 1)
-						local pos = TextService:GetTextSize(label.Text, label.FontSize, label.Font, Vector2.new())
+						local pos = TextService:GetTextSize(label.Text, 15, label.Font, Vector2.new())
 						label.cursor.Position = UDim2.fromOffset(pos.X, pos.Y)
 						label.cursor.Visible = true
 					else
@@ -1993,6 +2026,7 @@ local modules = {
 coreModules.Lib = {}
 coreModules.Lib.Settings = {}
 coreModules.Lib.AdvancedFormat = game:HttpGet("https://raw.githubusercontent.com/topalyh/AdvancedFormat-Module/refs/heads/main/Sourse%20code.lua")
+coreModules.Lib.Window = {}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if isDied then return end
@@ -2223,6 +2257,11 @@ function coreModules.Lib:FetchAPI()
 		GetMember = getMember
 	}
 end
+coreModules.Lib.Window = (function()
+	local funcs = {}
+	local static = {}
+	
+end)
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
 		modules.other.fly.UpdateMoveDirection(processed)
@@ -5913,7 +5952,7 @@ if game.PlaceId == 537413528 then
 	local function onHeartbeat()
 		if not enabled or isWaiting then return end
 		local hrp = tryGetHRP()
-		if not hrp then return end
+		if not hrp then LocalPlayer.Character.Humanoid.Health = 0 return end
 
 		if not startCFrame or not endCFrame then
 			recalcSegment()
@@ -5933,18 +5972,12 @@ if game.PlaceId == 537413528 then
 		if attachment and endCFrame then
 			attachment.WorldCFrame = endCFrame
 		end
-
 		if alpha >= 1 then
 			currentPoint += 1
 
 			if currentPoint > #points then
 				currentPoint = 1
 				local char = LocalPlayer.Character
-				if char and char.PrimaryPart then
-					char:SetPrimaryPartCFrame(points[currentPoint])
-				elseif char and char:FindFirstChild("HumanoidRootPart") then
-					char.HumanoidRootPart.CFrame = points[currentPoint]
-				end
 				if bodyP then
 					bodyP.Position = points[currentPoint].Position
 				end
