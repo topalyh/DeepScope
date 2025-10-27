@@ -5876,7 +5876,7 @@ if game.PlaceId == 537413528 then
 		[5] = 17,
 	}
 
-	local moveSpeed = 300
+	local moveSpeed = 375
 	local enabled = false
 	local connection = nil
 	local currentPoint = 1
@@ -6928,3 +6928,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
