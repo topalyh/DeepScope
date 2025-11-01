@@ -1040,7 +1040,7 @@ local function initFileSystem()
 				"DeepScopeCore/Explorer/RMD.dat",
 				"DeepScopeCore/Explorer/API.dat",
 				"DeepScopeCore/Explorer/StudioIcons.png",
-				"DeepScopeCore/PlayerGames.dat"
+				"DeepScopeCore/PlayedGames.dat"
 			}
 			for _, v in ipairs(folders) do
 				if not isfolder(v) then
@@ -1097,7 +1097,7 @@ local function prettyJSON(tbl, indent)
 	end
 end
 local function savePlayedGames()
-	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat"))
+	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat") or "[]"})
 	local currentGame = game.PlaceId
 	if not table.find(playedGames, currentGame) then
 		table.insert(playedGames, currentGame)
@@ -6927,3 +6927,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
