@@ -716,20 +716,9 @@ local executorConfig = {
 	}
 }
 local assets = {
-	"ConstraintDetails.png",
-	"Explorer.png",
-	"Properties.png",
-	"InsertObject.png",
-	"Select.png",
-	"Move.png",
-	"Scale.png",
-	"Rotate.png",
-	"Part_Block.png",
-	"Part_CornerWedge.png",
-	"Part_Wedge.png",
-	"Part_Cylinder.png",
-	"Part_Sphere.png",
-	"ShowWelds.png",
+	["Move"] = "rbxassetid://11836249225",
+	["Rotate"] = "rbxassetid://11836255662",
+	["Scale"] = "rbxassetid://11836236956"
 }
 local math = math
 local table = table
@@ -1050,7 +1039,8 @@ local function initFileSystem()
 				"DeepScopeCore/Executor/SavedScripts.dsf",
 				"DeepScopeCore/Explorer/RMD.dat",
 				"DeepScopeCore/Explorer/API.dat",
-				"DeepScopeCore/Explorer/StudioIcons.png"
+				"DeepScopeCore/Explorer/StudioIcons.png",
+				"DeepScopeCore/PlayerGames.dat"
 			}
 			for _, v in ipairs(folders) do
 				if not isfolder(v) then
@@ -1106,6 +1096,14 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
+local function savePlayedGames()
+	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat"))
+	local currentGame = game.PlaceId
+	if not table.find(playedGames, currentGame) then
+		table.insert(playedGames, currentGame)
+	end
+	writefile("DeepScopeCore/PlayedGames.dat", HttpService:JSONEncode(playedGames))
+end
 print("-----------------File System ----------------------")
 initFileSystem()
 print("-----------------File System ----------------------")
@@ -1125,9 +1123,9 @@ spawn(function()
 	writefile("DeepScopeCore/Explorer/RMD.dat", prettyJSON(ParseXML(rmd)))
 	print("RMD Loaded!")
 	rmdAndAPILoaded = true
+	print("--------------------Others ------------------------")
+	print("Fully loaded! Time took:",tick()-time)
 end)
-print("--------------------Others ------------------------")
-print("Fully loaded! Time took:",tick()-time)
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
@@ -5876,7 +5874,7 @@ if game.PlaceId == 537413528 then
 		[5] = 17,
 	}
 
-	local moveSpeed = 375
+	local moveSpeed = 300
 	local enabled = false
 	local connection = nil
 	local currentPoint = 1
@@ -6837,6 +6835,7 @@ registerCommand("flyfling", function(args)
 	runCommand("fly "..tonumber(args[1]) or 1)
 	runCommand("walkfling")
 end)
+savePlayedGames()
 while true do
 	task.wait()
 	if selectedplr ~= "nobody" then
@@ -6928,4 +6927,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
