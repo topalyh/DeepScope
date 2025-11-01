@@ -1096,14 +1096,6 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
-local function savePlayedGames()
-	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat") or "[]")
-		local currentGame = game.PlaceId
-		if not table.find(playedGames, currentGame) then
-	table.insert(playedGames, currentGame)
-end
-writefile("DeepScopeCore/PlayedGames.dat", HttpService:JSONEncode(playedGames))
-end
 print("-----------------File System ----------------------")
 initFileSystem()
 print("-----------------File System ----------------------")
@@ -1126,6 +1118,14 @@ spawn(function()
 	print("--------------------Others ------------------------")
 	print("Fully loaded! Time took:",tick()-time)
 end)
+local function savePlayedGames()
+	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat") or "[]")
+	local currentGame = game.PlaceId
+	if not table.find(playedGames, currentGame) then
+		table.insert(playedGames, currentGame)
+	end
+	writefile("DeepScopeCore/PlayedGames.dat", HttpService:JSONEncode(playedGames))
+end
 local lastVelocity = Vector3.zero
 local lastTime = tick()
 local currentColor = Color3.fromHSV(0, 1, 1)
