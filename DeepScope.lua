@@ -1108,16 +1108,21 @@ print("Loading RMD... (may take a while)")
 local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
 writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
 print("Explorer Icons Loaded!")
-local rmdAndAPILoaded = false
 writefile("DeepScopeCore/Explorer/API.dat", api)
 print("Properties API Loaded!")
 writefile("DeepScopeCore/Explorer/RMD.dat", prettyJSON(ParseXML(rmd)))
 print("RMD Loaded!")
-rmdAndAPILoaded = true
 print("--------------------Others ------------------------")
 print("Fully loaded! Time took:",tick()-time)
 local function savePlayedGames()
-	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat") or "[]")
+	local data = nil
+	local success, err = pcall(function()
+		data = readfile("DeepScopeCore/PlayedGames.dat")
+	end)
+	if not success then
+		data = {}
+	end
+	local playedGames = HttpService:JSONDecode(data)
 	local currentGame = game.PlaceId
 	if not table.find(playedGames, currentGame) then
 		table.insert(playedGames, currentGame)
@@ -2255,8 +2260,7 @@ function coreModules.Lib:FetchAPI()
 end
 coreModules.Lib.Window = (function()
 	local funcs = {}
-	local static = {}
-
+	
 end)
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
@@ -4576,10 +4580,6 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 end
 
 local function setExplorer()
-	if not rmdAndAPILoaded then
-		notify(nil, "Please wait until RMD and API is loaded!")
-		return
-	end
 	explorerUsing = true
 	explorerData = {}
 	local explorer = newgui.Parent.explorer
