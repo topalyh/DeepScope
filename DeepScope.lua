@@ -1097,12 +1097,12 @@ local function prettyJSON(tbl, indent)
 	end
 end
 local function savePlayedGames()
-	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat") or "[]"})
-	local currentGame = game.PlaceId
-	if not table.find(playedGames, currentGame) then
-		table.insert(playedGames, currentGame)
-	end
-	writefile("DeepScopeCore/PlayedGames.dat", HttpService:JSONEncode(playedGames))
+	local playedGames = HttpService:JSONDecode(readfile("DeepScopeCore/PlayedGames.dat") or "[]")
+		local currentGame = game.PlaceId
+		if not table.find(playedGames, currentGame) then
+	table.insert(playedGames, currentGame)
+end
+writefile("DeepScopeCore/PlayedGames.dat", HttpService:JSONEncode(playedGames))
 end
 print("-----------------File System ----------------------")
 initFileSystem()
@@ -2258,7 +2258,7 @@ end
 coreModules.Lib.Window = (function()
 	local funcs = {}
 	local static = {}
-	
+
 end)
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
@@ -6927,4 +6927,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
