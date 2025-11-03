@@ -2282,7 +2282,6 @@ do
 	local defaultSize = UDim2.new(0, 240, 0, 240)
 	local defaultTitle = "New Window"
 
-	-- Конструктор окна
 	function Window.new(name)
 		local self = setmetatable({}, Window)
 		self.Name = name or defaultTitle
@@ -2442,7 +2441,6 @@ do
 		return self
 	end
 
-	-- Методы API
 	function Window:SetTitle(text)
 		self.Name = text
 		if self.GuiElems and self.GuiElems.TitleBar then
@@ -2456,7 +2454,6 @@ do
 		end
 	end
 
-	-- финальный экспорт
 	coreModules.Lib.Window = {
 		new = Window.new
 	}
@@ -5883,14 +5880,15 @@ game.UserInputService.InputEnded:Connect(function(input)
 		newgui.Parent.closeregion.Interactable = true
 	end
 end)
-local updateConn = nil
+local updateConn
 newgui.placeinfo.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = true
 	newgui.Parent.closeregion.Visible = true
+
 	local module = modules.other.placeinfo
 	local placeId = game.PlaceId
 	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
-	local CMU = math.floor(stst:GetTotalMemoryUsageMb())
+
 	module.CreateSeparator("GAME INFO")
 	module.CreateText("Name", gameInfo.Name)
 	module.CreateText("ID", gameInfo.AssetId)
@@ -5898,63 +5896,71 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateText("Created", gameInfo.Created:sub(1, 10):gsub("-", "/"))
 	module.CreateText("CCU", 0)
 	module.CreateText("Visits", 0)
+
 	module.CreateSeparator("CREATOR INFO")
-	if gameInfo.Creator.HasVerifiedBadge then
-		if gameInfo.Creator.CreatorType == "Group" then
-			module.CreateText("Group", gameInfo.Creator.Name..utf8.char(0xE000))
-		end
-		pcall(function()
-			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown"..utf8.char(0xE000))
-		end)
+
+	local creatorName = gameInfo.Creator.Name or "Unknown"
+	local creatorId = gameInfo.Creator.Id or 0
+	local creatorType = gameInfo.Creator.CreatorType
+
+	if creatorType == "Group" then
+		module.CreateText("Group", creatorName .. (gameInfo.Creator.HasVerifiedBadge and utf8.char(0xE000) or ""))
 	else
-		if gameInfo.Creator.CreatorType == "Group" then
-			module.CreateText("Group", gameInfo.Creator.Name)
-		end
 		pcall(function()
-			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown")
+			local userName = game.Players:GetNameFromUserIdAsync(creatorId)
+			module.CreateText("Creator", userName .. (gameInfo.Creator.HasVerifiedBadge and utf8.char(0xE000) or ""))
 		end)
 	end
-	local saveMemoryLimit = 4000
-	local warnMemoryLimit = 11000
-	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
-	module.CreateSeparator("SERVER INFO")
-	module.CreateText("PartsAmount", Stats().PrimitivesCount)
-	module.CreateText("PartsMoving", Stats().MovingPrimitivesCount)
-	module.CreateText("ServerAge", math.floor(workspace.DistributedGameTime))
-	module.CreateSeparator("RENDER")
-	module.CreateText("RenderedTriangles", Stats().SceneTriangleCount)
-	module.CreateText("ShadowRenderedTriangles", Stats().SceneTriangleCount)
+
+	module.CreateText("UserId", creatorId)
+
+	local safeLimit = 4000
+	local warnLimit = 11000
+
 	module.CreateSeparator("CLIENT")
-	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
+	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000) .. "ms")
 	module.CreateText("FPS", 0)
 	module.CreateText("Client Memory Usage", 0)
+
 	updateConn = RunService.RenderStepped:Connect(function()
 		local fps = math.round((1 / RunService.RenderStepped:Wait()))
-		local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
-		local color_ratioG = math.round((math.clamp(fps, 1, 60) / 60) * 255)
-		modules.other.placeinfo.UpdateText("PartsAmount", Stats().PrimitivesCount)
-		modules.other.placeinfo.UpdateText("PartsMoving", Stats().MovingPrimitivesCount)
-		modules.other.placeinfo.UpdateText("RenderedTriangles", Stats().SceneTriangleCount)
-		modules.other.placeinfo.UpdateText("ShadowRenderedTriangles", Stats().ShadowsTriangleCount)
-		modules.other.placeinfo.UpdateText("ServerAge", formatTime(math.floor(workspace.DistributedGameTime)))
-		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
-		modules.other.placeinfo.UpdateText("FPS", (`<font color="rgb(%d, %d, 0)">%sfps</font>`):format(color_ratioR, color_ratioG, fps))
+		local ratio = math.clamp(fps / 60, 0, 1)
+		local r = 255 - ratio * 255
+		local g = ratio * 255
+
+		modules.other.placeinfo.UpdateText("FPS", ('<font color="rgb(%d, %d, 0)">%sfps</font>'):format(r, g, fps))
+		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000) .. "ms")
 	end)
-	while true do
-		if not updateConn then
-			break
+
+	task.spawn(function()
+		while updateConn do
+			local ok, response = pcall(function()
+				local url = "https://games.roblox.com/v1/games?universeIds=" .. game.GameId
+				return HttpService:JSONDecode(game:HttpGet(url))
+			end)
+
+			if ok and response and response.data and response.data[1] then
+				local data = response.data[1]
+				module.UpdateText("CCU", format(data.playing, false, true, 3))
+				module.UpdateText("Visits", format(data.visits, false, true, 3))
+			end
+
+			local CMU = math.floor(stst:GetTotalMemoryUsageMb())
+			local ratio = math.clamp((CMU - safeLimit) / (warnLimit - safeLimit), 0, 1)
+			local r = 255 * ratio
+			local g = 255 * (1 - ratio)
+			local b = 0
+
+			module.UpdateText(
+				"Client Memory Usage",
+				string.format('<font color="rgb(%d,%d,%d)">%s MB</font>', r, g, b, CMU)
+			)
+
+			task.wait(1)
 		end
-		local gameURL = "https://games.roblox.com/v1/games?universeIds=" .. game.GameId
-		local imported = game:HttpGet(gameURL)
-		local decoded = HttpService:JSONDecode(imported)
-		local gameInfo = decoded["data"][1]
-		local colorRatio = (CMU - saveMemoryLimit) / (warnMemoryLimit - saveMemoryLimit)
-		module.UpdateText("CCU", format(gameInfo.playing, false, true, 3))
-		module.UpdateText("Visits", format(gameInfo.visits, false, true, 3))
-		module.UpdateText("Client Memory Usage", ('<font color="rgb(255, %d, %d)">%s MB</font>'):format(1 - colorRatio, 1 - colorRatio / 2, CMU))
-		wait(1)
-	end
+	end)
 end)
+
 newgui.Parent.closeregion.MouseButton1Click:Connect(function()
 	newgui.Parent.placeinfo.Visible = false
 	newgui.Parent.closeregion.Visible = false
@@ -6272,7 +6278,6 @@ if game.PlaceId == 537413528 then
 	local enabled = false
 	local updateThread = nil
 
-	-- функции для создания и удаления физики
 	local function createBodyMovers()
 		local char = LocalPlayer.Character
 		if not char then return end
@@ -6307,7 +6312,6 @@ if game.PlaceId == 537413528 then
 		end
 	end
 
-	-- безопасное обновление списка домов (не каждый кадр)
 	task.spawn(function()
 		while task.wait(5) do
 			pcall(function()
@@ -6319,7 +6323,6 @@ if game.PlaceId == 537413528 then
 		end
 	end)
 
-	-- основной поток движения
 	local function startMoving()
 		if updateThread then return end
 		updateThread = task.spawn(function()
@@ -6328,7 +6331,6 @@ if game.PlaceId == 537413528 then
 				if uiSwitch2:GetAttribute("Value") == true and uiSwitch:GetAttribute("Value") == false then
 					createBodyMovers()
 
-					-- выбираем последнюю найденную "house" (можешь изменить)
 					local selectedHouse = houses[#houses]
 					if selectedHouse and selectedHouse.PrimaryPart then
 						local offset = CFrame.new(0, 3, -1.5)
@@ -6340,7 +6342,6 @@ if game.PlaceId == 537413528 then
 					destroyBodyMovers()
 				end
 
-				-- применяем позицию
 				if bodyP2 and bodyG2 then
 					bodyP2.Position = currentCFrame.Position
 					bodyG2.CFrame = currentCFrame
@@ -6349,7 +6350,6 @@ if game.PlaceId == 537413528 then
 		end)
 	end
 
-	-- обработчик смерти
 	local function hookCharacter(char)
 		local humanoid = char:WaitForChild("Humanoid", 5)
 		if humanoid then
@@ -6360,7 +6360,6 @@ if game.PlaceId == 537413528 then
 	end
 
 
-	-- включение/выключение режима
 	local function enableMode()
 		if enabled then return end
 		enabled = true
@@ -6378,7 +6377,6 @@ if game.PlaceId == 537413528 then
 			updateThread = nil
 		end
 	end
-	-- перезапуск при респавне
 	LocalPlayer.CharacterAdded:Connect(function(char)
 		task.wait(1)
 		if enabled and uiSwitch2:GetAttribute("Value") == true then
@@ -6386,7 +6384,6 @@ if game.PlaceId == 537413528 then
 			enableMode()
 		end
 	end)
-	-- подключение к UI
 	uiSwitch2:GetAttributeChangedSignal("Value"):Connect(function()
 		if uiSwitch2:GetAttribute("Value") == true then
 			enableMode()
@@ -6394,8 +6391,6 @@ if game.PlaceId == 537413528 then
 			disableMode()
 		end
 	end)
-
-	-- сразу активировать если уже включено
 	if uiSwitch2:GetAttribute("Value") == true then
 		enableMode()
 	end
