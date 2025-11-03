@@ -57,7 +57,7 @@ local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 local HttpService: HttpService = cloneref(game:GetService("HttpService"))
 local CurrentCamera: Camera = cloneref(game:GetService("Workspace")).CurrentCamera
 local TextService: TextService = cloneref(game:GetService("TextService"))
-local Stats: Stats = cloneref(game:GetService("Stats"))
+local stst: Stats = cloneref(game:GetService("Stats"))
 local coreModules = {}
 repeat wait() until LocalPlayer.Character
 local suffixes = {
@@ -5890,7 +5890,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	local module = modules.other.placeinfo
 	local placeId = game.PlaceId
 	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
-	local CMU = math.floor(Stats:GetTotalMemoryUsageMb())
+	local CMU = math.floor(stst:GetTotalMemoryUsageMb())
 	module.CreateSeparator("GAME INFO")
 	module.CreateText("Name", gameInfo.Name)
 	module.CreateText("ID", gameInfo.AssetId)
