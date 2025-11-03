@@ -9,6 +9,22 @@ local function createInstance(name, tbl)
 	end
 	return any
 end
+function create(data)
+	local insts = {}
+	for i,v in pairs(data) do insts[v[1]] = Instance.new(v[2]) end
+
+	for _,v in pairs(data) do
+		for prop,val in pairs(v[3]) do
+			if type(val) == "table" then
+				insts[v[1]][prop] = insts[val[1]]
+			else
+				insts[v[1]][prop] = val
+			end
+		end
+	end
+
+	return insts[1]
+end
 function missing(t, f, fallback)
 	if type(f) == t then return f end
 	return fallback
@@ -41,6 +57,7 @@ local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 local HttpService: HttpService = cloneref(game:GetService("HttpService"))
 local CurrentCamera: Camera = cloneref(game:GetService("Workspace")).CurrentCamera
 local TextService: TextService = cloneref(game:GetService("TextService"))
+local Stats: Stats = cloneref(game:GetService("Stats"))
 local coreModules = {}
 repeat wait() until LocalPlayer.Character
 local suffixes = {
@@ -1119,7 +1136,7 @@ local function savePlayedGames()
 	local success, err = pcall(function()
 		data = readfile("DeepScopeCore/PlayedGames.dat")
 	end)
-	if not success then
+	if not success or data == nil then
 		data = {}
 	end
 	local playedGames = HttpService:JSONDecode(data)
@@ -2258,10 +2275,192 @@ function coreModules.Lib:FetchAPI()
 		GetMember = getMember
 	}
 end
-coreModules.Lib.Window = (function()
-	local funcs = {}
-	
-end)
+do
+	local Window = {}
+	Window.__index = Window
+
+	local defaultSize = UDim2.new(0, 240, 0, 240)
+	local defaultTitle = "New Window"
+
+	-- Конструктор окна
+	function Window.new(name)
+		local self = setmetatable({}, Window)
+		self.Name = name or defaultTitle
+		self.Resizeable = true
+		self.GuiElems = {}
+		self._connections = {}
+		self._actions = {}
+
+		self.GuiElems.Main = create({
+			{1,"Frame", {
+				Name = name,
+				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+				BorderSizePixel = 0,
+				Size = defaultSize
+			}},
+			{2,"TextButton", {
+				Parent = 1,
+				Name = "dragbutton",
+				AnchorPoint = Vector2.new(0, 1),
+				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+				BorderSizePixel = 0,
+				Size = UDim2.new(1, 0, 0, 30),
+				FontFace = Font.new(fonts.FiraSans),
+				Text = "placeholder",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextSize = 20
+			}},
+			{3, "TextButton", {
+				Parent = 2,
+				Name = "close",
+				AnchorPoint = Vector2.new(1, 0),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -30, 0, 5),
+				Size = UDim2.new(0, 20, 0, 20),
+			}},
+			{4, "UIStroke", {
+				Parent = 3,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				LineJoinMode = Enum.LineJoinMode.Miter
+			}},
+			{5, "ImageLabel", {
+				Parent = 3,
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://15396333997"
+			}},
+			{6, "TextButton", {
+				Parent = 2,
+				Name = "fullclose",
+				AnchorPoint = Vector2.new(1, 0),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -30, 0, 5),
+				Size = UDim2.new(0, 20, 0, 20),
+			}},
+			{7, "UIStroke", {
+				Parent = 6,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				LineJoinMode = Enum.LineJoinMode.Miter
+			}},
+			{8, "ImageLabel", {
+				Parent = 6,
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://74120900238837"
+			}},
+			{9, "TextButton", {
+				Parent = 1,
+				Name = "resizeboth",
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, 0, 1, 0),
+				Size = UDim2.new(0, 7, 0, 7),
+				Text = ""
+			}},
+			{10, "TextButton", {
+				Parent = 1,
+				Name = "resizebottom",
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 0, 1, 0),
+				Size = UDim2.new(1, 0, 0, 7),
+				Text = ""
+			}},
+			{11, "TextButton", {
+				Parent = 1,
+				Name = "resizeside",
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, 0, 0, -30),
+				Size = UDim2.new(0, 7, 1, 30),
+				Text = ""
+			}}
+		})
+		local aliases = {
+			["bottom"] = "Y",
+			["side"] = "X",
+			["both"] = "XY"
+		}
+		self.GuiElems.TitleBar = self.GuiElems.Main.dragbutton
+		for _, v in self.GuiElems.Main:GetChildren() do
+			if v:IsA("TextButton") then
+				if v.Name:find("resize") then
+					v.InputBegan:Connect(function(input)
+						if input.UserInputType == Enum.UserInputType.MouseButton1 then
+							self._actions["resizing"] = v
+							self._actions["smp"] = UserInputService:GetMouseLocation()
+							self._actions["sws"] = self.GuiElems.Main.Size
+							self._actions["crs"] = aliases[v.Name:sub(7)]
+						end
+					end)
+					v.MouseEnter:Connect(function()
+						v.BackgroundTransparency = 0.5
+					end)
+					v.MouseLeave:Connect(function()
+						v.BackgroundTransparency = 1
+					end)
+				end
+			end
+		end
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				self._actions["resizing"] = nil
+				self._actions["smp"] = nil
+				self._actions["sws"] = nil
+			end
+		end)
+		self.GuiElems.TitleBar.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				self._actions["dragging"] = true
+				self._actions["smp"] = UserInputService:GetMouseLocation()
+				self._actions["swp"] = self.GuiElems.Main.Position
+			end
+		end)
+		self._connections = RunService.RenderStepped:Connect(function()
+			local mouse = UserInputService:GetMouseLocation()
+			if self._actions["resizing"] then
+				if self._actions.crs == "Y" then
+					local deltaY = mouse.Y - self._actions["smp"].Y
+					local newHeight = math.clamp(self._actions["sws"].Y.Offset + deltaY, 100, 600)
+					self.GuiElems.Main.Size = UDim2.new(self._actions["sws"].X.Scale, self._actions["sws"].X.Offset, 0, newHeight)
+				elseif self._actions.crs == "X" then
+					local deltaX = mouse.X - self._actions["smp"].X
+					local newWidth = math.clamp(self._actions["sws"].X.Offset + deltaX, 100, 600)
+					self.GuiElems.Main.Size = UDim2.new(0, newWidth, self._actions["sws"].Y.Scale, self._actions["sws"].Y.Offset)
+				elseif self._actions.crs == "XY" then
+					local deltaX = mouse.X - self._actions["smp"].X
+					local deltaY = mouse.Y - self._actions["smp"].Y
+					local newWidth = math.clamp(self._actions["sws"].X.Offset + deltaX, 100, 600)
+					local newHeight = math.clamp(self._actions["sws"].Y.Offset + deltaY, 100, 600)
+					self.GuiElems.Main.Size = UDim2.new(0, newWidth, 0, newHeight)
+				end
+			end
+			if self._actions["dragging"] then
+				
+			end
+		end)
+		return self
+	end
+
+	-- Методы API
+	function Window:SetTitle(text)
+		self.Name = text
+		if self.GuiElems and self.GuiElems.TitleBar then
+			self.GuiElems.TitleBar.Text = text
+		end
+	end
+
+	function Window:Resize(x, y)
+		if self.GuiElems.Main then
+			self.GuiElems.Main.Size = UDim2.new(0, x, 0, y)
+		end
+	end
+
+	-- финальный экспорт
+	coreModules.Lib.Window = {
+		new = Window.new
+	}
+end
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
 		modules.other.fly.UpdateMoveDirection(processed)
@@ -2270,7 +2469,6 @@ end)
 RunService.RenderStepped:Connect(function(dt)
 	modules.other.fly.Loop(dt)
 end)
-
 local function createGui()
 	local gui1 = createInstance("ScreenGui", {
 		DisplayOrder = 2147483647,
@@ -5692,6 +5890,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	local module = modules.other.placeinfo
 	local placeId = game.PlaceId
 	local gameInfo = game.MarketplaceService:GetProductInfo(placeId)
+	local CMU = math.floor(Stats:GetTotalMemoryUsageMb())
 	module.CreateSeparator("GAME INFO")
 	module.CreateText("Name", gameInfo.Name)
 	module.CreateText("ID", gameInfo.AssetId)
@@ -5715,6 +5914,8 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			module.CreateText("Creator", game.Players:GetNameFromUserIdAsync(gameInfo.Creator.CreatorTargetId) or "Unknown")
 		end)
 	end
+	local saveMemoryLimit = 4000
+	local warnMemoryLimit = 11000
 	module.CreateText("UserId", gameInfo.Creator.CreatorTargetId)
 	module.CreateSeparator("SERVER INFO")
 	module.CreateText("PartsAmount", Stats().PrimitivesCount)
@@ -5726,6 +5927,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	module.CreateSeparator("CLIENT")
 	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000).."ms")
 	module.CreateText("FPS", 0)
+	module.CreateText("Client Memory Usage", 0)
 	updateConn = RunService.RenderStepped:Connect(function()
 		local fps = math.round((1 / RunService.RenderStepped:Wait()))
 		local color_ratioR = 255 - math.round((math.clamp(fps, 1, 60) / 60) * 255)
@@ -5746,8 +5948,10 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		local imported = game:HttpGet(gameURL)
 		local decoded = HttpService:JSONDecode(imported)
 		local gameInfo = decoded["data"][1]
+		local colorRatio = (CMU - saveMemoryLimit) / (warnMemoryLimit - saveMemoryLimit)
 		module.UpdateText("CCU", format(gameInfo.playing, false, true, 3))
 		module.UpdateText("Visits", format(gameInfo.visits, false, true, 3))
+		module.UpdateText("Client Memory Usage", ('<font color="rgb(255, %d, %d)">%s MB</font>'):format(1 - colorRatio, 1 - colorRatio / 2, CMU))
 		wait(1)
 	end
 end)
@@ -6833,7 +7037,7 @@ registerCommand("flyfling", function(args)
 	runCommand("fly "..tonumber(args[1]) or 1)
 	runCommand("walkfling")
 end)
-savePlayedGames()
+--savePlayedGames()
 while true do
 	task.wait()
 	if selectedplr ~= "nobody" then
