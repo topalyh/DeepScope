@@ -5677,7 +5677,7 @@ function CoreSettings:CreateSetting(name, value, type)
 			Rotation = 90,
 			Transparency = NumberSequence.new({
 				NumberSequenceKeypoint.new(0, 0),
-				NumberSequenceKeypoint.new(0.969, 0),
+				NumberSequenceKeypoint.new(0.9699999, 0),
 				NumberSequenceKeypoint.new(0.97, 1),
 				NumberSequenceKeypoint.new(1, 1)
 			})
@@ -6035,6 +6035,9 @@ local function registerCommand(name, callback)
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5)
 	})
+	template.MouseButton1Click:Connect(function()
+		
+	end)
 	commands[name] = callback
 end
 local function runCommand(input)
@@ -6513,11 +6516,11 @@ newgui.hidebutton.MouseButton1Click:Connect(function()
 		for _, v in newgui:GetChildren() do
 			if v.Name ~= "hidebutton" then
 				if guiHiden then
-					v:TweenPosition(UDim2.fromScale(10, 0), "InOut", "Quad", 1, true)
-					v:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Quad", 1, true)
+					v:TweenPosition(UDim2.fromScale(0, 5), "InOut", "Quad", 0.5, true)
+					v:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Quad", 0.5, true)
 				else
-					v:TweenPosition(v:GetAttribute("OriginalPosition"), "InOut", "Quad", 1, true)
-					v:TweenSize(v:GetAttribute("OriginalSize"), "InOut", "Quad", 1, true)
+					v:TweenPosition(v:GetAttribute("OriginalPosition"), "InOut", "Quad", 0.5, true)
+					v:TweenSize(v:GetAttribute("OriginalSize"), "InOut", "Quad", 0.5, true)
 				end
 			end
 		end
@@ -6917,104 +6920,6 @@ end)
 registerCommand("notifyfps", function()
 	notify(nil, "FPS: "..math.round(1 / game:GetService("RunService").RenderStepped:Wait()).."fps", 4)
 end)
-local flinging = false
-registerCommand("fling", function()
-	flinging = false
-	for _, child in LocalPlayer.Character:GetDescendants() do
-		if child:IsA("BasePart") then
-			child.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.5)
-		end
-	end
-	local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-	if root then
-		wait(0.1)
-		runCommand("noclip")
-		local spiny = Instance.new("BodyAngularVelocity", root)
-		spiny.Name = generateRandomString()
-		spiny.AngularVelocity = Vector3.new(0, 1000000, 0)
-		spiny.MaxTorque = Vector3.new(0, math.huge, 0)
-		spiny.P = math.huge
-		local char = LocalPlayer.Character
-		for i, v in next, char do
-			if v:IsA("BasePart") then
-				v.CanCollide = false
-				v.Massless = true
-				v.Velocity = Vector3.new(0, 0, 0)
-			end
-		end
-		flinging = true
-		local function flingDiedF()
-			runCommand("unfling")
-		end
-		flingDied = LocalPlayer.Character:FindFirstChildOfClass("Humanoid").Died:Connect(flingDiedF)
-		repeat
-			spiny.AngularVelocity = Vector3.new(0,99999,0)
-			wait(.2)
-			spiny.AngularVelocity = Vector3.new(0,0,0)
-			wait(.1)
-		until flinging == false
-	end
-end)
-registerCommand("unfling", function()
-	runCommand("unnoclip")
-	if flingDied then
-		flingDied:Disconnect()
-	end
-	flinging = false
-	wait(0.1)
-	local char = LocalPlayer.Character
-	if not char and char:FindFirstChild("HumanoidRootPart") then return end
-	for i,v in pairs(char:FindFirstChild("HumanoidRootPart"):GetChildren()) do
-		if v.ClassName == "BodyAngularVelocity" then
-			v:Destroy()
-		end
-	end
-	for _, child in pairs(char:GetDescendants()) do
-		if child.ClassName == "Part" or child.ClassName == "MeshPart" then
-			child.CustomPhysicalProperties = PhysicalProperties.new(0.7, 0.3, 0.5)
-		end
-	end
-end)
-local walkflinging = false
-registerCommand("walkfling", function()
-	runCommand("unwalkfling")
-	local humanoid = LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-	if humanoid then
-		humanoid.Died:Connect(function()
-			runCommand("unwalkfling")
-		end)
-	end
-
-	runCommand("noclip")
-	walkflinging = true
-	repeat RunService.Heartbeat:Wait()
-		local character = LocalPlayer.Character
-		local root = character:FindFirstChild("HumanoidRootPart")
-		local vel, movel = nil, 0.1
-		while not (character and character.Parent and root and root.Parent) do
-			RunService.Heartbeat:Wait()
-			character = LocalPlayer.Character
-			root = character:FindFirstChild("HumanoidRootPart")
-		end
-		vel = root.Velocity
-		root.Velocity = vel * 1e20 + Vector3.new(0, 1e20, 0)
-
-		RunService.RenderStepped:Wait()
-		if character and character.Parent and root and root.Parent then
-			root.Velocity = vel
-		end
-
-		RunService.Stepped:Wait()
-		if character and character.Parent and root and root.Parent then
-			root.Velocity = vel + Vector3.new(0, movel, 0)
-			movel = movel * -1
-		end
-	until walkflinging == false
-end)
-registerCommand("unwalkfling", function()
-	walkflinging = false
-	runCommand("unnoclip")
-end)
 registerCommand("guiscale", function(args)
 	local min = 0.5
 	local max = 3
@@ -7024,13 +6929,6 @@ registerCommand("guiscale", function(args)
 	if uiscale then
 		uiscale.Scale = math.clamp(value, min, max)
 	end
-end)
-registerCommand("flyfling", function(args)
-	runCommand("unfly")
-	runCommand("unwalkfling")
-	task.wait()
-	runCommand("fly "..tonumber(args[1]) or 1)
-	runCommand("walkfling")
 end)
 --savePlayedGames()
 while true do
