@@ -1134,7 +1134,7 @@ print("--------------------Others ------------------------")
 print("Fully loaded! Time took:",tick()-time)
 local jsonAttempts = 0
 local function savePlayedGames()
-	local readSuccess, out = readfile("DeepScopeCore/PlayedGames.dat")
+	local readSuccess, out = readfile("DeepScopeCore/PlayedGames.dat", true)
 	if readSuccess then
 		if out ~= nil and tostring(out):gsub("%s", "") ~= "" then
 			local success, response = pcall(function()
@@ -1146,7 +1146,7 @@ local function savePlayedGames()
 				warn("Save Json Error:", response)
 				warn("Overwriting Save File")
 				writefile("DeepScopeCore/PlayedGames.dat", "", true)
-				wait()
+				wait(0.5)
 				savePlayedGames()
 			end
 		end
