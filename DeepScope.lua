@@ -49,6 +49,7 @@ isfile = missing("function", isfile, readfile and function(file)
 	end)
 	return success and result ~= nil and result ~= ""
 end)
+listfiles = missing("function", listfiles)
 local UserInputService: UserInputService = cloneref(game:GetService("UserInputService"))
 local RunService: RunService = cloneref(game:GetService("RunService"))
 local LocalPlayer: Player = cloneref(game:GetService("Players")).LocalPlayer
@@ -1131,20 +1132,25 @@ writefile("DeepScopeCore/Explorer/RMD.dat", prettyJSON(ParseXML(rmd)))
 print("RMD Loaded!")
 print("--------------------Others ------------------------")
 print("Fully loaded! Time took:",tick()-time)
+local jsonAttempts = 0
 local function savePlayedGames()
-	local data = nil
-	local success, err = pcall(function()
-		data = readfile("DeepScopeCore/PlayedGames.dat")
-	end)
-	if not success or data == nil then
-		data = {}
+	local readSuccess, out = readfile("DeepScopeCore/PlayedGames.dat")
+	if readSuccess then
+		if out ~= nil and tostring(out):gsub("%s", "") ~= "" then
+			local success, response = pcall(function()
+				local gameId = game.PlaceId
+				writefile("DeepScopeCore/PlayedGames.dat", out .. "," .. gameId)
+			end)
+			if not success then
+				jsonAttempts = jsonAttempts + 1
+				warn("Save Json Error:", response)
+				warn("Overwriting Save File")
+				writefile("DeepScopeCore/PlayedGames.dat", "", true)
+				wait()
+				savePlayedGames()
+			end
+		end
 	end
-	local playedGames = HttpService:JSONDecode(data)
-	local currentGame = game.PlaceId
-	if not table.find(playedGames, currentGame) then
-		table.insert(playedGames, currentGame)
-	end
-	writefile("DeepScopeCore/PlayedGames.dat", HttpService:JSONEncode(playedGames))
 end
 local lastVelocity = Vector3.zero
 local lastTime = tick()
@@ -6930,7 +6936,7 @@ registerCommand("guiscale", function(args)
 		uiscale.Scale = math.clamp(value, min, max)
 	end
 end)
---savePlayedGames()
+savePlayedGames()
 while true do
 	task.wait()
 	if selectedplr ~= "nobody" then
@@ -6969,21 +6975,25 @@ while true do
 				end
 			end
 			pcall(function()
-				newgui.currentspeed.Text = "current speed: " .. format(math.round(
-					math.round(
+				if player.Humanoid.WalkSpeed > 0 then
+					newgui.currentspeed.Text = "current speed: " .. format(math.round(
+						math.round(
+							fixMagnitudeLimit(
+								player.PrimaryPart.AssemblyLinearVelocity.X,
+								player.PrimaryPart.AssemblyLinearVelocity.Y,
+								player.PrimaryPart.AssemblyLinearVelocity.Z
+							)
+						)
+						), false, true, 3) .. " | " .. format(player.Humanoid.WalkSpeed, false, true, 3).." | "..string.format("%.6f",
 						fixMagnitudeLimit(
 							player.PrimaryPart.AssemblyLinearVelocity.X,
 							player.PrimaryPart.AssemblyLinearVelocity.Y,
 							player.PrimaryPart.AssemblyLinearVelocity.Z
 						)
-					)
-					), false, true, 3) .. " | " .. format(player.Humanoid.WalkSpeed, false, true, 3).." | "..string.format("%.6f",
-					fixMagnitudeLimit(
-						player.PrimaryPart.AssemblyLinearVelocity.X,
-						player.PrimaryPart.AssemblyLinearVelocity.Y,
-						player.PrimaryPart.AssemblyLinearVelocity.Z
-					)
-						/player.Humanoid.WalkSpeed)..":1"
+							/player.Humanoid.WalkSpeed)..":1"
+				else
+					newgui.currentspeed.Text = "current speed: 0 | 0 | 0:0"
+				end
 			end)
 		else
 			CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
