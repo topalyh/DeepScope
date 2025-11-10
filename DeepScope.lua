@@ -6468,7 +6468,7 @@ if game.PlaceId == 537413528 then
 	local opened = false
 	local function calculatePosition(pos, player)
 		local plrTeam = player.Team
-		local buildZone = workspace[plrTeam.Name].."Zone"
+		local buildZone = workspace[plrTeam.Name.."Zone"]
 		local diff = buildZone.Position - pos
 		return tostring(diff.X..","..diff.Y..","..diff.Z)
 	end
@@ -6633,7 +6633,7 @@ if game.PlaceId == 537413528 then
 				end
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
-				local currentPlot = workspace[LocalPlayer.Team.Name].."Zone"
+				local currentPlot = workspace[LocalPlayer.Team.Name.."Zone"]
 				local fileName = ""
 				if currentPlot then
 					if loadfilebox.Text == "" then
