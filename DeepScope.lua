@@ -6600,72 +6600,95 @@ if game.PlaceId == 537413528 then
 			})
 			savebutton.MouseButton1Click:Connect(function()
 				local player = game.Players:FindFirstChild(playername.Text)
-				if player then
-					local fileName = player.Name..".build"
-					local saved = {}
-					local playerBlocks = workspace.Blocks[player.Name]
-					for _, v in playerBlocks:GetChildren() do
-						saved[v.Name] = {
-							Name = v.Name,
-							Position = calculatePosition(v.PrimaryPart.Position, player),
-							Size = calculateSize(v),
-							Color = v.Name ~= "Portal" and v.PPart.Color:ToHex() or v.PortalPart.Color:ToHex(),
-							Anchored = v.PPart.Anchored,
-							Rotation = calculateRotation(v)
-						}
-						if v.Name == "Delay" then
-							saved[v.Name].WaitDuration = v.WaitDuration.Value
-						end	
-						if v.Name == "Piston" then
-							saved[v.Name].ExtendLength = v.ExtendLength.Value
-							saved[v.Name].Speed = v.Speed.Value
-						end
+				if not player then return end
+
+				local fileName = (filename.Text:gsub("%s+", "") ~= "" and filename.Text or player.Name) .. ".build"
+				local saved = {}
+				local playerBlocks = workspace.Blocks[player.Name]
+
+				for _, v in pairs(playerBlocks:GetChildren()) do
+					local blockType = v.Name
+					saved[blockType] = saved[blockType] or {} -- создаём таблицу, если нет
+
+					local blockData = {
+						Position = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Position.X, v.PrimaryPart.Position.Y, v.PrimaryPart.Position.Z),
+						Rotation = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Orientation.X, v.PrimaryPart.Orientation.Y, v.PrimaryPart.Orientation.Z),
+						Size = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Size.X, v.PrimaryPart.Size.Y, v.PrimaryPart.Size.Z),
+						Color = v.Name ~= "Portal" and string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Color.R, v.PrimaryPart.Color.G, v.PrimaryPart.Color.B)
+							or string.format("%.6f,%.6f,%.6f", v.PortalPart.Color.R, v.PortalPart.Color.G, v.PortalPart.Color.B),
+						Anchored = v.PrimaryPart.Anchored,
+					}
+
+					-- Дополнительные свойства
+					if v:FindFirstChild("WaitDuration") then
+						blockData.WaitDuration = v.WaitDuration.Value
 					end
-					local json = HttpService:JSONEncode(saved)
-					writefile(folder.."/"..fileName..".build", prettyJSON(json))
+					if v:FindFirstChild("ExtendLength") then
+						blockData.ExtendLength = v.ExtendLength.Value
+					end
+					if v:FindFirstChild("Speed") then
+						blockData.Speed = v.Speed.Value
+					end
+
+					table.insert(saved[blockType], blockData)
 				end
+
+				local json = HttpService:JSONEncode(saved)
+				writefile(folder .. "/" .. fileName, prettyJSON(json))
+				notify(nil, "Build saved as " .. fileName)
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
-				local currentPlot = workspace[tostring(LocalPlayer.TeamColor).."Zone"]
-				local fileName = ""
-				if currentPlot then
-					if loadfilebox.Text == "" then
-						notify(nil, "Please, enter File Name")
-						return
-					end
-					local data = HttpService:JSONDecode(readfile(folder.."/"..loadfilebox.Text..".build"))
-					for _, v in data do
-						local name = v.Name
-						local newBlock = game.ReplicatedStorage.BuildingParts[name]:Clone()
+				local currentPlot = workspace[tostring(LocalPlayer.TeamColor) .. "Zone"]
+				if not currentPlot then return end
+
+				if loadfilebox.Text == "" then
+					notify(nil, "Please, enter File Name")
+					return
+				end
+
+				local filePath = folder .. "/" .. loadfilebox.Text .. ".build"
+				if not isfile(filePath) then
+					notify(nil, "File not found!")
+					return
+				end
+
+				local data = HttpService:JSONDecode(readfile(filePath))
+
+				for blockType, blockArray in pairs(data) do
+					for _, block in ipairs(blockArray) do
+						local newBlock = game.ReplicatedStorage.BuildingParts[blockType]:Clone()
 						newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
-						for i, v_2 in v do
-							if i == "Position" then
-								newBlock:PivotTo(CFrame.new(currentPlot.Position - Vector3.new(table.unpack(v_2:split(",")))))
-							end
-							if i == "Size" then
-								newBlock.PPart.Size = Vector3.new(table.unpack(v_2.Size:split(",")))
-							end
-							if i == "Rotation" then
-								newBlock:PivotTo(newBlock.PPart.CFrame * CFrame.Angles(table.unpack(v_2:split(","))))
-							end
-							if i == "Color" then
-								if name == "Portal" then
-									newBlock.PortalPart.Color = Color3.fromHex(v_2)
-								else
-									for _, v_3 in newBlock:GetDescendants() do
-										if v_3:IsA("BasePart") then
-											v_3.Color = Color3.fromHex(v_2)
-										end
+
+						-- Преобразуем строки в числа
+						local pos = Vector3.new(table.unpack(block.Position:split(",")))
+						local rot = { table.unpack(block.Rotation:split(",")) }
+						for i = 1, #rot do rot[i] = math.rad(tonumber(rot[i])) end
+						local size = Vector3.new(table.unpack(block.Size:split(",")))
+
+						-- Применяем свойства
+						newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
+						newBlock.PrimaryPart.Size = size
+						newBlock.PrimaryPart.Anchored = block.Anchored
+
+						if block.Color then
+							local rgb = block.Color:split(",")
+							local color = Color3.new(tonumber(rgb[1]), tonumber(rgb[2]), tonumber(rgb[3]))
+
+							if blockType == "Portal" and newBlock:FindFirstChild("PortalPart") then
+								newBlock.PortalPart.Color = color
+							else
+								for _, p in pairs(newBlock:GetDescendants()) do
+									if p:IsA("BasePart") then
+										p.Color = color
 									end
 								end
 							end
-							if i == "Anchored" then
-								newBlock.PPart.Anchored = v_2
-							end
-							wait()
 						end
+						task.wait()
 					end
 				end
+
+				notify(nil, "Build loaded successfully!")
 			end)
 			main.dragbutton.fullclose.MouseButton1Click:Connect(function()
 				opened = false
