@@ -6126,7 +6126,7 @@ local specialBlocks = {
 	}
 }
 if game.PlaceId == 537413528 then
-	local folder = "DeepScopeCore/Addons"..game.MarketplaceService:GetProductInfo(game.PlaceId).Name.."/Builds"
+	local folder = "DeepScopeCore/Addons/"..game.MarketplaceService:GetProductInfo(game.PlaceId).Name.."/Builds"
 	makefolder(folder)
 	local points = {
 		CFrame.new(-164.266, 356.9, 288.862),
@@ -6511,6 +6511,7 @@ if game.PlaceId == 537413528 then
 				Name = "fullclose",
 				AnchorPoint = Vector2.new(1, 0),
 				BackgroundTransparency = 1,
+				Text = "",
 				Position = UDim2.new(1, -30, 0, 5),
 				Size = UDim2.new(0, 20, 0, 20),
 			})
@@ -6628,7 +6629,7 @@ if game.PlaceId == 537413528 then
 						}
 					end
 					local json = HttpService:JSONEncode(saved)
-					writefile(folder..filename..".build")
+					writefile(folder.."/"..filename..".build", json)
 				end
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
