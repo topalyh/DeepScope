@@ -2281,223 +2281,6 @@ function coreModules.Lib:FetchAPI()
 		GetMember = getMember
 	}
 end
-do
-	local Window = {}
-	Window.__index = Window
-
-	local defaultSize = UDim2.new(0, 240, 0, 240)
-	local defaultTitle = "New Window"
-
-	function Window.new(name)
-		local self = setmetatable({}, Window)
-		self.Name = name or defaultTitle
-		self.Resizeable = true
-		self.Collapseable = true
-		self.Dragable = true
-		self.GuiElems = {}
-		self._connections = {}
-		self._actions = {}
-
-		self.GuiElems.Main = createInstance("Frame", {
-			Name = name,
-			BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
-			BorderSizePixel = 0,
-			Size = defaultSize
-		})
-		createInstance("TextButton", {
-			Parent = self.GuiElems.Main,
-			Name = "dragbutton",
-			AnchorPoint = Vector2.new(0, 1),
-			BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
-			BorderSizePixel = 0,
-			Size = UDim2.new(1, 0, 0, 30),
-			FontFace = Font.new(fonts.FiraSans),
-			Text = "placeholder",
-			TextColor3 = Color3.new(1, 1, 1),
-			TextSize = 20
-		})
-		createInstance("TextButton", {
-			Parent = self.GuiElems.Main.dragbutton,
-			Name = "close",
-			AnchorPoint = Vector2.new(1, 0),
-			BackgroundTransparency = 1,
-			Position = UDim2.new(1, -30, 0, 5),
-			Size = UDim2.new(0, 20, 0, 20),
-		})
-		createInstance("UIStroke", {
-			Parent = self.GuiElems.Main.dragbutton.close,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			LineJoinMode = Enum.LineJoinMode.Miter
-		})
-		createInstance("ImageLabel", {
-			Parent = self.GuiElems.Main.dragbutton.close,
-			Size = UDim2.new(1, 0, 1, 0),
-			BackgroundTransparency = 1,
-			Image = "rbxassetid://15396333997"
-		})
-		createInstance("TextButton", {
-			Parent = self.GuiElems.Main.dragbutton,
-			Name = "fullclose",
-			AnchorPoint = Vector2.new(1, 0),
-			BackgroundTransparency = 1,
-			Position = UDim2.new(1, -30, 0, 5),
-			Size = UDim2.new(0, 20, 0, 20),
-		})
-		createInstance("UIStroke", {
-			Parent = self.GuiElems.Main.dragbutton.fullclose,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			LineJoinMode = Enum.LineJoinMode.Miter
-		})
-		createInstance("ImageLabel", {
-			Parent = self.GuiElems.Main.dragbutton.fullclose,
-			Size = UDim2.new(1, 0, 1, 0),
-			BackgroundTransparency = 1,
-			Image = "rbxassetid://74120900238837"
-		})
-		createInstance("TextButton", {
-			Parent = self.GuiElems.Main,
-			Name = "resizeboth",
-			BackgroundColor3 = Color3.new(1, 1, 1),
-			BackgroundTransparency = 1,
-			Position = UDim2.new(1, 0, 1, 0),
-			Size = UDim2.new(0, 7, 0, 7),
-			Text = ""
-		})
-		createInstance("TextButton", {
-			Parent = self.GuiElems.Main,
-			Name = "resizebottom",
-			BackgroundColor3 = Color3.new(1, 1, 1),
-			BackgroundTransparency = 1,
-			Position = UDim2.new(0, 0, 1, 0),
-			Size = UDim2.new(1, 0, 0, 7),
-			Text = ""
-		})
-		createInstance("TextButton", {
-			Parent = self.GuiElems.Main,
-			Name = "resizeside",
-			BackgroundColor3 = Color3.new(1, 1, 1),
-			BackgroundTransparency = 1,
-			Position = UDim2.new(1, 0, 0, -30),
-			Size = UDim2.new(0, 7, 1, 30),
-			Text = ""
-		})
-		local aliases = {
-			["bottom"] = "Y",
-			["side"] = "X",
-			["both"] = "XY"
-		}
-		self.GuiElems.TitleBar = self.GuiElems.Main.dragbutton
-		for _, v in self.GuiElems.Main:GetChildren() do
-			if v:IsA("TextButton") then
-				if v.Name:find("resize") then
-					if not self._actions["collapsed"] then
-						v.InputBegan:Connect(function(input)
-							if input.UserInputType == Enum.UserInputType.MouseButton1 then
-								self._actions["resizing"] = v
-								self._actions["smp"] = UserInputService:GetMouseLocation()
-								self._actions["sws"] = self.GuiElems.Main.Size
-								self._actions["crs"] = aliases[v.Name:sub(7)]
-							end
-						end)
-						v.MouseEnter:Connect(function()
-							v.BackgroundTransparency = 0.5
-						end)
-						v.MouseLeave:Connect(function()
-							v.BackgroundTransparency = 1
-						end)
-					end
-				end
-			end
-		end
-		UserInputService.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				self._actions["resizing"] = nil
-				self._actions["smp"] = nil
-				self._actions["sws"] = nil
-			end
-		end)
-		self.GuiElems.TitleBar.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				self._actions["dragging"] = true
-				self._actions["smp"] = UserInputService:GetMouseLocation()
-				self._actions["swp"] = self.GuiElems.Main.Position
-			end
-		end)
-		self._connections = RunService.RenderStepped:Connect(function()
-			local mouse = UserInputService:GetMouseLocation()
-			if self._actions["resizing"] then
-				if self._actions.crs == "Y" then
-					local deltaY = mouse.Y - self._actions["smp"].Y
-					local newHeight = math.clamp(self._actions["sws"].Y.Offset + deltaY, 100, 600)
-					self.GuiElems.Main.Size = UDim2.new(self._actions["sws"].X.Scale, self._actions["sws"].X.Offset, 0, newHeight)
-				elseif self._actions.crs == "X" then
-					local deltaX = mouse.X - self._actions["smp"].X
-					local newWidth = math.clamp(self._actions["sws"].X.Offset + deltaX, 100, 600)
-					self.GuiElems.Main.Size = UDim2.new(0, newWidth, self._actions["sws"].Y.Scale, self._actions["sws"].Y.Offset)
-				elseif self._actions.crs == "XY" then
-					local deltaX = mouse.X - self._actions["smp"].X
-					local deltaY = mouse.Y - self._actions["smp"].Y
-					local newWidth = math.clamp(self._actions["sws"].X.Offset + deltaX, 100, 600)
-					local newHeight = math.clamp(self._actions["sws"].Y.Offset + deltaY, 100, 600)
-					self.GuiElems.Main.Size = UDim2.new(0, newWidth, 0, newHeight)
-				end
-			end
-			if self._actions["dragging"] and self.Dragable then
-				local deltaX = mouse.X - self._actions["smp"].X
-				local deltaY = mouse.Y - self._actions["smp"].Y
-				self.GuiElems.Main.Position = UDim2.new(self._actions["swp"].X.Scale, self._actions["swp"].X.Offset + deltaX, self._actions["swp"].Y.Scale, self._actions["swp"].Y.Offset + deltaY)
-			end
-		end)
-		self.GuiElems.TitleBar.close.MouseButton1Click:Connect(function()
-			self._actions["collapsed"] = not self._actions["collapsed"]
-			if not self._actions["collapsed"] then
-				self._actions["oldsize"] = self.GuiElems.Main.Size
-				self.GuiElems.Main:TweenSize(UDim2.new(self.GuiElems.Main.Size.X.Scale, self.GuiElems.Main.Size.X.Offset, 0, 0), "InOut", "Size", 0.2, true)
-			else
-				self.GuiElems.Main:TweenSize(self._actions["oldsize"], "InOut", "Size", 0.2, true)
-			end
-		end)
-		self.GuiElems.TitleBar.fullclose.MouseButton1Click:Connect(function()
-			self.GuiElems.Main:Destroy()
-			return
-		end)
-		return self
-	end
-
-	function Window:SetTitle(text)
-		self.Name = text
-		if self.GuiElems and self.GuiElems.TitleBar then
-			self.GuiElems.TitleBar.Text = text
-		end
-	end
-
-	function Window:Resize(x, y)
-		if self.GuiElems.Main then
-			self.GuiElems.Main.Size = UDim2.new(0, x, 0, y)
-		end
-	end
-	
-	function Window:SetPosition(tbl, isScale)
-		if self.GuiElems.Main then
-			if isScale then
-				self.GuiElems.Main.Position = UDim2.new(tbl[1], 0, tbl[2], 0)
-			else
-				self.GuiElems.Main.Position = UDim2.new(0, tbl[1], 0, tbl[2])
-			end
-		end
-	end
-	
-	function Window:SetAnchorPoint(x, y)
-		if self.GuiElems.Main then
-			if not x then x = 0 end if not y then y = 0	end
-			self.GuiElems.Main.AnchorPoint = Vector2.new(x, y)
-		end
-	end
-
-	coreModules.Lib.Window = {
-		new = Window.new
-	}
-end
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
 		modules.other.fly.UpdateMoveDirection(processed)
@@ -4396,7 +4179,227 @@ local function notify(icon, text, countdown)
 		}):Play()
 	end)
 end
+do
+	local Window = {}
+	Window.__index = Window
 
+	local defaultSize = UDim2.new(0, 240, 0, 240)
+	local defaultTitle = "New Window"
+
+	function Window.new(name)
+		local self = setmetatable({}, Window)
+		self.Name = name or defaultTitle
+		self.Resizeable = true
+		self.Collapseable = true
+		self.Dragable = true
+		self.GuiElems = {}
+		self.closedEvent = Instance.new("BindableEvent")
+		self.Closed = self.closedEvent.Event
+		self._connections = {}
+		self._actions = {}
+
+		self.GuiElems.Main = createInstance("Frame", {
+			Parent = newgui.Parent,
+			Name = name,
+			BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+			BorderSizePixel = 0,
+			Size = defaultSize
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "dragbutton",
+			AnchorPoint = Vector2.new(0, 1),
+			BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			FontFace = Font.new(fonts.FiraSans),
+			Text = "placeholder",
+			TextColor3 = Color3.new(1, 1, 1),
+			TextSize = 20
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main.dragbutton,
+			Name = "close",
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, -30, 0, 5),
+			Size = UDim2.new(0, 20, 0, 20),
+		})
+		createInstance("UIStroke", {
+			Parent = self.GuiElems.Main.dragbutton.close,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Miter
+		})
+		createInstance("ImageLabel", {
+			Parent = self.GuiElems.Main.dragbutton.close,
+			Size = UDim2.new(1, 0, 1, 0),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://15396333997"
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main.dragbutton,
+			Name = "fullclose",
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, -30, 0, 5),
+			Size = UDim2.new(0, 20, 0, 20),
+		})
+		createInstance("UIStroke", {
+			Parent = self.GuiElems.Main.dragbutton.fullclose,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Miter
+		})
+		createInstance("ImageLabel", {
+			Parent = self.GuiElems.Main.dragbutton.fullclose,
+			Size = UDim2.new(1, 0, 1, 0),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://74120900238837"
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "resizeboth",
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, 0, 1, 0),
+			Size = UDim2.new(0, 7, 0, 7),
+			Text = ""
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "resizebottom",
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0, 0, 1, 0),
+			Size = UDim2.new(1, 0, 0, 7),
+			Text = ""
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "resizeside",
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, 0, 0, -30),
+			Size = UDim2.new(0, 7, 1, 30),
+			Text = ""
+		})
+		local aliases = {
+			["bottom"] = "Y",
+			["side"] = "X",
+			["both"] = "XY"
+		}
+		self.GuiElems.TitleBar = self.GuiElems.Main.dragbutton
+		for _, v in self.GuiElems.Main:GetChildren() do
+			if v:IsA("TextButton") then
+				if v.Name:find("resize") then
+					if not self._actions["collapsed"] then
+						v.InputBegan:Connect(function(input)
+							if input.UserInputType == Enum.UserInputType.MouseButton1 then
+								self._actions["resizing"] = v
+								self._actions["smp"] = UserInputService:GetMouseLocation()
+								self._actions["sws"] = self.GuiElems.Main.Size
+								self._actions["crs"] = aliases[v.Name:sub(7)]
+							end
+						end)
+						v.MouseEnter:Connect(function()
+							v.BackgroundTransparency = 0.5
+						end)
+						v.MouseLeave:Connect(function()
+							v.BackgroundTransparency = 1
+						end)
+					end
+				end
+			end
+		end
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				self._actions["resizing"] = nil
+				self._actions["smp"] = nil
+				self._actions["sws"] = nil
+			end
+		end)
+		self.GuiElems.TitleBar.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				self._actions["dragging"] = true
+				self._actions["smp"] = UserInputService:GetMouseLocation()
+				self._actions["swp"] = self.GuiElems.Main.Position
+			end
+		end)
+		self._connections = RunService.RenderStepped:Connect(function()
+			local mouse = UserInputService:GetMouseLocation()
+			if self._actions["resizing"] then
+				if self._actions.crs == "Y" then
+					local deltaY = mouse.Y - self._actions["smp"].Y
+					local newHeight = math.clamp(self._actions["sws"].Y.Offset + deltaY, 100, 600)
+					self.GuiElems.Main.Size = UDim2.new(self._actions["sws"].X.Scale, self._actions["sws"].X.Offset, 0, newHeight)
+				elseif self._actions.crs == "X" then
+					local deltaX = mouse.X - self._actions["smp"].X
+					local newWidth = math.clamp(self._actions["sws"].X.Offset + deltaX, 100, 600)
+					self.GuiElems.Main.Size = UDim2.new(0, newWidth, self._actions["sws"].Y.Scale, self._actions["sws"].Y.Offset)
+				elseif self._actions.crs == "XY" then
+					local deltaX = mouse.X - self._actions["smp"].X
+					local deltaY = mouse.Y - self._actions["smp"].Y
+					local newWidth = math.clamp(self._actions["sws"].X.Offset + deltaX, 100, 600)
+					local newHeight = math.clamp(self._actions["sws"].Y.Offset + deltaY, 100, 600)
+					self.GuiElems.Main.Size = UDim2.new(0, newWidth, 0, newHeight)
+				end
+			end
+			if self._actions["dragging"] and self.Dragable then
+				local deltaX = mouse.X - self._actions["smp"].X
+				local deltaY = mouse.Y - self._actions["smp"].Y
+				self.GuiElems.Main.Position = UDim2.new(self._actions["swp"].X.Scale, self._actions["swp"].X.Offset + deltaX, self._actions["swp"].Y.Scale, self._actions["swp"].Y.Offset + deltaY)
+			end
+		end)
+		self.GuiElems.TitleBar.close.MouseButton1Click:Connect(function()
+			self._actions["collapsed"] = not self._actions["collapsed"]
+			if not self._actions["collapsed"] then
+				self._actions["oldsize"] = self.GuiElems.Main.Size
+				self.GuiElems.Main:TweenSize(UDim2.new(self.GuiElems.Main.Size.X.Scale, self.GuiElems.Main.Size.X.Offset, 0, 0), "InOut", "Size", 0.2, true)
+			else
+				self.GuiElems.Main:TweenSize(self._actions["oldsize"], "InOut", "Size", 0.2, true)
+			end
+		end)
+		self.GuiElems.TitleBar.fullclose.MouseButton1Click:Connect(function()
+			self.GuiElems.Main:Destroy()
+			self.closedEvent:Fire()
+			return
+		end)
+		return self
+	end
+
+	function Window:SetTitle(text)
+		self.Name = text
+		if self.GuiElems and self.GuiElems.TitleBar then
+			self.GuiElems.TitleBar.Text = text
+		end
+	end
+
+	function Window:Resize(x, y)
+		if self.GuiElems.Main then
+			self.GuiElems.Main.Size = UDim2.new(0, x, 0, y)
+		end
+	end
+
+	function Window:SetPosition(tbl, isScale)
+		if self.GuiElems.Main then
+			if isScale then
+				self.GuiElems.Main.Position = UDim2.new(tbl[1], 0, tbl[2], 0)
+			else
+				self.GuiElems.Main.Position = UDim2.new(0, tbl[1], 0, tbl[2])
+			end
+		end
+	end
+
+	function Window:SetAnchorPoint(x, y)
+		if self.GuiElems.Main then
+			if not x then x = 0 end if not y then y = 0	end
+			self.GuiElems.Main.AnchorPoint = Vector2.new(x, y)
+		end
+	end
+
+	coreModules.Lib.Window = {
+		new = Window.new
+	}
+end
 makeFakeScripts()
 LocalPlayer.CharacterAdded:Connect(function(char)
 	delay(1, function()
@@ -6605,6 +6608,9 @@ if game.PlaceId == 537413528 then
 						end
 					end
 				end
+			end)
+			autoBuildWindow.Closed:Connect(function()
+				opened = false
 			end)
 		end		
 	end)
