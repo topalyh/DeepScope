@@ -2298,90 +2298,88 @@ do
 		self._connections = {}
 		self._actions = {}
 
-		self.GuiElems.Main = create({
-			{1,"Frame", {
-				Name = name,
-				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
-				BorderSizePixel = 0,
-				Size = defaultSize
-			}},
-			{2,"TextButton", {
-				Parent = 1,
-				Name = "dragbutton",
-				AnchorPoint = Vector2.new(0, 1),
-				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
-				BorderSizePixel = 0,
-				Size = UDim2.new(1, 0, 0, 30),
-				FontFace = Font.new(fonts.FiraSans),
-				Text = "placeholder",
-				TextColor3 = Color3.new(1, 1, 1),
-				TextSize = 20
-			}},
-			{3, "TextButton", {
-				Parent = 2,
-				Name = "close",
-				AnchorPoint = Vector2.new(1, 0),
-				BackgroundTransparency = 1,
-				Position = UDim2.new(1, -30, 0, 5),
-				Size = UDim2.new(0, 20, 0, 20),
-			}},
-			{4, "UIStroke", {
-				Parent = 3,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				LineJoinMode = Enum.LineJoinMode.Miter
-			}},
-			{5, "ImageLabel", {
-				Parent = 3,
-				Size = UDim2.new(1, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Image = "rbxassetid://15396333997"
-			}},
-			{6, "TextButton", {
-				Parent = 2,
-				Name = "fullclose",
-				AnchorPoint = Vector2.new(1, 0),
-				BackgroundTransparency = 1,
-				Position = UDim2.new(1, -30, 0, 5),
-				Size = UDim2.new(0, 20, 0, 20),
-			}},
-			{7, "UIStroke", {
-				Parent = 6,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				LineJoinMode = Enum.LineJoinMode.Miter
-			}},
-			{8, "ImageLabel", {
-				Parent = 6,
-				Size = UDim2.new(1, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Image = "rbxassetid://74120900238837"
-			}},
-			{9, "TextButton", {
-				Parent = 1,
-				Name = "resizeboth",
-				BackgroundColor3 = Color3.new(1, 1, 1),
-				BackgroundTransparency = 1,
-				Position = UDim2.new(1, 0, 1, 0),
-				Size = UDim2.new(0, 7, 0, 7),
-				Text = ""
-			}},
-			{10, "TextButton", {
-				Parent = 1,
-				Name = "resizebottom",
-				BackgroundColor3 = Color3.new(1, 1, 1),
-				BackgroundTransparency = 1,
-				Position = UDim2.new(0, 0, 1, 0),
-				Size = UDim2.new(1, 0, 0, 7),
-				Text = ""
-			}},
-			{11, "TextButton", {
-				Parent = 1,
-				Name = "resizeside",
-				BackgroundColor3 = Color3.new(1, 1, 1),
-				BackgroundTransparency = 1,
-				Position = UDim2.new(1, 0, 0, -30),
-				Size = UDim2.new(0, 7, 1, 30),
-				Text = ""
-			}}
+		self.GuiElems.Main = createInstance("Frame", {
+			Name = name,
+			BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+			BorderSizePixel = 0,
+			Size = defaultSize
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "dragbutton",
+			AnchorPoint = Vector2.new(0, 1),
+			BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 30),
+			FontFace = Font.new(fonts.FiraSans),
+			Text = "placeholder",
+			TextColor3 = Color3.new(1, 1, 1),
+			TextSize = 20
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main.dragbutton,
+			Name = "close",
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, -30, 0, 5),
+			Size = UDim2.new(0, 20, 0, 20),
+		})
+		createInstance("UIStroke", {
+			Parent = self.GuiElems.Main.dragbutton.close,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Miter
+		})
+		createInstance("ImageLabel", {
+			Parent = self.GuiElems.Main.dragbutton.close,
+			Size = UDim2.new(1, 0, 1, 0),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://15396333997"
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main.dragbutton,
+			Name = "fullclose",
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, -30, 0, 5),
+			Size = UDim2.new(0, 20, 0, 20),
+		})
+		createInstance("UIStroke", {
+			Parent = self.GuiElems.Main.dragbutton.fullclose,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Miter
+		})
+		createInstance("ImageLabel", {
+			Parent = self.GuiElems.Main.dragbutton.fullclose,
+			Size = UDim2.new(1, 0, 1, 0),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://74120900238837"
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "resizeboth",
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, 0, 1, 0),
+			Size = UDim2.new(0, 7, 0, 7),
+			Text = ""
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "resizebottom",
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0, 0, 1, 0),
+			Size = UDim2.new(1, 0, 0, 7),
+			Text = ""
+		})
+		createInstance("TextButton", {
+			Parent = self.GuiElems.Main,
+			Name = "resizeside",
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, 0, 0, -30),
+			Size = UDim2.new(0, 7, 1, 30),
+			Text = ""
 		})
 		local aliases = {
 			["bottom"] = "Y",
