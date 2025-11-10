@@ -6480,7 +6480,7 @@ if game.PlaceId == 537413528 then
 		if hasBind then
 			return nil
 		else
-			return tostring(obj.Size.PPart.X..","..obj.PPart.Size.Y..","..obj.PPart.Size.Z)
+			return tostring(obj.PPart.Size.X..","..obj.PPart.Size.Y..","..obj.PPart.Size.Z)
 		end
 	end
 	local function calculateRotation(obj)
@@ -6630,6 +6630,14 @@ if game.PlaceId == 537413528 then
 							Anchored = v.PPart.Anchored,
 							Rotation = calculateRotation(v)
 						}
+						if v.Name == "Delay" then
+							saved[v.Name].WaitDuration = v.WaitDuration.Value
+						end
+						if v.Name == "Piston" then
+							saved[v.Name].ExtendLength = v.ExtendLength.Value
+							saved[v.Name].Speed = v.Speed.Value
+							saved[v.Name].ExtendLength = v.ExtendLength.Value
+						end
 					end
 					local json = HttpService:JSONEncode(saved)
 					writefile(folder.."/"..filename..".build", json)
@@ -7312,5 +7320,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
