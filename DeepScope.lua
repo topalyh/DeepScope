@@ -1624,7 +1624,7 @@ local modules = {
 			end,
 		},
 		executor = {
-			
+
 			highlightLuau = function(code)
 				local tokens = {}
 				local pos = 1
@@ -1652,9 +1652,9 @@ local modules = {
 						pos = closing + 2
 					elseif code:sub(pos, pos+1) == "--" then
 						local closing = code:find("", pos+2, true) or (len + 1)
-							local com = code:sub(pos, closing-1)
-							table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), com))
-							pos = closing
+						local com = code:sub(pos, closing-1)
+						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.commentColor:ToHex(), com))
+						pos = closing
 					elseif c:match("%d") then
 						local num = code:match("%d+%.?%d*[eExXbB]?%-?%d*", pos)
 						table.insert(tokens, string.format("<font color='%s'>%s</font>", "#"..executorConfig.numberColor:ToHex(), num))
@@ -6079,7 +6079,7 @@ local function registerCommand(name, callback)
 		PaddingRight = UDim.new(0, 5)
 	})
 	template.MouseButton1Click:Connect(function()
-		
+
 	end)
 	commands[name] = callback
 end
@@ -6456,7 +6456,7 @@ if game.PlaceId == 537413528 then
 	if uiSwitch2:GetAttribute("Value") == true then
 		enableMode()
 	end
-	
+
 	local button = createInstance("TextButton", {
 		Parent = newgui,
 		Name = "autobuild",
@@ -6473,7 +6473,7 @@ if game.PlaceId == 537413528 then
 		return tostring(diff.X..","..diff.Y..","..diff.Z)
 	end
 	local function calculateSize(obj)
-		local hasBind = obj:FindFirstChildWithIsA("Value").Name:find("Bind") ~= nil
+		local hasBind = obj:FindFirstChildOfClass("Value").Name:find("Bind") ~= nil
 		if hasBind then
 			return nil
 		else
@@ -7309,4 +7309,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
