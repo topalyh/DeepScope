@@ -6614,11 +6614,8 @@ if game.PlaceId == 537413528 then
 			})
 			savebutton.MouseButton1Click:Connect(function()
 				local player = game.Players:FindFirstChild(playername.Text)
-				local fileName = ""
+				local fileName = player.Name..".build"
 				if player then
-					if filename.Text == "" then
-						fileName = player.Name..".build"
-					end
 					local saved = {}
 					local playerBlocks = workspace.Blocks[player.Name]
 					for _, v in playerBlocks:GetChildren() do
@@ -6650,7 +6647,7 @@ if game.PlaceId == 537413528 then
 						notify(nil, "Please, enter File Name")
 						return
 					end
-					local data = HttpService:JSONDecode(readfile(folder..loadfilebox.Text))
+					local data = HttpService:JSONDecode(readfile(folder.."/"..loadfilebox.Text..".build"))
 					for _, v in data do
 						local name = v.Name
 						local newBlock = game.ReplicatedStorage.BuildingParts[name]:Clone()
@@ -6663,7 +6660,7 @@ if game.PlaceId == 537413528 then
 								newBlock.PPart.Size = Vector3.new(table.unpack(v_2.Size:split(",")))
 							end
 							if i == "Rotation" then
-								newBlock:PivotTo(newBlock.CFrame * CFrame.Angles(table.unpack(v_2.Rotation:split(","))))
+								newBlock:PivotTo(newBlock.PPart.CFrame * CFrame.Angles(table.unpack(v_2.Rotation:split(","))))
 							end
 							if i == "Color" then
 								if name == "Portal" then
