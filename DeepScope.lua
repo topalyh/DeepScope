@@ -6594,7 +6594,7 @@ if game.PlaceId == 537413528 then
 				Parent = main,
 				Name = "playername",
 				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0.4, 10),
+				Position = UDim2.new(0.5, 0, 0.27, 10),
 				Size = UDim2.new(1, -20, 0, 20),
 				PlaceholderColor3 = Color3.new(1, 1, 1),
 				PlaceholderText = "player name",
@@ -6639,8 +6639,7 @@ if game.PlaceId == 537413528 then
 						end
 					end
 					local json = HttpService:JSONEncode(saved)
-					print(json)
-					writefile(folder.."/"..filename..".build", json)
+					writefile(folder.."/"..fileName..".build", json)
 				end
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
