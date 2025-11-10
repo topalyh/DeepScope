@@ -6467,8 +6467,8 @@ if game.PlaceId == 537413528 then
 	})
 	local opened = false
 	local function calculatePosition(pos, player)
-		local plrTeam = player.Team
-		local buildZone = workspace[plrTeam.Name.."Zone"]
+		local plrTeam = tostring(player.TeamColor)
+		local buildZone = workspace[plrTeam.."Zone"]
 		local diff = buildZone.Position - pos
 		return tostring(diff.X..","..diff.Y..","..diff.Z)
 	end
@@ -6633,7 +6633,7 @@ if game.PlaceId == 537413528 then
 				end
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
-				local currentPlot = workspace[LocalPlayer.Team.Name.."Zone"]
+				local currentPlot = workspace[tostring(LocalPlayer.TeamColor).."Zone"]
 				local fileName = ""
 				if currentPlot then
 					if loadfilebox.Text == "" then
@@ -7309,3 +7309,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
