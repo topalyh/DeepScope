@@ -6485,14 +6485,71 @@ if game.PlaceId == 537413528 then
 	end
 	button.MouseButton1Click:Connect(function()
 		if not opened then
-			local autoBuildWindow = coreModules.Lib.Window.new("autobuild")
-			local gui = autoBuildWindow.GuiElems.Main
-			autoBuildWindow.Collapseable = false
-			autoBuildWindow.Resizeable = false
-			autoBuildWindow.Dragable = false
-			autoBuildWindow:SetTitle("auto build")
-			autoBuildWindow:SetPosition({0.5, 0.5}, true)
-			autoBuildWindow:SetAnchorPoint(0.5, 0.5)
+			local main = createInstance("Frame", {
+				Parent = newgui.Parent,
+				Name = "autobuild",
+				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(0.5, 0.5)
+			})
+			createInstance("TextButton", {
+				Parent = main,
+				Name = "dragbutton",
+				AnchorPoint = Vector2.new(0, 1),
+				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
+				BorderSizePixel = 0,
+				Size = UDim2.new(1, 0, 0, 30),
+				FontFace = Font.new(fonts.FiraSans),
+				Text = "auto build",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextSize = 20
+			})
+			createInstance("TextButton", {
+				Parent = main.dragbutton,
+				Name = "fullclose",
+				AnchorPoint = Vector2.new(1, 0),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, -30, 0, 5),
+				Size = UDim2.new(0, 20, 0, 20),
+			})
+			createInstance("UIStroke", {
+				Parent = main.dragbutton.fullclose,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				LineJoinMode = Enum.LineJoinMode.Miter
+			})
+			createInstance("ImageLabel", {
+				Parent = main.dragbutton.fullclose,
+				Size = UDim2.new(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://74120900238837"
+			})
+			createInstance("TextButton", {
+				Parent = main,
+				Name = "resizeboth",
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, 0, 1, 0),
+				Size = UDim2.new(0, 7, 0, 7),
+				Text = ""
+			})
+			createInstance("TextButton", {
+				Parent = main,
+				Name = "resizebottom",
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 0, 1, 0),
+				Size = UDim2.new(1, 0, 0, 7),
+				Text = ""
+			})
+			createInstance("TextButton", {
+				Parent = main,
+				Name = "resizeside",
+				BackgroundColor3 = Color3.new(1, 1, 1),
+				BackgroundTransparency = 1,
+				Position = UDim2.new(1, 0, 0, -30),
+				Size = UDim2.new(0, 7, 1, 30),
+				Text = ""
+			})
 			local filename = createInstance("TextBox", {
 				Name = "filename",
 				AnchorPoint = Vector2.new(0.5, 0),
@@ -6564,7 +6621,7 @@ if game.PlaceId == 537413528 then
 						}
 					end
 					local json = HttpService:JSONEncode(saved)
-					writefile(folder..filename.."build")
+					writefile(folder..filename..".build")
 				end
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
@@ -6609,8 +6666,9 @@ if game.PlaceId == 537413528 then
 					end
 				end
 			end)
-			autoBuildWindow.Closed:Connect(function()
+			main.dragbutton.fullclose.MouseButton1Click:Connect(function()
 				opened = false
+				main:Destroy()
 			end)
 		end		
 	end)
