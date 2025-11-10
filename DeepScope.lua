@@ -6632,14 +6632,14 @@ if game.PlaceId == 537413528 then
 						}
 						if v.Name == "Delay" then
 							saved[v.Name].WaitDuration = v.WaitDuration.Value
-						end
+						end	
 						if v.Name == "Piston" then
 							saved[v.Name].ExtendLength = v.ExtendLength.Value
 							saved[v.Name].Speed = v.Speed.Value
-							saved[v.Name].ExtendLength = v.ExtendLength.Value
 						end
 					end
 					local json = HttpService:JSONEncode(saved)
+					print(json)
 					writefile(folder.."/"..filename..".build", json)
 				end
 			end)
@@ -7320,6 +7320,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
