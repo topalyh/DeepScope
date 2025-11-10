@@ -6652,48 +6652,84 @@ if game.PlaceId == 537413528 then
 					return
 				end
 
-				local data = HttpService:JSONDecode(readfile(filePath))
+				local success, data = pcall(function()
+					return HttpService:JSONDecode(readfile(filePath))
+				end)
+
+				if not success then
+					warn("[❌] Failed to decode JSON: ", data)
+					notify(nil, "Invalid build file format!")
+					return
+				end
 
 				for blockType, blockArray in pairs(data) do
-					-- проверяем, что blockArray — это массив
-					if typeof(blockArray) == "table" and #blockArray > 0 then
-						for _, block in ipairs(blockArray) do
-							local newBlock = game.ReplicatedStorage.BuildingParts[blockType]:Clone()
-							newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
+					-- убедимся, что blockArray — это таблица
+					if typeof(blockArray) ~= "table" then
+						warn(("[⚠️] Skipped '%s': not a valid table"):format(blockType))
+						continue
+					end
 
-							-- Преобразуем значения
-							local pos = Vector3.new(table.unpack(block.Position:split(",")))
-							local rot = { table.unpack(block.Rotation:split(",")) }
-							for i = 1, #rot do rot[i] = math.rad(tonumber(rot[i])) end
-							local size = Vector3.new(table.unpack(block.Size:split(",")))
+					-- если таблица не массив, преобразуем вручную
+					local blocks = {}
+					if next(blockArray) and not blockArray[1] then
+						for _, b in pairs(blockArray) do
+							table.insert(blocks, b)
+						end
+					else
+						blocks = blockArray
+					end
 
-							-- Устанавливаем позицию и ориентацию
-							newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
+					for _, block in ipairs(blocks) do
+						local template = game.ReplicatedStorage.BuildingParts:FindFirstChild(blockType)
+						if not template then
+							warn(("[⚠️] Missing template for '%s'"):format(blockType))
+							continue
+						end
 
+						local newBlock = template:Clone()
+						newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
+
+						-- позиция
+						local pos = Vector3.new(table.unpack(block.Position:split(",")))
+						local rot = { table.unpack(block.Rotation:split(",")) }
+						for i = 1, #rot do rot[i] = math.rad(tonumber(rot[i])) end
+						local size = Vector3.new(table.unpack(block.Size:split(",")))
+
+						-- установка позиции и поворота
+						newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
+
+						if newBlock.PrimaryPart then
 							newBlock.PrimaryPart.Size = size
 							newBlock.PrimaryPart.Anchored = block.Anchored
+						end
 
-							-- Цвет
-							if block.Color then
-								local rgb = block.Color:split(",")
-								local color = Color3.new(tonumber(rgb[1]), tonumber(rgb[2]), tonumber(rgb[3]))
-
-								if blockType == "Portal" and newBlock:FindFirstChild("PortalPart") then
-									newBlock.PortalPart.Color = color
-								else
-									for _, p in pairs(newBlock:GetDescendants()) do
-										if p:IsA("BasePart") then
-											p.Color = color
-										end
+						-- цвет
+						if block.Color then
+							local rgb = block.Color:split(",")
+							local color = Color3.new(tonumber(rgb[1]), tonumber(rgb[2]), tonumber(rgb[3]))
+							if blockType == "Portal" and newBlock:FindFirstChild("PortalPart") then
+								newBlock.PortalPart.Color = color
+							else
+								for _, p in pairs(newBlock:GetDescendants()) do
+									if p:IsA("BasePart") then
+										p.Color = color
 									end
 								end
 							end
-
-							task.wait()
 						end
 
-					else
-						warn(("[⚠️] Block type '%s' has invalid data format (expected array, got %s)"):format(blockType, typeof(blockArray)))
+						-- дополнительные параметры
+						if block.WaitDuration and newBlock:FindFirstChild("WaitDuration") then
+							newBlock.WaitDuration.Value = block.WaitDuration
+						end
+						if block.ExtendLength and newBlock:FindFirstChild("ExtendLength") then
+							newBlock.ExtendLength.Value = block.ExtendLength
+						end
+						if block.Speed and newBlock:FindFirstChild("Speed") then
+							newBlock.Speed.Value = block.Speed
+						end
+
+						task.wait()
 					end
 				end
 
