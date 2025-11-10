@@ -6473,7 +6473,10 @@ if game.PlaceId == 537413528 then
 		return tostring(diff.X..","..diff.Y..","..diff.Z)
 	end
 	local function calculateSize(obj)
-		local hasBind = obj:FindFirstChildOfClass("Value").Name:find("Bind") ~= nil
+		local hasBind = nil
+		pcall(function()
+			hasBind = obj:FindFirstChildOfClass("Value").Name:find("Bind") ~= nil
+		end
 		if hasBind then
 			return nil
 		else
@@ -7309,3 +7312,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
