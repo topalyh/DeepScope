@@ -6634,7 +6634,7 @@ if game.PlaceId == 537413528 then
 				end
 
 				local json = HttpService:JSONEncode(saved)
-				writefile(folder .. "/" .. fileName, prettyJSON(json))
+				writefile(folder .. "/" .. fileName, json)
 				notify(nil, "Build saved as " .. fileName)
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
