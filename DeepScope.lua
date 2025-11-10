@@ -6654,21 +6654,21 @@ if game.PlaceId == 537413528 then
 						newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
 						for i, v_2 in v do
 							if i == "Position" then
-								newBlock:SetPrimaryPartCFrame(currentPlot.Position - Vector3.new(table.unpack(v_2.Position:split(","))))
+								newBlock:SetPrimaryPartCFrame(CFrame.new(currentPlot.Position - Vector3.new(table.unpack(v_2:split(",")))))
 							end
 							if i == "Size" then
-								newBlock.PPart.Size = Vector3.new(table.unpack(v_2.Size:split(",")))
+								newBlock.PPart.Size = Vector3.new(table.unpack(v_2:split(",")))
 							end
 							if i == "Rotation" then
-								newBlock:PivotTo(newBlock.PPart.CFrame * CFrame.Angles(table.unpack(v_2.Rotation:split(","))))
+								newBlock:PivotTo(newBlock.PPart.CFrame * CFrame.Angles(table.unpack(v_2:split(","))))
 							end
 							if i == "Color" then
 								if name == "Portal" then
-									newBlock.PortalPart.Color = Color3.fromHex(v_2.Color)
+									newBlock.PortalPart.Color = Color3.fromHex(v_2)
 								else
 									for _, v_3 in newBlock:GetDescendants() do
 										if v_3:IsA("BasePart") then
-											v_3.Color = Color3.fromHex(v_2.Color)
+											v_3.Color = Color3.fromHex(v_2)
 										end
 									end
 								end
@@ -7316,6 +7316,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
