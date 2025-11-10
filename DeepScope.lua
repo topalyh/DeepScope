@@ -6655,36 +6655,45 @@ if game.PlaceId == 537413528 then
 				local data = HttpService:JSONDecode(readfile(filePath))
 
 				for blockType, blockArray in pairs(data) do
-					for _, block in ipairs(blockArray) do
-						local newBlock = game.ReplicatedStorage.BuildingParts[blockType]:Clone()
-						newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
+					-- проверяем, что blockArray — это массив
+					if typeof(blockArray) == "table" and #blockArray > 0 then
+						for _, block in ipairs(blockArray) do
+							local newBlock = game.ReplicatedStorage.BuildingParts[blockType]:Clone()
+							newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
 
-						-- Преобразуем строки в числа
-						local pos = Vector3.new(table.unpack(block.Position:split(",")))
-						local rot = { table.unpack(block.Rotation:split(",")) }
-						for i = 1, #rot do rot[i] = math.rad(tonumber(rot[i])) end
-						local size = Vector3.new(table.unpack(block.Size:split(",")))
+							-- Преобразуем значения
+							local pos = Vector3.new(table.unpack(block.Position:split(",")))
+							local rot = { table.unpack(block.Rotation:split(",")) }
+							for i = 1, #rot do rot[i] = math.rad(tonumber(rot[i])) end
+							local size = Vector3.new(table.unpack(block.Size:split(",")))
 
-						-- Применяем свойства
-						newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
-						newBlock.PrimaryPart.Size = size
-						newBlock.PrimaryPart.Anchored = block.Anchored
+							-- Устанавливаем позицию и ориентацию
+							newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
 
-						if block.Color then
-							local rgb = block.Color:split(",")
-							local color = Color3.new(tonumber(rgb[1]), tonumber(rgb[2]), tonumber(rgb[3]))
+							newBlock.PrimaryPart.Size = size
+							newBlock.PrimaryPart.Anchored = block.Anchored
 
-							if blockType == "Portal" and newBlock:FindFirstChild("PortalPart") then
-								newBlock.PortalPart.Color = color
-							else
-								for _, p in pairs(newBlock:GetDescendants()) do
-									if p:IsA("BasePart") then
-										p.Color = color
+							-- Цвет
+							if block.Color then
+								local rgb = block.Color:split(",")
+								local color = Color3.new(tonumber(rgb[1]), tonumber(rgb[2]), tonumber(rgb[3]))
+
+								if blockType == "Portal" and newBlock:FindFirstChild("PortalPart") then
+									newBlock.PortalPart.Color = color
+								else
+									for _, p in pairs(newBlock:GetDescendants()) do
+										if p:IsA("BasePart") then
+											p.Color = color
+										end
 									end
 								end
 							end
+
+							task.wait()
 						end
-						task.wait()
+
+					else
+						warn(("[⚠️] Block type '%s' has invalid data format (expected array, got %s)"):format(blockType, typeof(blockArray)))
 					end
 				end
 
