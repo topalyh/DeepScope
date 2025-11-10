@@ -6476,7 +6476,7 @@ if game.PlaceId == 537413528 then
 		local hasBind = nil
 		pcall(function()
 			hasBind = obj:FindFirstChildOfClass("Value").Name:find("Bind") ~= nil
-		end
+		end)
 		if hasBind then
 			return nil
 		else
@@ -7312,4 +7312,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
