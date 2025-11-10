@@ -2292,6 +2292,8 @@ do
 		local self = setmetatable({}, Window)
 		self.Name = name or defaultTitle
 		self.Resizeable = true
+		self.Collapseable = true
+		self.Dragable = true
 		self.GuiElems = {}
 		self._connections = {}
 		self._actions = {}
@@ -2390,20 +2392,22 @@ do
 		for _, v in self.GuiElems.Main:GetChildren() do
 			if v:IsA("TextButton") then
 				if v.Name:find("resize") then
-					v.InputBegan:Connect(function(input)
-						if input.UserInputType == Enum.UserInputType.MouseButton1 then
-							self._actions["resizing"] = v
-							self._actions["smp"] = UserInputService:GetMouseLocation()
-							self._actions["sws"] = self.GuiElems.Main.Size
-							self._actions["crs"] = aliases[v.Name:sub(7)]
-						end
-					end)
-					v.MouseEnter:Connect(function()
-						v.BackgroundTransparency = 0.5
-					end)
-					v.MouseLeave:Connect(function()
-						v.BackgroundTransparency = 1
-					end)
+					if not self._actions["collapsed"] then
+						v.InputBegan:Connect(function(input)
+							if input.UserInputType == Enum.UserInputType.MouseButton1 then
+								self._actions["resizing"] = v
+								self._actions["smp"] = UserInputService:GetMouseLocation()
+								self._actions["sws"] = self.GuiElems.Main.Size
+								self._actions["crs"] = aliases[v.Name:sub(7)]
+							end
+						end)
+						v.MouseEnter:Connect(function()
+							v.BackgroundTransparency = 0.5
+						end)
+						v.MouseLeave:Connect(function()
+							v.BackgroundTransparency = 1
+						end)
+					end
 				end
 			end
 		end
@@ -2440,9 +2444,24 @@ do
 					self.GuiElems.Main.Size = UDim2.new(0, newWidth, 0, newHeight)
 				end
 			end
-			if self._actions["dragging"] then
-				
+			if self._actions["dragging"] and self.Dragable then
+				local deltaX = mouse.X - self._actions["smp"].X
+				local deltaY = mouse.Y - self._actions["smp"].Y
+				self.GuiElems.Main.Position = UDim2.new(self._actions["swp"].X.Scale, self._actions["swp"].X.Offset + deltaX, self._actions["swp"].Y.Scale, self._actions["swp"].Y.Offset + deltaY)
 			end
+		end)
+		self.GuiElems.TitleBar.close.MouseButton1Click:Connect(function()
+			self._actions["collapsed"] = not self._actions["collapsed"]
+			if not self._actions["collapsed"] then
+				self._actions["oldsize"] = self.GuiElems.Main.Size
+				self.GuiElems.Main:TweenSize(UDim2.new(self.GuiElems.Main.Size.X.Scale, self.GuiElems.Main.Size.X.Offset, 0, 0), "InOut", "Size", 0.2, true)
+			else
+				self.GuiElems.Main:TweenSize(self._actions["oldsize"], "InOut", "Size", 0.2, true)
+			end
+		end)
+		self.GuiElems.TitleBar.fullclose.MouseButton1Click:Connect(function()
+			self.GuiElems.Main:Destroy()
+			return
 		end)
 		return self
 	end
@@ -2457,6 +2476,23 @@ do
 	function Window:Resize(x, y)
 		if self.GuiElems.Main then
 			self.GuiElems.Main.Size = UDim2.new(0, x, 0, y)
+		end
+	end
+	
+	function Window:SetPosition(tbl, isScale)
+		if self.GuiElems.Main then
+			if isScale then
+				self.GuiElems.Main.Position = UDim2.new(tbl[1], 0, tbl[2], 0)
+			else
+				self.GuiElems.Main.Position = UDim2.new(0, tbl[1], 0, tbl[2])
+			end
+		end
+	end
+	
+	function Window:SetAnchorPoint(x, y)
+		if self.GuiElems.Main then
+			if not x then x = 0 end if not y then y = 0	end
+			self.GuiElems.Main.AnchorPoint = Vector2.new(x, y)
 		end
 	end
 
@@ -6074,7 +6110,23 @@ local function runCommand(input)
 		AddLog("Unknown command: "..commandName, "DeepScope", "warn")
 	end
 end
+local specialBlocks = {
+	["Piston"] = {
+		AditionalProperties = {
+			"ExtendLength",
+			"LastDirection",
+			"Speed"
+		}
+	},
+	["Delay"] = {
+		AditionalProperties = {
+			"WaitDuration"
+		}
+	}
+}
 if game.PlaceId == 537413528 then
+	local folder = "DeepScopeCore/Addons"..game.MarketplaceService:GetProductInfo(game.PlaceId).Name.."/Builds"
+	makefolder(folder)
 	local points = {
 		CFrame.new(-164.266, 356.9, 288.862),
 		CFrame.new(-164.266, 77.9, 1371.862),
@@ -6403,6 +6455,161 @@ if game.PlaceId == 537413528 then
 	if uiSwitch2:GetAttribute("Value") == true then
 		enableMode()
 	end
+	
+	local button = createInstance("TextButton", {
+		Parent = newgui,
+		Name = "autobuild",
+		Position = UDim2.fromScale(0.15, 1.658),
+		Size = UDim2.fromScale(0.138, 0.343),
+		Text = "auto build",
+		TextScaled = true
+	})
+	local opened = false
+	local function calculatePosition(pos, player)
+		local plrTeam = player.Team
+		local buildZone = workspace[plrTeam.Name].."Zone"
+		local diff = buildZone.Position - pos
+		return tostring(diff.X..","..diff.Y..","..diff.Z)
+	end
+	local function calculateSize(obj)
+		local hasBind = obj:FindFirstChildWithIsA("Value").Name:find("Bind") ~= nil
+		if hasBind then
+			return nil
+		else
+			return tostring(obj.Size.PPart.X..","..obj.PPart.Size.Y..","..obj.PPart.Size.Z)
+		end
+	end
+	local function calculateRotation(obj)
+		return tostring(obj.PPart.Rotation.X..","..obj.PPart.Rotation.Y..","..obj.PPart.Rotation.Z)
+	end
+	button.MouseButton1Click:Connect(function()
+		if not opened then
+			local autoBuildWindow = coreModules.Lib.Window.new("autobuild")
+			local gui = autoBuildWindow.GuiElems.Main
+			autoBuildWindow.Collapseable = false
+			autoBuildWindow.Resizeable = false
+			autoBuildWindow.Dragable = false
+			autoBuildWindow:SetTitle("auto build")
+			autoBuildWindow:SetPosition({0.5, 0.5}, true)
+			autoBuildWindow:SetAnchorPoint(0.5, 0.5)
+			local filename = createInstance("TextBox", {
+				Name = "filename",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0, 10),
+				Size = UDim2.new(1, -20, 0, 20),
+				PlaceholderColor3 = Color3.new(1, 1, 1),
+				PlaceholderText = "file name",
+				Text = "",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextScaled = true,
+			})
+			local loadbutton = createInstance("TextButton", {
+				Name = "loadbutton",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0.4, 35),
+				Size = UDim2.new(0.5, 0, 0, 20),
+				Text = "load file",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextScaled = true
+			})
+			local loadfilebox = createInstance("TextBox", {
+				Name = "loadfilebox",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0.4, 10),
+				Size = UDim2.new(1, -20, 0, 20),
+				PlaceholderColor3 = Color3.new(1, 1, 1),
+				PlaceholderText = "file name to load",
+				Text = "",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextScaled = true,
+			})
+			local playername = createInstance("TextBox", {
+				Name = "playername",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0.4, 10),
+				Size = UDim2.new(1, -20, 0, 20),
+				PlaceholderColor3 = Color3.new(1, 1, 1),
+				PlaceholderText = "player name",
+				Text = "",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextScaled = true,
+			})
+			local savebutton = createInstance("TextButton", {
+				Name = "savebutton",
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.5, 0, 0, 35),
+				Size = UDim2.new(0.5, 0, 0, 20),
+				Text = "save file",
+				TextColor3 = Color3.new(1, 1, 1),
+				TextScaled = true
+			})
+			savebutton.MouseButton1Click:Connect(function()
+				local player = game.Players:FindFirstChild(playername.Text)
+				local fileName = ""
+				if player then
+					if filename.Text == "" then
+						fileName = player.Name..".build"
+					end
+					local saved = {}
+					local playerBlocks = workspace.Blocks[player.Name]
+					for _, v in playerBlocks:GetChildren() do
+						saved[v.Name] = {
+							Name = v.Name,
+							Position = calculatePosition(v.PrimaryPart.Position, player),
+							Size = calculateSize(v),
+							Color = v.Name ~= "Portal" and v.PPart.Color:ToHex() or v.PortalPart.Color:ToHex(),
+							Anchored = v.PPart.Anchored,
+							Rotation = calculateRotation(v)
+						}
+					end
+					local json = HttpService:JSONEncode(saved)
+					writefile(folder..filename.."build")
+				end
+			end)
+			loadbutton.MouseButton1Click:Connect(function()
+				local currentPlot = workspace[LocalPlayer.Team.Name].."Zone"
+				local fileName = ""
+				if currentPlot then
+					if loadfilebox.Text == "" then
+						notify(nil, "Please, enter File Name")
+						return
+					end
+					local data = HttpService:JSONDecode(readfile(folder..loadfilebox.Text))
+					for _, v in data do
+						local name = v.Name
+						local newBlock = game.ReplicatedStorage.BuildingParts[name]:Clone()
+						newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
+						for i, v_2 in v do
+							if i == "Position" then
+								newBlock:SetPrimaryPartCFrame(currentPlot.Position - Vector3.new(table.unpack(v_2.Position:split(","))))
+							end
+							if i == "Size" then
+								newBlock.PPart.Size = Vector3.new(table.unpack(v_2.Size:split(",")))
+							end
+							if i == "Rotation" then
+								newBlock:PivotTo(newBlock.CFrame * CFrame.Angles(table.unpack(v_2.Rotation:split(","))))
+							end
+							if i == "Color" then
+								if name == "Portal" then
+									newBlock.PortalPart.Color = Color3.fromHex(v_2.Color)
+								else
+									for _, v_3 in newBlock:GetDescendants() do
+										if v_3:IsA("BasePart") then
+											v_3.Color = Color3.fromHex(v_2.Color)
+										end
+									end
+								end
+							end
+							if i == "Anchored" then
+								newBlock.PPart.Anchored = v_2
+							end
+							wait()
+						end
+					end
+				end
+			end)
+		end		
+	end)
 end
 local conn = nil
 local currentCursor = nil
@@ -7032,5 +7239,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
