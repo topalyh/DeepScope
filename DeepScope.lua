@@ -6111,20 +6111,6 @@ local function runCommand(input)
 		AddLog("Unknown command: "..commandName, "DeepScope", "warn")
 	end
 end
-local specialBlocks = {
-	["Piston"] = {
-		AditionalProperties = {
-			"ExtendLength",
-			"LastDirection",
-			"Speed"
-		}
-	},
-	["Delay"] = {
-		AditionalProperties = {
-			"WaitDuration"
-		}
-	}
-}
 if game.PlaceId == 537413528 then
 	local folder = "DeepScopeCore/Addons/"..game.MarketplaceService:GetProductInfo(game.PlaceId).Name.."/Builds"
 	makefolder(folder)
@@ -6484,7 +6470,7 @@ if game.PlaceId == 537413528 then
 		end
 	end
 	local function calculateRotation(obj)
-		return tostring(obj.PPart.Rotation.X..","..obj.PPart.Rotation.Y..","..obj.PPart.Rotation.Z)
+		return tostring(math.rad(obj.PPart.Rotation.X)..","..math.rad(obj.PPart.Rotation.Y)..","..math.rad(obj.PPart.Rotation.Z))
 	end
 	button.MouseButton1Click:Connect(function()
 		if not opened then
@@ -6614,8 +6600,8 @@ if game.PlaceId == 537413528 then
 			})
 			savebutton.MouseButton1Click:Connect(function()
 				local player = game.Players:FindFirstChild(playername.Text)
-				local fileName = player.Name..".build"
 				if player then
+					local fileName = player.Name..".build"
 					local saved = {}
 					local playerBlocks = workspace.Blocks[player.Name]
 					for _, v in playerBlocks:GetChildren() do
@@ -6636,7 +6622,7 @@ if game.PlaceId == 537413528 then
 						end
 					end
 					local json = HttpService:JSONEncode(saved)
-					writefile(folder.."/"..fileName..".build", json)
+					writefile(folder.."/"..fileName..".build", prettyJSON(json))
 				end
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
@@ -6654,10 +6640,10 @@ if game.PlaceId == 537413528 then
 						newBlock.Parent = workspace.Blocks[LocalPlayer.Name]
 						for i, v_2 in v do
 							if i == "Position" then
-								newBlock:SetPrimaryPartCFrame(CFrame.new(currentPlot.Position - Vector3.new(table.unpack(v_2:split(",")))))
+								newBlock:PivotTo(CFrame.new(currentPlot.Position - Vector3.new(table.unpack(v_2:split(",")))))
 							end
 							if i == "Size" then
-								newBlock.PPart.Size = Vector3.new(table.unpack(v_2:split(",")))
+								newBlock.PPart.Size = Vector3.new(table.unpack(v_2.Size:split(",")))
 							end
 							if i == "Rotation" then
 								newBlock:PivotTo(newBlock.PPart.CFrame * CFrame.Angles(table.unpack(v_2:split(","))))
@@ -7316,7 +7302,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
 
