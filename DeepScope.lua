@@ -6490,7 +6490,9 @@ if game.PlaceId == 537413528 then
 				Name = "autobuild",
 				BackgroundColor3 = Color3.new(0.4, 0.396078, 0.403922),
 				BorderSizePixel = 0,
-				Size = UDim2.fromScale(0.5, 0.5)
+				Position = UDim2.fromScale(0.5, 0.5),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Size = UDim2.fromOffset(240, 200)
 			})
 			createInstance("TextButton", {
 				Parent = main,
@@ -6550,7 +6552,8 @@ if game.PlaceId == 537413528 then
 				Size = UDim2.new(0, 7, 1, 30),
 				Text = ""
 			})
-			local filename = createInstance("TextBox", {
+			local filename = createInstance("TextBox", {	
+				Parent = main,
 				Name = "filename",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 0, 0, 10),
@@ -6561,7 +6564,8 @@ if game.PlaceId == 537413528 then
 				TextColor3 = Color3.new(1, 1, 1),
 				TextScaled = true,
 			})
-			local loadbutton = createInstance("TextButton", {
+			local loadbutton = createInstance("TextButton", {	
+				Parent = main,
 				Name = "loadbutton",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 0, 0.4, 35),
@@ -6570,7 +6574,8 @@ if game.PlaceId == 537413528 then
 				TextColor3 = Color3.new(1, 1, 1),
 				TextScaled = true
 			})
-			local loadfilebox = createInstance("TextBox", {
+			local loadfilebox = createInstance("TextBox", {	
+				Parent = main,
 				Name = "loadfilebox",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 0, 0.4, 10),
@@ -6582,6 +6587,7 @@ if game.PlaceId == 537413528 then
 				TextScaled = true,
 			})
 			local playername = createInstance("TextBox", {
+				Parent = main,
 				Name = "playername",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 0, 0.4, 10),
@@ -6592,7 +6598,8 @@ if game.PlaceId == 537413528 then
 				TextColor3 = Color3.new(1, 1, 1),
 				TextScaled = true,
 			})
-			local savebutton = createInstance("TextButton", {
+			local savebutton = createInstance("TextButton", {	
+				Parent = main,
 				Name = "savebutton",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 0, 0, 35),
