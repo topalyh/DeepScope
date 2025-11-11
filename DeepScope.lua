@@ -6693,14 +6693,10 @@ if game.PlaceId == 537413528 then
 						local pos = Vector3.new(table.unpack(block.Position:split(",")))
 						local rot = { table.unpack(block.Rotation:split(",")) }
 						for i = 1, #rot do rot[i] = math.rad(tonumber(rot[i])) end
-						local size = Vector3.new(2, 2, 2)
+						local size = newBlock.PrimaryPart.Size
 						local success, response = pcall(function()
-							Vector3.new(table.unpack(block.Size:split(",")))
+							size = Vector3.new(table.unpack(block.Size:split(",")))
 						end)
-						if not success then
-							notify(nil, "An error ocurred while loading build, Check console for more info.")
-							assert(response, "Invalid size data for block: " .. blockType)
-						end
 
 						-- установка позиции и поворота
 						newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
