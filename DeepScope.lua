@@ -1624,7 +1624,6 @@ local modules = {
 			end,
 		},
 		executor = {
-
 			highlightLuau = function(code)
 				local tokens = {}
 				local pos = 1
@@ -2029,7 +2028,7 @@ local modules = {
 					local x = label.CursorPosition
 					if x ~= -1 then
 						local cutText = label.Text:sub(1, x - 1)
-						local pos = TextService:GetTextSize(label.Text, 15, label.Font, Vector2.new())
+						local pos = TextService:GetTextSize(label.Text, executorConfig.TextSize, label.Font, Vector2.new())
 						label.cursor.Position = UDim2.fromOffset(pos.X, pos.Y)
 						label.cursor.Visible = true
 					else
@@ -5825,6 +5824,12 @@ luauPole:GetPropertyChangedSignal("Text"):Connect(function()
 	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
 	luauPole.visual.Text = modules.other.executor.highlightLuau(luauPole.Text)
 end)
+luauPole:GetAttributeChangedSignal("CursorPosition"):Connect(function()
+	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
+	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
+	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
+	luauPole.visual.Text = modules.other.executor.highlightLuau(luauPole.Text)
+end)
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
 		setExplorer()
@@ -6111,6 +6116,18 @@ local function runCommand(input)
 		AddLog("Unknown command: "..commandName, "DeepScope", "warn")
 	end
 end
+local additionalProperties = {
+	"ExtendLength",
+	"Speed",
+	"WaitDuration",
+	"MaxSpeed",
+	"ReverseSpin",
+	"Aim",
+	"SeminoteOffset",
+	"TargetAngle",
+	"ReverseRotation",
+	"StringInput"
+}
 if game.PlaceId == 537413528 then
 	local folder = "DeepScopeCore/Addons/"..game.MarketplaceService:GetProductInfo(game.PlaceId).Name.."/Builds"
 	makefolder(folder)
@@ -6449,7 +6466,8 @@ if game.PlaceId == 537413528 then
 		Position = UDim2.fromScale(0.15, 1.658),
 		Size = UDim2.fromScale(0.138, 0.343),
 		Text = "auto build",
-		TextScaled = true
+		TextScaled = true,
+		Visible = false
 	})
 	local opened = false
 	local function calculatePosition(pos, player)
@@ -6609,7 +6627,7 @@ if game.PlaceId == 537413528 then
 				for _, v in pairs(playerBlocks:GetChildren()) do
 					local blockType = v.Name
 					saved[blockType] = saved[blockType] or {} -- создаём таблицу, если нет
-
+					
 					local blockData = {
 						Position = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Position.X, v.PrimaryPart.Position.Y, v.PrimaryPart.Position.Z),
 						Rotation = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Orientation.X, v.PrimaryPart.Orientation.Y, v.PrimaryPart.Orientation.Z),
@@ -6617,17 +6635,14 @@ if game.PlaceId == 537413528 then
 						Color = v.Name ~= "Portal" and string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Color.R, v.PrimaryPart.Color.G, v.PrimaryPart.Color.B)
 							or string.format("%.6f,%.6f,%.6f", v.PortalPart.Color.R, v.PortalPart.Color.G, v.PortalPart.Color.B),
 						Anchored = v.PrimaryPart.Anchored,
+						Transparency = (v:FindFirstChild("TransparencyModifier") and pcall(function() return v.TransparencyModifier.Value end)) or v.PrimaryPart.Transparency
 					}
 
 					-- Дополнительные свойства
-					if v:FindFirstChild("WaitDuration") then
-						blockData.WaitDuration = v.WaitDuration.Value
-					end
-					if v:FindFirstChild("ExtendLength") then
-						blockData.ExtendLength = v.ExtendLength.Value
-					end
-					if v:FindFirstChild("Speed") then
-						blockData.Speed = v.Speed.Value
+					for _, v_2 in additionalProperties do
+						if v:FindFirstChild(v_2) then
+							blockData[v_2] = v[v_2].Value
+						end
 					end
 
 					table.insert(saved[blockType], blockData)
@@ -6665,7 +6680,7 @@ if game.PlaceId == 537413528 then
 				for blockType, blockArray in pairs(data) do
 					-- убедимся, что blockArray — это таблица
 					if typeof(blockArray) ~= "table" then
-						warn(("[⚠️] Skipped '%s': not a valid table"):format(blockType))
+						warn(("Skipped '%s': not a valid table"):format(blockType))
 						continue
 					end
 
@@ -6678,8 +6693,15 @@ if game.PlaceId == 537413528 then
 					else
 						blocks = blockArray
 					end
-
+					local index = 0
 					for _, block in ipairs(blocks) do
+						local remoteEvents = {
+							["Place"] = LocalPlayer.Character:FindFirstChild("BuildingTool").RF or LocalPlayer.Backpack:FindFirstChild("BuildingTool").RF,
+							["Paint"] = LocalPlayer.Character:FindFirstChild("PaintingTool").RF or LocalPlayer.Backpack:FindFirstChild("PaintingTool").RF,
+							["Scaling"] = LocalPlayer.Character:FindFirstChild("ScalingTool").RF or LocalPlayer.Backpack:FindFirstChild("ScalingTool").RF,
+							["Trowel"] = LocalPlayer.Character:FindFirstChild("PropertiesTool").SetPropertieRF or LocalPlayer.Backpack:FindFirstChild("PropertiesTool").SetPropertieRF,
+							["Properties"] = LocalPlayer.Character:FindFirstChild("TrowelTool").OperationRF or LocalPlayer.Backpack:FindFirstChild("TrowelTool").OperationRF
+						}
 						local template = game.ReplicatedStorage.BuildingParts:FindFirstChild(blockType)
 						if not template then
 							warn(("[⚠️] Missing template for '%s'"):format(blockType))
@@ -6699,11 +6721,15 @@ if game.PlaceId == 537413528 then
 						end)
 
 						-- установка позиции и поворота
-						newBlock:PivotTo(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
+						newBlock:SetPrimaryPartCFrame(CFrame.new(currentPlot.Position + pos) * CFrame.Angles(unpack(rot)))
 
 						if newBlock.PrimaryPart then
 							newBlock.PrimaryPart.Size = size
-							newBlock.PrimaryPart.Anchored = block.Anchored
+							for _, v in newBlock:GetDescendants() do
+								if v:IsA("BasePart") then
+									v.Anchored = block.Anchored
+								end
+							end
 						end
 
 						-- цвет
@@ -6722,17 +6748,15 @@ if game.PlaceId == 537413528 then
 						end
 
 						-- дополнительные параметры
-						if block.WaitDuration and newBlock:FindFirstChild("WaitDuration") then
-							newBlock.WaitDuration.Value = block.WaitDuration
+						for _, v in additionalProperties do
+							if block[v] and newBlock:FindFirstChild(v) then
+								newBlock[v].Value = block[v]
+							end
 						end
-						if block.ExtendLength and newBlock:FindFirstChild("ExtendLength") then
-							newBlock.ExtendLength.Value = block.ExtendLength
+						index += 1
+						if index % 50 == 0 then
+							task.wait(1)
 						end
-						if block.Speed and newBlock:FindFirstChild("Speed") then
-							newBlock.Speed.Value = block.Speed
-						end
-
-						task.wait()
 					end
 				end
 
@@ -7150,7 +7174,7 @@ registerCommand("jerk", function()
 	end
 end)
 registerCommand("info", function()
-	notify("rbxassetid://1352543873", `Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY"s <font color="rgb(85,0,255)">Infinity Yield</font>.`, 10)
+	notify("rbxassetid://1352543873", 'Welcome! "DeepScope command bar" is inspired by <font color="rgb(85,0,255)">IY</font>. all design and functionality credit goes to EdgeIY"s <font color="rgb(85,0,255)">Infinity Yield</font>.', 10)
 end)
 local Noclipping = nil
 registerCommand("noclip", function()
