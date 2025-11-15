@@ -4086,7 +4086,7 @@ local function notify(icon, text, countdown)
 	local notifyGui4 = createInstance("Frame", {
 		Parent = template,
 		Name = "inner",
-		Size = UDim2.fromOffset(200, 50),
+		Size = UDim2.new(0, 200, 1, 0),
 		Position = UDim2.fromOffset(210, 0),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -4107,14 +4107,15 @@ local function notify(icon, text, countdown)
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.new(1, 0, 0, 30),
+		Size = UDim2.new(1, 0, 1, -30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
 	local notifyGui7 = createInstance("UIListLayout", {
 		Parent = notifyGui6,
 		Padding = UDim.new(0, 5),
-		FillDirection = Enum.FillDirection.Horizontal
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center
 	})
 	local notifyGui8 = createInstance("UIPadding", {
 		Parent = notifyGui6,
@@ -4133,7 +4134,7 @@ local function notify(icon, text, countdown)
 		Parent = notifyGui6,
 		Name = "title",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(155, 30),
+		Size = UDim2.new(0, 155, 1, 0),
 		Text = "hi",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 13,
@@ -4157,6 +4158,9 @@ local function notify(icon, text, countdown)
 	newTemplate.LayoutOrder = -notify_amount
 	newTemplate.Name = "template" .. notify_amount
 	newTemplate.Visible = true
+	if newTemplate.inner.mainframe.title.TextFits == false then
+		newTemplate.Size = UDim2.new(newTemplate.Size.X.Scale, newTemplate.Size.X.Offset, newTemplate.inner.mainframe.title.TextBounds.Y + 30, newTemplate.Size.Y.Offset)
+	end
 	local sound = Instance.new("Sound")
 	sound.Parent = newTemplate
 	sound.SoundId = notificationSoundId
@@ -4738,28 +4742,6 @@ local function createEntryForInstance(node, parentGui)
 		end
 	end)
 
-	--[[RunService.RenderStepped:Connect(function()
-		local mousePos = getMousePos()
-		local objects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
-		local hoveredTemplate = nil
-
-		for _, obj in objects do
-			for _, template in templates do
-				if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
-					hoveredTemplate = template
-					break
-				end
-			end
-		end
-
-		for _, template in templates do
-			local isSelected = template:GetAttribute("Selected")
-			local colorAttr = isSelected and "SelectedColor"
-				or (template == hoveredTemplate and "HoverColor" or "NormalColor")
-			template.mainframe.BackgroundColor3 = template.mainframe:GetAttribute(colorAttr)
-			template.mainframe.add.Visible = (template == hoveredTemplate)
-		end
-	end)]]
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
 	return newTemplate
 end
@@ -4924,6 +4906,26 @@ local function setExplorer()
 			newY = math.clamp(startExplorerPos.Y.Offset + newY, minY, maxY) 
 
 			explorer.Position = UDim2.new(0, newX, 0, newY)
+		end
+		local mousePos = getMousePos()
+		local objects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
+		local hoveredTemplate = nil
+
+		for _, obj in objects do
+			for _, template in templates do
+				if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
+					hoveredTemplate = template
+					break
+				end
+			end
+		end
+
+		for _, template in templates do
+			local isSelected = template:GetAttribute("Selected")
+			local colorAttr = isSelected and "SelectedColor"
+				or (template == hoveredTemplate and "HoverColor" or "NormalColor")
+			template.mainframe.BackgroundColor3 = template.mainframe:GetAttribute(colorAttr)
+			template.mainframe.add.Visible = (template == hoveredTemplate)
 		end
 	end)
 
@@ -5961,27 +5963,50 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 	end
 
 	module.CreateText("UserId", creatorId)
+	local memoryIndicators = {
+		{name = "Super low", limit = 1000},
+		{name = "Low", limit = 2000},
+		{name = "Safe", limit = 4000},
+		{name = "Medium", limit = 6000},
+		{name = "Dangerous", limit = 9000},
+		{name = "Critical", limit = 10000},
+		{name = "Roblox soon close", limit = 12500}
+	}
 
 	local safeLimit = 4000
-	local warnLimit = 11000
+	local warnLimit = 8000
+	local currentStatus = "Safe"
+	local preparingShutdown = false
 
 	module.CreateSeparator("CLIENT")
 	module.CreateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000) .. "ms")
 	module.CreateText("FPS", 0)
 	module.CreateText("Client Memory Usage", 0)
 
+	-- FPS updater
 	updateConn = RunService.RenderStepped:Connect(function()
-		local fps = math.round((1 / RunService.RenderStepped:Wait()))
-		local ratio = math.clamp(fps / 60, 0, 1)
-		local r = 255 - ratio * 255
-		local g = ratio * 255
+		local dt = RunService.RenderStepped:Wait()
+		local fps = math.clamp(math.floor(1 / dt), 1, 300)
 
-		modules.other.placeinfo.UpdateText("FPS", ('<font color="rgb(%d, %d, 0)">%sfps</font>'):format(r, g, fps))
-		modules.other.placeinfo.UpdateText("Ping", math.round(LocalPlayer:GetNetworkPing() * 1000) .. "ms")
+		-- Пересчёт цвета FPS
+		local fpsRatio = fps / 60
+		local r = 255 * (1 - fpsRatio)
+		local g = 255 * fpsRatio
+
+		modules.other.placeinfo.UpdateText("FPS",
+			('<font color="rgb(%d,%d,0)">%sfps</font>'):format(r, g, fps)
+		)
+
+		modules.other.placeinfo.UpdateText("Ping",
+			math.round(LocalPlayer:GetNetworkPing() * 1000) .. "ms"
+		)
 	end)
 
+	-- Memory updater
 	task.spawn(function()
 		while updateConn do
+
+			-- CCU и Visits запрос
 			local ok, response = pcall(function()
 				local url = "https://games.roblox.com/v1/games?universeIds=" .. game.GameId
 				return HttpService:JSONDecode(game:HttpGet(url))
@@ -5993,16 +6018,39 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 				module.UpdateText("Visits", format(data.visits, false, true, 3))
 			end
 
+			-- Память
 			local CMU = math.floor(stst:GetTotalMemoryUsageMb())
-			local ratio = math.clamp((CMU - safeLimit) / (warnLimit - safeLimit), 0, 1)
-			local r = 255 * ratio
-			local g = 255 * (1 - ratio)
-			local b = 0
+
+			-- Правильное определение статуса
+			for _, item in ipairs(memoryIndicators) do
+				if CMU >= item.limit then
+					currentStatus = item.name
+				end
+			end
+
+			-- Цветовая зона
+			local memRatio = math.clamp((CMU - safeLimit) / (warnLimit - safeLimit), 0, 1)
+			local r = 255 * memRatio
+			local g = 255 * (1 - memRatio)
 
 			module.UpdateText(
 				"Client Memory Usage",
-				string.format('<font color="rgb(%d,%d,%d)">%s MB</font>', r, g, b, CMU)
+				string.format(
+					'<font color="rgb(%d,%d,0)">%s MB (%s)</font>',
+					r, g, CMU, currentStatus
+				)
 			)
+
+			-- Защита от перегрузки
+			if CMU >= memoryIndicators[#memoryIndicators].limit then
+				if not preparingShutdown then
+					preparingShutdown = true
+					notify(nil, "Your Roblox consumes too much Memory! roblox will close in 10 seconds.")
+					delay(10, function()
+						game:Shutdown()
+					end)
+				end
+			end
 
 			task.wait(1)
 		end
