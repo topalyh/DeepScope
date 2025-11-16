@@ -5970,11 +5970,11 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		{name = "Medium", limit = 6000},
 		{name = "Dangerous", limit = 9000},
 		{name = "Critical", limit = 10000},
-		{name = "Initiating shutdown", limit = 12500}
+		{name = "Shutdown", limit = 12500}
 	}
 
 	local safeLimit = 4000
-	local warnLimit = 8000
+	local warnLimit = 6000
 	local currentStatus = "Safe"
 	local preparingShutdown = false
 
@@ -6019,7 +6019,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			end
 
 			-- Память
-			local CMU = stst:GetTotalMemoryUsageMb() * 1000
+			local CMU = stst:GetTotalMemoryUsageMb()
 
 			-- Правильное определение статуса
 			for _, item in ipairs(memoryIndicators) do
@@ -6037,7 +6037,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 				"Client Memory Usage",
 				string.format(
 					'<font color="rgb(%d,%d,0)">%s GB (%s)</font>',
-					r, g, string.format("%.3f", CMU), currentStatus
+					r, g, string.format("%.3f", CMU / 1000), currentStatus
 				)
 			)
 
@@ -7445,4 +7445,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
