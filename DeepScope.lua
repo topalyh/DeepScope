@@ -1363,7 +1363,7 @@ local modules = {
 	},
 	other = {
 		fly = {
-			DefaultKey = Enum.KeyCode.F,
+			DefaultKey = Enum.KeyCode.G,
 
 			UpdateFlying = function(enabled, flyspeed)
 				if enabled then
@@ -7445,6 +7445,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
