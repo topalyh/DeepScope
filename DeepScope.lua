@@ -5964,13 +5964,13 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 
 	module.CreateText("UserId", creatorId)
 	local memoryIndicators = {
-		{name = "Super low", limit = 1000},
-		{name = "Low", limit = 2000},
+		{name = "Low", limit = 1000},
+		{name = "Normal", limit = 2000},
 		{name = "Safe", limit = 4000},
 		{name = "Medium", limit = 6000},
 		{name = "Dangerous", limit = 9000},
 		{name = "Critical", limit = 10000},
-		{name = "Roblox soon close", limit = 12500}
+		{name = "Initiating shutdown", limit = 12500}
 	}
 
 	local safeLimit = 4000
@@ -5990,8 +5990,8 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 
 		-- Пересчёт цвета FPS
 		local fpsRatio = fps / 60
-		local r = 255 * (1 - fpsRatio)
-		local g = 255 * fpsRatio
+		local r = math.clamp(255 * (1 - fpsRatio), 0, 255)
+		local g = math.clamp(255 * fpsRatio, 0, 255)
 
 		modules.other.placeinfo.UpdateText("FPS",
 			('<font color="rgb(%d,%d,0)">%sfps</font>'):format(r, g, fps)
@@ -6019,7 +6019,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			end
 
 			-- Память
-			local CMU = math.floor(stst:GetTotalMemoryUsageMb())
+			local CMU = string.format("%.3f", stst:GetTotalMemoryUsageMb() * 1000)
 
 			-- Правильное определение статуса
 			for _, item in ipairs(memoryIndicators) do
@@ -6036,7 +6036,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			module.UpdateText(
 				"Client Memory Usage",
 				string.format(
-					'<font color="rgb(%d,%d,0)">%s MB (%s)</font>',
+					'<font color="rgb(%d,%d,0)">%s GB (%s)</font>',
 					r, g, CMU, currentStatus
 				)
 			)
@@ -6045,7 +6045,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 			if CMU >= memoryIndicators[#memoryIndicators].limit then
 				if not preparingShutdown then
 					preparingShutdown = true
-					notify(nil, "Your Roblox consumes too much Memory! roblox will close in 10 seconds.")
+					notify(nil, "Your Roblox consumes too much Memory! Roblox will close in 10 seconds.")
 					delay(10, function()
 						game:Shutdown()
 					end)
@@ -6675,7 +6675,7 @@ if game.PlaceId == 537413528 then
 				for _, v in pairs(playerBlocks:GetChildren()) do
 					local blockType = v.Name
 					saved[blockType] = saved[blockType] or {} -- создаём таблицу, если нет
-					
+
 					local blockData = {
 						Position = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Position.X, v.PrimaryPart.Position.Y, v.PrimaryPart.Position.Z),
 						Rotation = string.format("%.6f,%.6f,%.6f", v.PrimaryPart.Orientation.X, v.PrimaryPart.Orientation.Y, v.PrimaryPart.Orientation.Z),
@@ -7445,8 +7445,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
-
-
