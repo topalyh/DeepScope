@@ -7017,10 +7017,10 @@ end)
 newgui.Parent.commandbar:GetAttributeChangedSignal("Hovering"):Connect(function()
 	if newgui.Parent.commandbar:GetAttribute("Hovering") then
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 138), "InOut", "Quad", 0.3, true)
-		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 0, newgui.Parent.commandbar:GetAttribute("PositionOffset") or 0), "InOut", "Quad", 0.3, true)
+		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 1, newgui.Parent.commandbar:GetAttribute("PositionOffset") or 0), "InOut", "Quad", 0.3, true)
 	else
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 18), "InOut", "Quad", 0.3, true)
-		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 0, 0), "InOut", "Quad", 0.3, true)
+		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 1, 0), "InOut", "Quad", 0.3, true)
 	end
 end)
 newgui.utils.MouseButton1Click:Connect(function()
@@ -7495,5 +7495,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
