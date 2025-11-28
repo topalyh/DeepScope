@@ -3640,6 +3640,8 @@ local function createGui()
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 16,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		RichText = true,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
@@ -4163,13 +4165,13 @@ local function notify(icon, text, countdown)
 	newTemplate.Name = "template" .. notify_amount
 	newTemplate.Visible = true
 	if newTemplate.inner.mainframe.title.TextFits == false then
-		newTemplate.Size = UDim2.new(newTemplate.Size.X.Scale, newTemplate.Size.X.Offset, newTemplate.inner.mainframe.title.TextBounds.Y + 30, newTemplate.Size.Y.Offset)
+		newTemplate.Size = UDim2.new(0, 200, newTemplate.inner.mainframe.title.TextBounds.Y + 30, 50)
 	end
 	local sound = Instance.new("Sound")
 	sound.Parent = newTemplate
 	sound.SoundId = notificationSoundId
 	sound:Play()
-	game.Debris:AddItem(newTemplate, countdown + 1.4)
+	game.Debris:AddItem(newTemplate, countdown + 1.15)
 	delay(0.3, function()
 		TweenService:Create(newTemplate.inner.countdown, TweenInfo.new(countdown, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
 			Size = UDim2.fromOffset(0, 3)
@@ -7015,8 +7017,10 @@ end)
 newgui.Parent.commandbar:GetAttributeChangedSignal("Hovering"):Connect(function()
 	if newgui.Parent.commandbar:GetAttribute("Hovering") then
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 138), "InOut", "Quad", 0.3, true)
+		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 0, newgui.Parent.commandbar:GetAttribute("PositionOffset") or 0), "InOut", "Quad", 0.3, true)
 	else
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 18), "InOut", "Quad", 0.3, true)
+		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 0, 0), "InOut", "Quad", 0.3, true)
 	end
 end)
 newgui.utils.MouseButton1Click:Connect(function()
@@ -7050,6 +7054,16 @@ newgui.Parent.commandbar.hoverregion.MouseLeave:Connect(function()
 	if not textBox:IsFocused() then
 		textBox.Parent:SetAttribute("Hovering", false)
 	end
+end)
+textBox:GetPropertyChangedSignal("Text"):Connect(function()
+	local sizeFormulas = {
+		textBox.TextBounds.Y + 4,
+		(textBox.TextBounds.Y - 18) * -1,
+		textBox.TextBounds.Y * -1
+	}
+	textBox:TweenSizeAndPosition(UDim2.fromOffset(195, sizeFormulas[1]), UDim2.fromOffset(0, sizeFormulas[2]), "InOut", "Sine", 0.1, true)
+	newgui.Parent.commandbar.title:TweenPosition(UDim2.fromOffset(0, sizeFormulas[3]))
+	newgui.Parent.commandbar:SetAttribute("PositionOffset", sizeFormulas[1] - 4)
 end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
@@ -7481,6 +7495,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
