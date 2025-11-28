@@ -1114,23 +1114,27 @@ local function prettyJSON(tbl, indent)
 		return HttpService:JSONEncode(tbl)
 	end
 end
-print("-----------------File System ----------------------")
+print("----------------- File System ----------------------")
 initFileSystem()
-print("-----------------File System ----------------------")
-print("--------------------Others ------------------------")
+print("----------------- File System ----------------------")
+print("------------------- Explorer -----------------------")
 print("Loading Explorer Icons...")
 local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
-print("Loading Properties API... (may take a while)")
-local api = game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
-print("Loading RMD... (may take a while)")
-local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
-writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
-print("Explorer Icons Loaded!")
-writefile("DeepScopeCore/Explorer/API.dat", api)
-print("Properties API Loaded!")
-writefile("DeepScopeCore/Explorer/RMD.dat", prettyJSON(ParseXML(rmd)))
-print("RMD Loaded!")
-print("--------------------Others ------------------------")
+if not getgenv().fasterboot then
+	print("Loading Properties API... (may take a while)")
+	local api = game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
+	print("Loading RMD... (may take a while)")
+	local rmd = game:HttpGet("https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/ReflectionMetadata.xml")
+	writefile("DeepScopeCore/Explorer/StudioIcons.png", png)
+	print("Explorer Icons Loaded!")
+	writefile("DeepScopeCore/Explorer/API.dat", api)
+	print("Properties API Loaded!")
+	writefile("DeepScopeCore/Explorer/RMD.dat", prettyJSON(ParseXML(rmd)))
+	print("RMD Loaded!")
+else
+	print("Faster boot is enabled, Explorer not loaded.")
+end
+print("------------------- Explorer -----------------------")
 print("Fully loaded! Time took:",tick()-time)
 local jsonAttempts = 0
 local function savePlayedGames()
@@ -2438,7 +2442,7 @@ local function createGui()
 		Name = "explorer",
 		Size = UDim2.new(0.138, 0, 0.343, 0),
 		Position = UDim2.new(0.003, 0, 1.658, 0),
-		Text = "open explorer",
+		Text = getgenv().fasterboot and "open explorer (disabled)" or "open explorer",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true,
@@ -4559,7 +4563,7 @@ local function applySelection(instance)
 	selectionBox.Adornee = instance
 	selectionBox.Color3 = Color3.fromRGB(85, 255, 255)
 	selectionBox.LineThickness = 0.025
-	selectionBox.Parent = workspace
+	selectionBox.Parent = cloneref(game:GetService("CoreGui"))
 	selectionBox.Name = generateRandomString()
 end
 local RMD = coreModules.Lib:FetchRMD()
@@ -4716,14 +4720,22 @@ local function createEntryForInstance(node, parentGui)
 		dropdown:Destroy()
 	end
 	templates[newTemplate] = newTemplate
-	local function selectTemplate(template)
+	local function hoverTemplate(hoveredTemplate)
 		for _, v in templates do
-			v:SetAttribute("Selected", false)
+			v:SetAttribute("Hovering", false)
 			v.mainframe.BackgroundColor3 = v.mainframe:GetAttribute("NormalColor")
 		end
-		template:SetAttribute("Selected", true)
-		template.mainframe.BackgroundColor3 = template.mainframe:GetAttribute("SelectedColor")
-		selectedObject = template.Instance
+		hoveredTemplate:SetAttribute("Hovering", true)
+		hoveredTemplate.mainframe.BackgroundColor3 = hoveredTemplate.mainframe:GetAttribute("HoverColor")
+	end
+	local function selectTemplate(selectedTemplate)
+		for _, v in templates do
+			v:SetAttribute("Selected", false)
+			v.mainframe.BackgroundColor3 = v.mainframe:GetAttribute("SelectedColor")
+		end
+		selectedTemplate:SetAttribute("Selected", true)
+		selectedTemplate.mainframe.BackgroundColor3 = selectedTemplate.mainframe:GetAttribute("SelectedColor")
+		selectedObject = game:FindFirstChild(selectedTemplate.Name, true)
 		applySelection(selectedObject)
 	end
 
@@ -4732,14 +4744,17 @@ local function createEntryForInstance(node, parentGui)
 			local mousePos = UserInputService:GetMouseLocation()
 			local objects = LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mousePos.X, mousePos.Y)
 			for _, obj in objects do
-				for _, template in templates do
-					if obj == template.activateregion or obj:IsDescendantOf(template.activateregion) then
-						selectTemplate(template)
+				for _, selectedtemplate in templates do
+					if obj == selectedtemplate.activateregion or obj:IsDescendantOf(template.activateregion) then
+						hoverTemplate(selectedtemplate)
 						return
 					end
 				end
 			end
 		end
+	end)
+	newTemplate.activateregion.MouseButton1Click:Connect(function()
+		selectTemplate(newTemplate)
 	end)
 
 	newTemplate.Size = UDim2.new(1, 0, 0, 24)
@@ -4799,6 +4814,10 @@ local function buildChildrenNodes(instance, parentNode, parentGui)
 end
 
 local function setExplorer()
+	if getgenv().fasterboot then
+		notify(nil, "Unable to load explorer. Explorer disabled.")
+		return
+	end
 	explorerUsing = true
 	explorerData = {}
 	local explorer = newgui.Parent.explorer
@@ -5334,6 +5353,9 @@ local function setLogMenu()
 			BackgroundTransparency = 1
 		}):Play()
 	end)
+	logMenu.dragbutton.fullclose.MouseButton1Click:Connect(function()
+		logMenu.Visible = false
+	end)
 end
 function toClipboard(txt)
 	if everyClipboard then
@@ -5439,6 +5461,9 @@ function setExecutor()
 		TweenService:Create(executor.resizeboth, TweenInfo.new(0.2), {
 			BackgroundTransparency = 1
 		}):Play()
+	end)
+	executor.dragbutton.fullclose.MouseButton1Click:Connect(function()
+		executor.Visible = false
 	end)
 end
 local CoreSettings = coreModules.Lib.Settings
@@ -5596,10 +5621,15 @@ function CoreSettings:CreateSetting(name, value, type)
 			end
 		end)
 		slider.value.FocusLost:Connect(function()
-			local value = math.clamp(tonumber(slider.value.Text), min, max)
-			local delta = (value / max)
-			slider.slider.pointer.Position = UDim2.fromScale(delta, 0.5)
-			slider.value.Text = math.floor(delta * max)
+			local value = slider.value.Text:match("%d+")
+			if value then
+				value = math.clamp(value, min, max)
+				local delta = (value / max)
+				slider.slider.pointer.Position = UDim2.fromScale(delta, 0.5)
+				slider.value.Text = math.floor(delta * max)
+			else
+				slider.value.Text = newTemplate:GetAttribute("Value")
+			end
 		end)
 	elseif type == "Switch" then
 		local switch = createInstance("TextButton", {
@@ -5820,13 +5850,7 @@ function CoreSettings:CreateSeparator(name)
 	newSeparator.Parent = newgui.Parent.settings.list
 end
 local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
-luauPole:GetPropertyChangedSignal("Text"):Connect(function()
-	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
-	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
-	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
-	luauPole.visual.Text = modules.other.executor.highlightLuau(luauPole.Text)
-end)
-luauPole:GetAttributeChangedSignal("CursorPosition"):Connect(function()
+RunService.RenderStepped:Connect(function()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
 	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
@@ -5964,13 +5988,14 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 
 	module.CreateText("UserId", creatorId)
 	local memoryIndicators = {
+		{name = "Super low", limit = 700},
 		{name = "Low", limit = 1000},
 		{name = "Normal", limit = 2000},
 		{name = "Safe", limit = 4000},
 		{name = "Medium", limit = 6000},
 		{name = "Dangerous", limit = 9000},
 		{name = "Critical", limit = 10000},
-		{name = "Shutdown", limit = 12500}
+		{name = "Extreme", limit = 12000}
 	}
 
 	local safeLimit = 4000
@@ -6040,17 +6065,6 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 					r, g, string.format("%.3f", CMU / 1000), currentStatus
 				)
 			)
-
-			-- Защита от перегрузки
-			if CMU >= memoryIndicators[#memoryIndicators].limit then
-				if not preparingShutdown then
-					preparingShutdown = true
-					notify(nil, "Your Roblox consumes too much Memory! Roblox will close in 10 seconds.")
-					delay(10, function()
-						game:Shutdown()
-					end)
-				end
-			end
 
 			task.wait(1)
 		end
@@ -6514,8 +6528,7 @@ if game.PlaceId == 537413528 then
 		Position = UDim2.fromScale(0.15, 1.658),
 		Size = UDim2.fromScale(0.138, 0.343),
 		Text = "auto build",
-		TextScaled = true,
-		Visible = false
+		TextScaled = true
 	})
 	local opened = false
 	local function calculatePosition(pos, player)
@@ -6701,6 +6714,15 @@ if game.PlaceId == 537413528 then
 				notify(nil, "Build saved as " .. fileName)
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
+				if not (
+						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("BuildingTool")) and
+						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("PaintingTool")) and
+						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("ScalingTool")) and
+						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("PropertiesTool")) and
+						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("TrowelTool"))
+					) then
+					notify(nil, "You need to have all tools to load this build.")
+				end
 				local currentPlot = workspace[tostring(LocalPlayer.TeamColor) .. "Zone"]
 				if not currentPlot then return end
 
@@ -6743,15 +6765,13 @@ if game.PlaceId == 537413528 then
 					end
 					local index = 0
 					for _, block in ipairs(blocks) do
-						pcall(function()
-							local remoteEvents = {
-								["Place"] = LocalPlayer.Character:FindFirstChild("BuildingTool").RF or LocalPlayer.Backpack:FindFirstChild("BuildingTool").RF,
-								["Paint"] = LocalPlayer.Character:FindFirstChild("PaintingTool").RF or LocalPlayer.Backpack:FindFirstChild("PaintingTool").RF,
-								["Scaling"] = LocalPlayer.Character:FindFirstChild("ScalingTool").RF or LocalPlayer.Backpack:FindFirstChild("ScalingTool").RF,
-								["Trowel"] = LocalPlayer.Character:FindFirstChild("PropertiesTool").SetPropertieRF or LocalPlayer.Backpack:FindFirstChild("PropertiesTool").SetPropertieRF,
-								["Properties"] = LocalPlayer.Character:FindFirstChild("TrowelTool").OperationRF or LocalPlayer.Backpack:FindFirstChild("TrowelTool").OperationRF
-							}
-						end)
+						local remoteEvents = {
+							["Place"] = LocalPlayer.Character:FindFirstChild("BuildingTool").RF or LocalPlayer.Backpack:FindFirstChild("BuildingTool").RF,
+							["Paint"] = LocalPlayer.Character:FindFirstChild("PaintingTool").RF or LocalPlayer.Backpack:FindFirstChild("PaintingTool").RF,
+							["Scaling"] = LocalPlayer.Character:FindFirstChild("ScalingTool").RF or LocalPlayer.Backpack:FindFirstChild("ScalingTool").RF,
+							["Trowel"] = LocalPlayer.Character:FindFirstChild("PropertiesTool").SetPropertieRF or LocalPlayer.Backpack:FindFirstChild("PropertiesTool").SetPropertieRF,
+							["Properties"] = LocalPlayer.Character:FindFirstChild("TrowelTool").OperationRF or LocalPlayer.Backpack:FindFirstChild("TrowelTool").OperationRF
+						}
 						local template = game.ReplicatedStorage.BuildingParts:FindFirstChild(blockType)
 						if not template then
 							warn(("[⚠️] Missing template for '%s'"):format(blockType))
@@ -6907,7 +6927,7 @@ local function updatePlayerList()
 		end
 	end
 	search()
-	newgui.label.Text = "select player | total players: "..#game.Players:GetPlayers()
+	newgui.label.Text = "select player | total players: "..#game.Players:GetPlayers().."/"..game.Players.MaxPlayers
 end
 updatePlayerList()
 game.Players.ChildAdded:Connect(function(plr)
@@ -6937,7 +6957,7 @@ newgui.hidebutton.MouseButton1Click:Connect(function()
 		for _, v in newgui:GetChildren() do
 			if v.Name ~= "hidebutton" then
 				if guiHiden then
-					v:TweenPosition(UDim2.fromScale(0, 5), "InOut", "Quad", 0.5, true)
+					v:TweenPosition(UDim2.fromScale(0, -10), "InOut", "Quad", 0.5, true)
 					v:TweenSize(UDim2.fromOffset(0, 0), "InOut", "Quad", 0.5, true)
 				else
 					v:TweenPosition(v:GetAttribute("OriginalPosition"), "InOut", "Quad", 0.5, true)
@@ -7351,6 +7371,20 @@ registerCommand("guiscale", function(args)
 		uiscale.Scale = math.clamp(value, min, max)
 	end
 end)
+local infJump
+local infJumpDebounce = false
+registerCommand("infjump", {"infinitejump"}, function(args, speaker)
+	if infJump then infJump:Disconnect() end
+	infJumpDebounce = false
+	infJump = UserInputService.JumpRequest:Connect(function()
+		if not infJumpDebounce then
+			infJumpDebounce = true
+			speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+			wait()
+			infJumpDebounce = false
+		end
+	end)
+end)
 savePlayedGames()
 while true do
 	task.wait()
@@ -7447,6 +7481,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
 
