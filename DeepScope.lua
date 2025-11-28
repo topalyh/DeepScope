@@ -6825,7 +6825,7 @@ if game.PlaceId == 537413528 then
 						end
 						index += 1
 						if index % 50 == 0 then
-							task.wait(1)
+							task.wait()
 						end
 					end
 				end
@@ -7481,5 +7481,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
