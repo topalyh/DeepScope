@@ -5995,7 +5995,7 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		{name = "Medium", limit = 6000},
 		{name = "Dangerous", limit = 9000},
 		{name = "Critical", limit = 10000},
-		{name = "Extreme", limit = 12000}
+		{name = "...", limit = 12000}
 	}
 
 	local safeLimit = 4000
@@ -6714,7 +6714,7 @@ if game.PlaceId == 537413528 then
 				notify(nil, "Build saved as " .. fileName)
 			end)
 			loadbutton.MouseButton1Click:Connect(function()
-				if not (
+				--[[if not (
 						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("BuildingTool")) and
 						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("PaintingTool")) and
 						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("ScalingTool")) and
@@ -6722,7 +6722,7 @@ if game.PlaceId == 537413528 then
 						(LocalPlayer.Character:FindFirstChild("BuildingTool") or LocalPlayer.Backpack:FindFirstChild("TrowelTool"))
 					) then
 					notify(nil, "You need to have all tools to load this build.")
-				end
+				end]]
 				local currentPlot = workspace[tostring(LocalPlayer.TeamColor) .. "Zone"]
 				if not currentPlot then return end
 
@@ -6765,13 +6765,13 @@ if game.PlaceId == 537413528 then
 					end
 					local index = 0
 					for _, block in ipairs(blocks) do
-						local remoteEvents = {
+						--[[local remoteEvents = {
 							["Place"] = LocalPlayer.Character:FindFirstChild("BuildingTool").RF or LocalPlayer.Backpack:FindFirstChild("BuildingTool").RF,
 							["Paint"] = LocalPlayer.Character:FindFirstChild("PaintingTool").RF or LocalPlayer.Backpack:FindFirstChild("PaintingTool").RF,
 							["Scaling"] = LocalPlayer.Character:FindFirstChild("ScalingTool").RF or LocalPlayer.Backpack:FindFirstChild("ScalingTool").RF,
 							["Trowel"] = LocalPlayer.Character:FindFirstChild("PropertiesTool").SetPropertieRF or LocalPlayer.Backpack:FindFirstChild("PropertiesTool").SetPropertieRF,
 							["Properties"] = LocalPlayer.Character:FindFirstChild("TrowelTool").OperationRF or LocalPlayer.Backpack:FindFirstChild("TrowelTool").OperationRF
-						}
+						}]]
 						local template = game.ReplicatedStorage.BuildingParts:FindFirstChild(blockType)
 						if not template then
 							warn(("[⚠️] Missing template for '%s'"):format(blockType))
@@ -7481,4 +7481,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
