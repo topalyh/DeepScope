@@ -6743,13 +6743,15 @@ if game.PlaceId == 537413528 then
 					end
 					local index = 0
 					for _, block in ipairs(blocks) do
-						local remoteEvents = {
-							["Place"] = LocalPlayer.Character:FindFirstChild("BuildingTool").RF or LocalPlayer.Backpack:FindFirstChild("BuildingTool").RF,
-							["Paint"] = LocalPlayer.Character:FindFirstChild("PaintingTool").RF or LocalPlayer.Backpack:FindFirstChild("PaintingTool").RF,
-							["Scaling"] = LocalPlayer.Character:FindFirstChild("ScalingTool").RF or LocalPlayer.Backpack:FindFirstChild("ScalingTool").RF,
-							["Trowel"] = LocalPlayer.Character:FindFirstChild("PropertiesTool").SetPropertieRF or LocalPlayer.Backpack:FindFirstChild("PropertiesTool").SetPropertieRF,
-							["Properties"] = LocalPlayer.Character:FindFirstChild("TrowelTool").OperationRF or LocalPlayer.Backpack:FindFirstChild("TrowelTool").OperationRF
-						}
+						pcall(function()
+							local remoteEvents = {
+								["Place"] = LocalPlayer.Character:FindFirstChild("BuildingTool").RF or LocalPlayer.Backpack:FindFirstChild("BuildingTool").RF,
+								["Paint"] = LocalPlayer.Character:FindFirstChild("PaintingTool").RF or LocalPlayer.Backpack:FindFirstChild("PaintingTool").RF,
+								["Scaling"] = LocalPlayer.Character:FindFirstChild("ScalingTool").RF or LocalPlayer.Backpack:FindFirstChild("ScalingTool").RF,
+								["Trowel"] = LocalPlayer.Character:FindFirstChild("PropertiesTool").SetPropertieRF or LocalPlayer.Backpack:FindFirstChild("PropertiesTool").SetPropertieRF,
+								["Properties"] = LocalPlayer.Character:FindFirstChild("TrowelTool").OperationRF or LocalPlayer.Backpack:FindFirstChild("TrowelTool").OperationRF
+							}
+						end)
 						local template = game.ReplicatedStorage.BuildingParts:FindFirstChild(blockType)
 						if not template then
 							warn(("[⚠️] Missing template for '%s'"):format(blockType))
@@ -7445,5 +7447,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
