@@ -3653,7 +3653,7 @@ local function createGui()
 	local commandGui6 = createInstance("TextLabel", {
 		Parent = commandGui1,
 		Name = "title",
-		BackgroundTransparency = 1,
+		BackgroundColor3 = Color3.fromRGB(78, 77, 79),
 		Size = UDim2.new(1, 0, 0, 18),
 		FontFace = Font.new("rbxassetid://12187365977"),
 		Text = "DeepScope Command bar",
@@ -7017,10 +7017,10 @@ end)
 newgui.Parent.commandbar:GetAttributeChangedSignal("Hovering"):Connect(function()
 	if newgui.Parent.commandbar:GetAttribute("Hovering") then
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 138), "InOut", "Quad", 0.3, true)
-		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 0, newgui.Parent.commandbar:GetAttribute("PositionOffset") or 0), "InOut", "Quad", 0.3, true)
+		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 1, newgui.Parent.commandbar:GetAttribute("PositionOffset") or 0), "InOut", "Quad", 0.3, true)
 	else
 		newgui.Parent.commandbar:TweenSize(UDim2.fromOffset(195, 18), "InOut", "Quad", 0.3, true)
-		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 0, 0), "InOut", "Quad", 0.3, true)
+		newgui.Parent.commandbar:TweenPosition(UDim2.new(newgui.Parent.commandbar.Position.X.Scale, 0, 1, 0), "InOut", "Quad", 0.3, true)
 	end
 end)
 newgui.utils.MouseButton1Click:Connect(function()
@@ -7063,7 +7063,7 @@ textBox:GetPropertyChangedSignal("Text"):Connect(function()
 	}
 	textBox:TweenSizeAndPosition(UDim2.fromOffset(195, sizeFormulas[1]), UDim2.fromOffset(0, sizeFormulas[2]), "InOut", "Sine", 0.1, true)
 	newgui.Parent.commandbar.title:TweenPosition(UDim2.fromOffset(0, sizeFormulas[3]))
-	newgui.Parent.commandbar:SetAttribute("PositionOffset", sizeFormulas[1] - 4)
+	newgui.Parent.commandbar:SetAttribute("PositionOffset", sizeFormulas[1])
 end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
@@ -7387,7 +7387,7 @@ registerCommand("guiscale", function(args)
 end)
 local infJump
 local infJumpDebounce = false
-registerCommand("infjump", {"infinitejump"}, function(args, speaker)
+registerCommand("infjump", function(args, speaker)
 	if infJump then infJump:Disconnect() end
 	infJumpDebounce = false
 	infJump = UserInputService.JumpRequest:Connect(function()
@@ -7398,6 +7398,49 @@ registerCommand("infjump", {"infinitejump"}, function(args, speaker)
 			infJumpDebounce = false
 		end
 	end)
+end)
+walkflinging = false
+registerCommand("walkfling", {}, function(args, speaker)
+	runCommand("unwalkfling")
+	local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
+	if humanoid then
+		humanoid.Died:Connect(function()
+			runCommand("unwalkfling")
+		end)
+	end
+
+	runCommand("noclip")
+	walkflinging = true
+	repeat RunService.Heartbeat:Wait()
+		local character = speaker.Character
+		local root = LocalPlayer.Character.PrimaryPart
+		local vel, movel = nil, 0.1
+
+		while not (character and character.Parent and root and root.Parent) do
+			RunService.Heartbeat:Wait()
+			character = speaker.Character
+			root = LocalPlayer.Character.PrimaryPart
+		end
+
+		vel = root.Velocity
+		root.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+
+		RunService.RenderStepped:Wait()
+		if character and character.Parent and root and root.Parent then
+			root.Velocity = vel
+		end
+
+		RunService.Stepped:Wait()
+		if character and character.Parent and root and root.Parent then
+			root.Velocity = vel + Vector3.new(0, movel, 0)
+			movel = movel * -1
+		end
+	until walkflinging == false
+end)
+
+registerCommand("unwalkfling", {"nowalkfling"}, function(args, speaker)
+	walkflinging = false
+	runCommand("unnoclip")
 end)
 savePlayedGames()
 while true do
