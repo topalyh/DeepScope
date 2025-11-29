@@ -1118,9 +1118,9 @@ print("----------------- File System ----------------------")
 initFileSystem()
 print("----------------- File System ----------------------")
 print("------------------- Explorer -----------------------")
-print("Loading Explorer Icons...")
-local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 if not getgenv().fasterboot then
+	print("Loading Explorer Icons...")
+	local png = game:HttpGet("https://raw.githubusercontent.com/topalyh/DeepScope/refs/heads/main/ClassImages.PNG")
 	print("Loading Properties API... (may take a while)")
 	local api = game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/rbx_api.dat")
 	print("Loading RMD... (may take a while)")
@@ -1136,22 +1136,144 @@ else
 end
 print("------------------- Explorer -----------------------")
 print("Fully loaded! Time took:",tick()-time)
+local function notify(icon, text, countdown)
+	if not countdown then countdown = 3 end
+	local template = createInstance("Frame", {
+		Parent = newgui.Parent.notification,
+		Name = "template",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(200, 50),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Visible = false
+	})
+	local notifyGui4 = createInstance("Frame", {
+		Parent = template,
+		Name = "inner",
+		Size = UDim2.new(0, 200, 1, 0),
+		Position = UDim2.fromOffset(210, 0),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local notifyGui5 = createInstance("Frame", {
+		Parent = notifyGui4,
+		Name = "countdown",
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, 0, 0, 3),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local notifyGui6 = createInstance("Frame", {
+		Parent = notifyGui4,
+		Name = "mainframe",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, 0, 1, -30),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local notifyGui7 = createInstance("UIListLayout", {
+		Parent = notifyGui6,
+		Padding = UDim.new(0, 5),
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center
+	})
+	local notifyGui8 = createInstance("UIPadding", {
+		Parent = notifyGui6,
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5)
+	})
+	local notifyGui9 = createInstance("ImageLabel", {
+		Parent = notifyGui6,
+		Name = "icon",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(30, 30),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local notifyGui10 = createInstance("TextLabel", {
+		Parent = notifyGui6,
+		Name = "title",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(0, 155, 1, 0),
+		Text = "hi",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 13,
+		RichText = true,
+		TextWrapped = true,
+		FontFace = Font.new(fonts.FiraSans),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	notify_amount += 1
+	local newTemplate = template:Clone()
+	newTemplate.Parent = newgui.Parent.notification
+	TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+		Position = UDim2.new(0, 0, 0, 0)
+	}):Play()
+	newTemplate.inner.mainframe.title.Size = UDim2.fromOffset(icon ~= nil and 155 or 190, 30)
+	newTemplate.inner.mainframe.icon.Visible = icon ~= nil
+	newTemplate.inner.mainframe.icon.Image = icon ~= nil and icon or ""
+	newTemplate.inner.mainframe.title.Text = text
+	newTemplate.LayoutOrder = -notify_amount
+	newTemplate.Name = "template" .. notify_amount
+	newTemplate.Visible = true
+	if newTemplate.inner.mainframe.title.TextFits == false then
+		newTemplate.Size = UDim2.new(0, 200, newTemplate.inner.mainframe.title.TextBounds.Y + 30, 50)
+	end
+	local sound = Instance.new("Sound")
+	sound.Parent = newTemplate
+	sound.SoundId = notificationSoundId
+	sound:Play()
+	game.Debris:AddItem(newTemplate, countdown + 1.15)
+	delay(0.3, function()
+		TweenService:Create(newTemplate.inner.countdown, TweenInfo.new(countdown, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+			Size = UDim2.fromOffset(0, 3)
+		}):Play()
+	end)
+	delay(countdown + 0.8, function()
+		TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+			Position = UDim2.new(0, 210, 0, 0)
+		}):Play()
+	end)
+	delay(countdown + 1.15, function()
+		TweenService:Create(newTemplate, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+			Size = UDim2.fromOffset(200, 0)
+		}):Play()
+	end)
+end
 local jsonAttempts = 0
 local function savePlayedGames()
-	local readSuccess, out = readfile("DeepScopeCore/PlayedGames.dat", true)
+	local readSuccess, data = readfile("DeepScopeCore/PlayedGames.dat", true)
 	if readSuccess then
-		if out ~= nil and tostring(out):gsub("%s", "") ~= "" then
+		if data ~= nil and tostring(data):gsub("%s", "") ~= "" then
 			local success, response = pcall(function()
 				local gameId = game.PlaceId
-				writefile("DeepScopeCore/PlayedGames.dat", out .. "," .. gameId)
+				local gameInfo = game:GetService("MarketplaceService"):GetProductInfo(gameId)
+				data = HttpService:JSONDecode(data)
+				if not data[gameId] then
+					data[gameId] = {
+						Id = gameId,
+						MaxPlayers = game.Players.MaxPlayers,
+						OwnerData = {
+							UserId = game.CreatorId,
+							Verified = gameInfo.Creator.HasVerifiedBadge
+						}
+					}
+				end
 			end)
 			if not success then
 				jsonAttempts = jsonAttempts + 1
-				warn("Save Json Error:", response)
-				warn("Overwriting Save File")
-				writefile("DeepScopeCore/PlayedGames.dat", "", true)
+				notify(nil, ("An error ocurred while saving played games data, attempt %s..."):format(jsonAttempts))
 				wait(0.5)
 				savePlayedGames()
+			end
+			if jsonAttempts > 50 then
+				notify(nil, "Failed to save data, but don't worry. We writen save file in Cloud.")
 			end
 		end
 	end
@@ -4078,116 +4200,6 @@ end
 local function getMousePos()
 	return game.UserInputService:GetMouseLocation()
 end
-local function notify(icon, text, countdown)
-	if not countdown then countdown = 3 end
-	local template = createInstance("Frame", {
-		Parent = newgui.Parent.notification,
-		Name = "template",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(200, 50),
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-		Visible = false
-	})
-	local notifyGui4 = createInstance("Frame", {
-		Parent = template,
-		Name = "inner",
-		Size = UDim2.new(0, 200, 1, 0),
-		Position = UDim2.fromOffset(210, 0),
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-	})
-	local notifyGui5 = createInstance("Frame", {
-		Parent = notifyGui4,
-		Name = "countdown",
-		BackgroundColor3 = Color3.new(1, 1, 1),
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, 0, 0, 3),
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-	})
-	local notifyGui6 = createInstance("Frame", {
-		Parent = notifyGui4,
-		Name = "mainframe",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundTransparency = 1,
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.new(1, 0, 1, -30),
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-	})
-	local notifyGui7 = createInstance("UIListLayout", {
-		Parent = notifyGui6,
-		Padding = UDim.new(0, 5),
-		FillDirection = Enum.FillDirection.Horizontal,
-		VerticalAlignment = Enum.VerticalAlignment.Center
-	})
-	local notifyGui8 = createInstance("UIPadding", {
-		Parent = notifyGui6,
-		PaddingLeft = UDim.new(0, 5),
-		PaddingRight = UDim.new(0, 5)
-	})
-	local notifyGui9 = createInstance("ImageLabel", {
-		Parent = notifyGui6,
-		Name = "icon",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(30, 30),
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-	})
-	local notifyGui10 = createInstance("TextLabel", {
-		Parent = notifyGui6,
-		Name = "title",
-		BackgroundTransparency = 1,
-		Size = UDim2.new(0, 155, 1, 0),
-		Text = "hi",
-		TextColor3 = Color3.new(1, 1, 1),
-		TextSize = 13,
-		RichText = true,
-		TextWrapped = true,
-		FontFace = Font.new(fonts.FiraSans),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderColor3 = Color3.new(0, 0, 0),
-		BorderSizePixel = 0,
-	})
-	notify_amount += 1
-	local newTemplate = template:Clone()
-	newTemplate.Parent = newgui.Parent.notification
-	TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-		Position = UDim2.new(0, 0, 0, 0)
-	}):Play()
-	newTemplate.inner.mainframe.title.Size = UDim2.fromOffset(icon ~= nil and 155 or 190, 30)
-	newTemplate.inner.mainframe.icon.Visible = icon ~= nil
-	newTemplate.inner.mainframe.icon.Image = icon ~= nil and icon or ""
-	newTemplate.inner.mainframe.title.Text = text
-	newTemplate.LayoutOrder = -notify_amount
-	newTemplate.Name = "template" .. notify_amount
-	newTemplate.Visible = true
-	if newTemplate.inner.mainframe.title.TextFits == false then
-		newTemplate.Size = UDim2.new(0, 200, newTemplate.inner.mainframe.title.TextBounds.Y + 30, 50)
-	end
-	local sound = Instance.new("Sound")
-	sound.Parent = newTemplate
-	sound.SoundId = notificationSoundId
-	sound:Play()
-	game.Debris:AddItem(newTemplate, countdown + 1.15)
-	delay(0.3, function()
-		TweenService:Create(newTemplate.inner.countdown, TweenInfo.new(countdown, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-			Size = UDim2.fromOffset(0, 3)
-		}):Play()
-	end)
-	delay(countdown + 0.8, function()
-		TweenService:Create(newTemplate.inner, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Position = UDim2.new(0, 210, 0, 0)
-		}):Play()
-	end)
-	delay(countdown + 1.15, function()
-		TweenService:Create(newTemplate, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-			Size = UDim2.fromOffset(200, 0)
-		}):Play()
-	end)
-end
 do
 	local Window = {}
 	Window.__index = Window
@@ -4681,7 +4693,7 @@ local function createEntryForInstance(node, parentGui)
 		BackgroundTransparency = 1,
 		Text = "",
 		Size = UDim2.fromScale(1, 1),
-		ZIndex = 0
+		ZIndex = 2
 	})
 	local classData = RMD.Classes[node.Data.ClassName]
 	local explorerImageIndex = classData and classData.ExplorerImageIndex or 0
@@ -7055,16 +7067,6 @@ newgui.Parent.commandbar.hoverregion.MouseLeave:Connect(function()
 		textBox.Parent:SetAttribute("Hovering", false)
 	end
 end)
-textBox:GetPropertyChangedSignal("Text"):Connect(function()
-	local sizeFormulas = {
-		textBox.TextBounds.Y,
-		(textBox.TextBounds.Y - 18) * -1,
-		textBox.TextBounds.Y * -1
-	}
-	textBox:TweenSizeAndPosition(UDim2.fromOffset(195, sizeFormulas[1]), UDim2.fromOffset(0, sizeFormulas[2]), "InOut", "Sine", 0.1, true)
-	newgui.Parent.commandbar.title:TweenPosition(UDim2.fromOffset(0, sizeFormulas[3]))
-	newgui.Parent.commandbar:SetAttribute("PositionOffset", sizeFormulas[1])
-end)
 newgui.searchPlayer.Changed:Connect(function()
 	search()
 end)
@@ -7438,7 +7440,7 @@ registerCommand("walkfling", {}, function(args, speaker)
 	until walkflinging == false
 end)
 
-registerCommand("unwalkfling", {"nowalkfling"}, function(args, speaker)
+registerCommand("unwalkfling", function(args, speaker)
 	walkflinging = false
 	runCommand("unnoclip")
 end)
