@@ -6720,7 +6720,7 @@ if game.PlaceId == 537413528 then
 						Name = file,
 						Size = UDim2.new(1, 0, 0, 20),
 						Position = UDim2.fromOffset(0, (index - 1) * 20),
-						Text = file.." ("..fileSizeFormat(tonumber(readfile(file):len()), 2)..")",
+						Text = file.." ("..fileSizeFormat(tonumber(readfile(file..".Build"):len()), 2)..")",
 						TextColor3 = Color3.new(0, 0, 0),
 						TextScaled = true,
 						BorderSizePixel = 0,
@@ -7581,5 +7581,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
