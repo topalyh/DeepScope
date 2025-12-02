@@ -6712,24 +6712,32 @@ if game.PlaceId == 537413528 then
 				Parent = fileslist,
 				Thickness = 3
 			})
-			for index, file in listfiles() do
+			for _, file in listfiles() do
+				local index = 0
 				if file:find(".Build") then
-					file = file:gsub(".Build", "")
-					local button = createInstance("TextButton", {
-						Parent = fileslist,
-						Name = file,
-						Size = UDim2.new(1, 0, 0, 20),
-						Position = UDim2.fromOffset(0, (index - 1) * 20),
-						Text = file.." ("..fileSizeFormat(tonumber(readfile(file..".Build"):len()), 2)..")",
-						TextColor3 = Color3.new(0, 0, 0),
-						TextScaled = true,
-						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.new(1, 1, 1),
-					})
-					button.MouseButton1Click:Connect(function()
-						filename.Text = file:sub(file:len()-5)
+					local success, error = pcall(function()
+						index += 1
+						file = file:gsub(".Build", "")
+						local button = createInstance("TextButton", {
+							Parent = fileslist,
+							Name = file,
+							Size = UDim2.new(1, 0, 0, 20),
+							Position = UDim2.fromOffset(0, index * 20),
+							Text = file.." ("..fileSizeFormat(tonumber(readfile(file..".Build"):len()), 2)..")",
+							TextColor3 = Color3.new(0, 0, 0),
+							TextScaled = true,
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.new(1, 1, 1),
+						})
+						button.MouseButton1Click:Connect(function()
+							filename.Text = file:sub(file:len()-5)
+						end)
+						fileslist.CanvasSize = UDim2.new(0, 0, 0, index * 20)
 					end)
-					fileslist.CanvasSize = UDim2.new(0, 0, 0, (index - 1) * 20)
+					if not success then
+						notify(nil, "An error occurred while loading files, check logs for better info.", 5)
+						Addlog(error, "AutoBuild", "error")
+					end
 				end
 			end
 			savebutton.MouseButton1Click:Connect(function()
@@ -7581,6 +7589,7 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
 
