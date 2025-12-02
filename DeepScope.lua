@@ -34,6 +34,7 @@ cloneref = missing("function", cloneref, function(...) return ... end)
 everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
 makefolder = missing("function", makefolder)
 isfolder = missing("function", isfolder)
+listfiles = missing("function", listfiles)
 getcustomasset = missing("function", getcustomasset)
 writefile = missing("function", waxwritefile) and function(file, data, safe)
 	if safe == true then return pcall(waxwritefile, file, data) end
@@ -5105,6 +5106,12 @@ local function format(number, useCommas, useShort, demicals)
 
 	return math.round(number)
 end
+local function fileSizeFormat(size, demicals)
+	local units = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"}
+	local i = math.min(math.floor(math.log10(size) / 3), #units)
+	local scaledSize = size / (10 ^ (i * 3))
+	return string.format("%." .. (demicals or 1) .. "f%s", scaledSize, units[i + 1])
+end
 local function setColorPicker(color, gui)
 	local pickerTemplate = newgui.Parent.colorpicker
 	local picker = pickerTemplate:Clone()
@@ -6574,7 +6581,7 @@ if game.PlaceId == 537413528 then
 				BorderSizePixel = 0,
 				Position = UDim2.fromScale(0.5, 0.5),
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Size = UDim2.fromOffset(240, 200)
+				Size = UDim2.fromOffset(240, 300)
 			})
 			createInstance("TextButton", {
 				Parent = main,
@@ -6600,7 +6607,9 @@ if game.PlaceId == 537413528 then
 			createInstance("UIStroke", {
 				Parent = main.dragbutton.fullclose,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				LineJoinMode = Enum.LineJoinMode.Miter
+				LineJoinMode = Enum.LineJoinMode.Miter,
+				Thickness = 1.1,
+				Color = Color3.new(1, 1, 1)
 			})
 			createInstance("ImageLabel", {
 				Parent = main.dragbutton.fullclose,
@@ -6635,15 +6644,14 @@ if game.PlaceId == 537413528 then
 				Size = UDim2.new(0, 7, 1, 30),
 				Text = ""
 			})
-			local filename = createInstance("TextBox", {	
+			local filename = createInstance("TextLabel", {	
 				Parent = main,
 				Name = "filename",
 				AnchorPoint = Vector2.new(0.5, 0),
 				Position = UDim2.new(0.5, 0, 0, 10),
 				Size = UDim2.new(1, -20, 0, 20),
 				PlaceholderColor3 = Color3.new(1, 1, 1),
-				PlaceholderText = "file name",
-				Text = "",
+				Text = "selected file",
 				TextColor3 = Color3.new(1, 1, 1),
 				TextScaled = true,
 			})
@@ -6691,11 +6699,51 @@ if game.PlaceId == 537413528 then
 				TextColor3 = Color3.new(1, 1, 1),
 				TextScaled = true
 			})
+			local fileslist = createInstance("ScrollingFrame", {
+				Parent = main,
+				Name = "listfiles",
+				AnchorPoint = Vector2.new(0.5, 0),
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.fromScale(0.5, 0.483),
+				Size = UDim2.new(1, -20, 0.5, 0),
+				CanvasSize = UDim2.fromScale(0, 0),
+			})
+			local liststroke = createInstance("UIStroke", {
+				Parent = fileslist,
+				Thickness = 3
+			})
+			for index, file in listfiles() do
+				file = file:gsub(".Build", "")
+				local button = createInstance("TextButton", {
+					Parent = fileslist,
+					Name = file,
+					Size = UDim2.new(1, 0, 0, 20),
+					Position = UDim2.fromOffset(0, (index - 1) * 20),
+					Text = file.." ("..fileSizeFormat(tonumber(readfile(file):len()), 2)..")",
+					TextColor3 = Color3.new(1, 1, 1),
+					TextScaled = true,
+					BorderSizePixel = 0,
+					BackgroundColor3 = Color3.new(1, 1, 1),
+				})
+				local gradient = createInstance("UIGradient", {
+					Parent = button,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0, 1),
+						NumberSequenceKeypoint.new(0.5, 0),
+						NumberSequenceKeypoint.new(1, 1)
+					})
+				})
+				button.MouseButton1Click:Connect(function()
+					filename.Text = file:sub(file:len()-5)
+				end)
+				fileslist.CanvasSize = UDim2.new(0, 0, 0, (index - 1) * 20)
+			end
 			savebutton.MouseButton1Click:Connect(function()
 				local player = game.Players:FindFirstChild(playername.Text)
 				if not player then return end
 
-				local fileName = (filename.Text:gsub("%s+", "") ~= "" and filename.Text or player.Name) .. ".build"
+				local fileName = (filename.Text:gsub("%s+", "") ~= "" and filename.Text or player.Name) .. ".Build"
 				local saved = {}
 				local playerBlocks = workspace.Blocks[player.Name]
 
@@ -7540,6 +7588,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
