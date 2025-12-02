@@ -6658,7 +6658,7 @@ if game.PlaceId == 537413528 then
 				Parent = main,
 				Name = "loadbutton",
 				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0.4, 35),
+				Position = UDim2.new(0.5, 0, 0.26, 35),
 				Size = UDim2.new(0.5, 0, 0, 20),
 				Text = "load file",
 				TextColor3 = Color3.new(1, 1, 1),
@@ -6668,7 +6668,7 @@ if game.PlaceId == 537413528 then
 				Parent = main,
 				Name = "loadfilebox",
 				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0.4, 10),
+				Position = UDim2.new(0.5, 0, 0.26, 10),
 				Size = UDim2.new(1, -20, 0, 20),
 				PlaceholderColor3 = Color3.new(1, 1, 1),
 				PlaceholderText = "file name to load",
@@ -6680,7 +6680,7 @@ if game.PlaceId == 537413528 then
 				Parent = main,
 				Name = "playername",
 				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0.27, 10),
+				Position = UDim2.new(0.5, 0, 0.17, 10),
 				Size = UDim2.new(1, -20, 0, 20),
 				PlaceholderColor3 = Color3.new(1, 1, 1),
 				PlaceholderText = "player name",
@@ -6713,30 +6713,24 @@ if game.PlaceId == 537413528 then
 				Thickness = 3
 			})
 			for index, file in listfiles() do
-				file = file:gsub(".Build", "")
-				local button = createInstance("TextButton", {
-					Parent = fileslist,
-					Name = file,
-					Size = UDim2.new(1, 0, 0, 20),
-					Position = UDim2.fromOffset(0, (index - 1) * 20),
-					Text = file.." ("..fileSizeFormat(tonumber(readfile(file):len()), 2)..")",
-					TextColor3 = Color3.new(1, 1, 1),
-					TextScaled = true,
-					BorderSizePixel = 0,
-					BackgroundColor3 = Color3.new(1, 1, 1),
-				})
-				local gradient = createInstance("UIGradient", {
-					Parent = button,
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 1),
-						NumberSequenceKeypoint.new(0.5, 0),
-						NumberSequenceKeypoint.new(1, 1)
+				if file:find(".Build") then
+					file = file:gsub(".Build", "")
+					local button = createInstance("TextButton", {
+						Parent = fileslist,
+						Name = file,
+						Size = UDim2.new(1, 0, 0, 20),
+						Position = UDim2.fromOffset(0, (index - 1) * 20),
+						Text = file.." ("..fileSizeFormat(tonumber(readfile(file):len()), 2)..")",
+						TextColor3 = Color3.new(0, 0, 0),
+						TextScaled = true,
+						BorderSizePixel = 0,
+						BackgroundColor3 = Color3.new(1, 1, 1),
 					})
-				})
-				button.MouseButton1Click:Connect(function()
-					filename.Text = file:sub(file:len()-5)
-				end)
-				fileslist.CanvasSize = UDim2.new(0, 0, 0, (index - 1) * 20)
+					button.MouseButton1Click:Connect(function()
+						filename.Text = file:sub(file:len()-5)
+					end)
+					fileslist.CanvasSize = UDim2.new(0, 0, 0, (index - 1) * 20)
+				end
 			end
 			savebutton.MouseButton1Click:Connect(function()
 				local player = game.Players:FindFirstChild(playername.Text)
@@ -7587,6 +7581,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
