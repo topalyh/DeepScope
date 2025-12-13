@@ -36,6 +36,8 @@ makefolder = missing("function", makefolder)
 isfolder = missing("function", isfolder)
 listfiles = missing("function", listfiles)
 getcustomasset = missing("function", getcustomasset)
+sethidden =  missing("function", sethiddenproperty or set_hidden_property or set_hidden_prop)
+gethidden =  missing("function", gethiddenproperty or get_hidden_property or get_hidden_prop)
 writefile = missing("function", waxwritefile) and function(file, data, safe)
 	if safe == true then return pcall(waxwritefile, file, data) end
 	waxwritefile(file, data)
@@ -6215,11 +6217,11 @@ if game.PlaceId == 537413528 then
 	local folder = "DeepScopeCore/Addons/"..game.MarketplaceService:GetProductInfo(game.PlaceId).Name.."/Builds"
 	makefolder(folder)
 	local points = {
-		CFrame.new(-164.266, 356.9, 288.862),
-		CFrame.new(-164.266, 77.9, 1371.862),
-		CFrame.new(-164.266, 77.9, 8611.861),
-		CFrame.new(-49.883, 300.1, 8956.861),
-		CFrame.new(-55.883, -361.1, 9490.861),
+		CFrame.new(-338.566, -44.27, 830.212),
+		CFrame.new(-180.286, 33.26, 1371.862),
+		CFrame.new(-180.286, 33.26, 8614.722),
+		CFrame.new(-49.883, -352.22, 8956.861),
+		CFrame.new(-55.883, -359.42, 9489.182),
 	}
 
 	local waitTimes = {
@@ -6404,14 +6406,17 @@ if game.PlaceId == 537413528 then
 			wait(2)
 			disable()
 			startMove()
+			runCommand("noclip")
 		end
 	end)
 
 	uiSwitch:GetAttributeChangedSignal("Value"):Connect(function()
 		if uiSwitch:GetAttribute("Value") == true and uiSwitch2:GetAttribute("Value") == false then
 			startMove()
+			runCommand("noclip")
 		else
 			disable()
+			runCommand("unnoclip")
 		end
 	end)
 
@@ -6707,6 +6712,14 @@ if game.PlaceId == 537413528 then
 				Position = UDim2.fromScale(0.5, 0.483),
 				Size = UDim2.new(1, -20, 0.5, 0),
 				CanvasSize = UDim2.fromScale(0, 0),
+				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+				TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
+				ScrollbarImageColor3 = Color3.new(1, 1, 1)
+			})
+			local listlayout = createInstance("UIListLayout", {
+				Parent = fileslist,
+				SortOrder = Enum.SortOrder.LayoutOrder,
 			})
 			local liststroke = createInstance("UIStroke", {
 				Parent = fileslist,
@@ -6722,7 +6735,6 @@ if game.PlaceId == 537413528 then
 							Parent = fileslist,
 							Name = file,
 							Size = UDim2.new(1, 0, 0, 20),
-							Position = UDim2.fromOffset(0, index * 20),
 							Text = file.." ("..fileSizeFormat(tonumber(readfile(file..".Build"):len()), 2)..")",
 							TextColor3 = Color3.new(0, 0, 0),
 							TextScaled = true,
@@ -6732,11 +6744,10 @@ if game.PlaceId == 537413528 then
 						button.MouseButton1Click:Connect(function()
 							filename.Text = file:sub(file:len()-5)
 						end)
-						fileslist.CanvasSize = UDim2.new(0, 0, 0, index * 20)
 					end)
 					if not success then
 						notify(nil, "An error occurred while loading files, check logs for better info.", 5)
-						Addlog(error, "AutoBuild", "error")
+						AddLog(error, "AutoBuild", "error")
 					end
 				end
 			end
@@ -7140,6 +7151,350 @@ end)
 local function checkIfR15(char)
 	return char:FindFirstChild("UpperTorso") ~= nil
 end
+local function getRoot(char)
+	local rootPart = char:FindFirstChild('HumanoidRootPart') or char:FindFirstChild('Torso') or char:FindFirstChild('UpperTorso')
+	return rootPart
+end
+local WorldToScreen = function(Object)
+	local ObjectVector = workspace.CurrentCamera:WorldToScreenPoint(Object.Position)
+	return Vector2.new(ObjectVector.X, ObjectVector.Y)
+end
+
+local MousePositionToVector2 = function()
+	return Vector2.new(LocalPlayer:GetMouse().X, LocalPlayer:GetMouse().Y)
+end
+
+local GetClosestPlayerFromCursor = function()
+	local found = nil
+	local ClosestDistance = math.huge
+	for i, v in pairs(game.Players:GetPlayers()) do
+		if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChildOfClass("Humanoid") then
+			for k, x in pairs(v.Character:GetChildren()) do
+				if string.find(x.Name, "Torso") then
+					local Distance = (WorldToScreen(x) - MousePositionToVector2()).Magnitude
+					if Distance < ClosestDistance then
+						ClosestDistance = Distance
+						found = v
+					end
+				end
+			end
+		end
+	end
+	return found
+end
+SpecialPlayerCases = {
+	["all"] = function(speaker) return game.Players:GetPlayers() end,
+	["others"] = function(speaker)
+		local plrs = {}
+		for i,v in pairs(game.Players:GetPlayers()) do
+			if v ~= speaker then
+				table.insert(plrs,v)
+			end
+		end
+		return plrs
+	end,
+	["me"] = function(speaker)return {speaker} end,
+	["#(%d+)"] = function(speaker,args,currentList)
+		local returns = {}
+		local randAmount = tonumber(args[1])
+		local players = {unpack(currentList)}
+		for i = 1,randAmount do
+			if #players == 0 then break end
+			local randIndex = math.random(1,#players)
+			table.insert(returns,players[randIndex])
+			table.remove(players,randIndex)
+		end
+		return returns
+	end,
+	["random"] = function(speaker,args,currentList)
+		local players = game.Players:GetPlayers()
+		local localplayer = game.Players.LocalPlayer
+		table.remove(players, table.find(players, localplayer))
+		return {players[math.random(1,#players)]}
+	end,
+	["%%(.+)"] = function(speaker,args)
+		local returns = {}
+		local team = args[1]
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Team and string.sub(string.lower(plr.Team.Name),1,#team) == string.lower(team) then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["allies"] = function(speaker)
+		local returns = {}
+		local team = speaker.Team
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Team == team then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["enemies"] = function(speaker)
+		local returns = {}
+		local team = speaker.Team
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Team ~= team then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["team"] = function(speaker)
+		local returns = {}
+		local team = speaker.Team
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Team == team then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["nonteam"] = function(speaker)
+		local returns = {}
+		local team = speaker.Team
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Team ~= team then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["friends"] = function(speaker,args)
+		local returns = {}
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr:IsFriendsWith(speaker.UserId) and plr ~= speaker then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["nonfriends"] = function(speaker,args)
+		local returns = {}
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if not plr:IsFriendsWith(speaker.UserId) and plr ~= speaker then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["guests"] = function(speaker,args)
+		local returns = {}
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Guest then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["bacons"] = function(speaker,args)
+		local returns = {}
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Character:FindFirstChild('Pal Hair') or plr.Character:FindFirstChild('Kate Hair') then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["age(%d+)"] = function(speaker,args)
+		local returns = {}
+		local age = tonumber(args[1])
+		if not age == nil then return end
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.AccountAge <= age then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["nearest"] = function(speaker,args,currentList)
+		local speakerChar = speaker.Character
+		if not speakerChar or not getRoot(speakerChar) then return end
+		local lowest = math.huge
+		local NearestPlayer = nil
+		for _,plr in pairs(currentList) do
+			if plr ~= speaker and plr.Character then
+				local distance = plr:DistanceFromCharacter(getRoot(speakerChar).Position)
+				if distance < lowest then
+					lowest = distance
+					NearestPlayer = {plr}
+				end
+			end
+		end
+		return NearestPlayer
+	end,
+	["farthest"] = function(speaker,args,currentList)
+		local speakerChar = speaker.Character
+		if not speakerChar or not getRoot(speakerChar) then return end
+		local highest = 0
+		local Farthest = nil
+		for _,plr in pairs(currentList) do
+			if plr ~= speaker and plr.Character then
+				local distance = plr:DistanceFromCharacter(getRoot(speakerChar).Position)
+				if distance > highest then
+					highest = distance
+					Farthest = {plr}
+				end
+			end
+		end
+		return Farthest
+	end,
+	["group(%d+)"] = function(speaker,args)
+		local returns = {}
+		local groupID = tonumber(args[1])
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr:IsInGroup(groupID) then  
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["alive"] = function(speaker,args)
+		local returns = {}
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Character and plr.Character:FindFirstChildOfClass("Humanoid") and plr.Character:FindFirstChildOfClass("Humanoid").Health > 0 then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["dead"] = function(speaker,args)
+		local returns = {}
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if (not plr.Character or not plr.Character:FindFirstChildOfClass("Humanoid")) or plr.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then
+				table.insert(returns,plr)
+			end
+		end
+		return returns
+	end,
+	["rad(%d+)"] = function(speaker,args)
+		local returns = {}
+		local radius = tonumber(args[1])
+		local speakerChar = speaker.Character
+		if not speakerChar or not getRoot(speakerChar) then return end
+		for _,plr in pairs(game.Players:GetPlayers()) do
+			if plr.Character and getRoot(plr.Character) then
+				local magnitude = (getRoot(plr.Character).Position-getRoot(speakerChar).Position).magnitude
+				if magnitude <= radius then table.insert(returns,plr) end
+			end
+		end
+		return returns
+	end,
+	["cursor"] = function(speaker)
+		local plrs = {}
+		local v = GetClosestPlayerFromCursor()
+		if v ~= nil then table.insert(plrs, v) end
+		return plrs
+	end,
+	["npcs"] = function(speaker,args)
+		local returns = {}
+		for _, v in pairs(workspace:GetDescendants()) do
+			if v:IsA("Model") and getRoot(v) and v:FindFirstChildWhichIsA("Humanoid") and game.Players:GetPlayerFromCharacter(v) == nil then
+				local clone = Instance.new("Player")
+				clone.Name = v.Name .. " - " .. v:FindFirstChildWhichIsA("Humanoid").DisplayName
+				clone.Character = v
+				table.insert(returns, clone)
+			end
+		end
+		return returns
+	end,
+}
+local function splitString(str,delim)
+	local broken = {}
+	if delim == nil then delim = "," end
+	for w in string.gmatch(str,"[^"..delim.."]+") do
+		table.insert(broken,w)
+	end
+	return broken
+end
+local function toTokens(str)
+	local tokens = {}
+	for op,name in string.gmatch(str,"([+-])([^+-]+)") do
+		table.insert(tokens,{Operator = op,Name = name})
+	end
+	return tokens
+end
+local function onlyIncludeInTable(tab,matches)
+	local matchTable = {}
+	local resultTable = {}
+	for i,v in pairs(matches) do matchTable[v.Name] = true end
+	for i,v in pairs(tab) do if matchTable[v.Name] then table.insert(resultTable,v) end end
+	return resultTable
+end
+
+local function removeTableMatches(tab,matches)
+	local matchTable = {}
+	local resultTable = {}
+	for i,v in pairs(matches) do matchTable[v.Name] = true end
+	for i,v in pairs(tab) do if not matchTable[v.Name] then table.insert(resultTable,v) end end
+	return resultTable
+end
+local function getPlayersByName(Name)
+	local Name,Len,Found = string.lower(Name),#Name,{}
+	for _,v in pairs(game.Players:GetPlayers()) do
+		if Name:sub(0,1) == '@' then
+			if string.sub(string.lower(v.Name),1,Len-1) == Name:sub(2) then
+				table.insert(Found,v)
+			end
+		else
+			if string.sub(string.lower(v.Name),1,Len) == Name or string.sub(string.lower(v.DisplayName),1,Len) == Name then
+				table.insert(Found,v)
+			end
+		end
+	end
+	return Found
+end
+local function getPlayer(list,speaker)
+	if list == nil then return {speaker.Name} end
+	local nameList = splitString(list,",")
+
+	local foundList = {}
+
+	for _,name in pairs(nameList) do
+		if string.sub(name,1,1) ~= "+" and string.sub(name,1,1) ~= "-" then name = "+"..name end
+		local tokens = toTokens(name)
+		local initialPlayers = game.Players:GetPlayers()
+
+		for i,v in pairs(tokens) do
+			if v.Operator == "+" then
+				local tokenContent = v.Name
+				local foundCase = false
+				for regex,case in pairs(SpecialPlayerCases) do
+					local matches = {string.match(tokenContent,"^"..regex.."$")}
+					if #matches > 0 then
+						foundCase = true
+						initialPlayers = onlyIncludeInTable(initialPlayers,case(speaker,matches,initialPlayers))
+					end
+				end
+				if not foundCase then
+					initialPlayers = onlyIncludeInTable(initialPlayers,getPlayersByName(tokenContent))
+				end
+			else
+				local tokenContent = v.Name
+				local foundCase = false
+				for regex,case in pairs(SpecialPlayerCases) do
+					local matches = {string.match(tokenContent,"^"..regex.."$")}
+					if #matches > 0 then
+						foundCase = true
+						initialPlayers = removeTableMatches(initialPlayers,case(speaker,matches,initialPlayers))
+					end
+				end
+				if not foundCase then
+					initialPlayers = removeTableMatches(initialPlayers,getPlayersByName(tokenContent))
+				end
+			end
+		end
+
+		for i,v in pairs(initialPlayers) do table.insert(foundList,v) end
+	end
+
+	local foundNames = {}
+	for i,v in pairs(foundList) do table.insert(foundNames,v.Name) end
+
+	return foundNames
+end
 textBox.FocusLost:Connect(function()
 	textBox.Parent:SetAttribute("Hovering", false)
 	runCommand(textBox.Text)
@@ -7182,7 +7537,7 @@ registerCommand("flyspeed", function(args)
 end)
 registerCommand("goto", function(args)
 	local targetName = args[1]
-	local targetPlayer = game.Players:FindFirstChild(targetName)
+	local targetPlayer = getPlayer(targetName, LocalPlayer)
 	if targetPlayer then
 		LocalPlayer.Character:SetPrimaryPartCFrame(targetPlayer.Character:GetPrimaryPartCFrame())
 	end
@@ -7438,22 +7793,22 @@ registerCommand("guiscale", function(args)
 end)
 local infJump
 local infJumpDebounce = false
-registerCommand("infjump", function(args, speaker)
+registerCommand("infjump", function(args)
 	if infJump then infJump:Disconnect() end
 	infJumpDebounce = false
 	infJump = UserInputService.JumpRequest:Connect(function()
 		if not infJumpDebounce then
 			infJumpDebounce = true
-			speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+			LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 			wait()
 			infJumpDebounce = false
 		end
 	end)
 end)
 walkflinging = false
-registerCommand("walkfling", {}, function(args, speaker)
+registerCommand("walkfling", {}, function(args)
 	runCommand("unwalkfling")
-	local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
+	local humanoid = LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
 	if humanoid then
 		humanoid.Died:Connect(function()
 			runCommand("unwalkfling")
@@ -7463,13 +7818,13 @@ registerCommand("walkfling", {}, function(args, speaker)
 	runCommand("noclip")
 	walkflinging = true
 	repeat RunService.Heartbeat:Wait()
-		local character = speaker.Character
+		local character = LocalPlayer.Character
 		local root = LocalPlayer.Character.PrimaryPart
 		local vel, movel = nil, 0.1
 
 		while not (character and character.Parent and root and root.Parent) do
 			RunService.Heartbeat:Wait()
-			character = speaker.Character
+			character = LocalPlayer.Character
 			root = LocalPlayer.Character.PrimaryPart
 		end
 
@@ -7492,6 +7847,32 @@ end)
 registerCommand("unwalkfling", function(args, speaker)
 	walkflinging = false
 	runCommand("unnoclip")
+end)
+registerCommand('norender', function(args, speaker)
+	RunService:Set3dRenderingEnabled(false)
+end)
+
+registerCommand('render', function(args, speaker)
+	RunService:Set3dRenderingEnabled(true)
+end)
+
+registerCommand('2022materials', function(args, speaker)
+	if sethidden then
+		sethidden(game.MaterialService, "Use2022Materials", true)
+	else
+		notify(nil,'Your exploit does not support this command (missing sethiddenproperty)')
+	end
+end)
+
+registerCommand('un2022materials', function(args, speaker)
+	if sethidden then
+		sethidden(game.MaterialService, "Use2022Materials", false)
+	else
+		notify(nil,'Your exploit does not support this command (missing sethiddenproperty)')
+	end
+end)
+registerCommand('removeterrain', function(args, speaker)
+	workspace:FindFirstChildOfClass('Terrain'):Clear()
 end)
 savePlayedGames()
 while true do
@@ -7589,7 +7970,3 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
-
-
-
