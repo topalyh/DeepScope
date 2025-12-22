@@ -938,19 +938,22 @@ local explorerOpened = true
 local draggingExplorer = false
 local draggingExecutor = false
 local draggingColorPicker = false
+local draggingPS = false
 local resizingExplorer = false
 local resizingLogMenu = false
 local resizingColorPicker = false
 local resizingExecutor = false
+local resizingPS = false
 local startExplorerSize = UDim2.fromOffset(0, 0)
 local startExplorerPos = UDim2.fromOffset(0, 0)
 local startExecutorPos = UDim2.fromOffset(0, 0)
 local startExecutorSize = UDim2.fromOffset(0, 0)
 local startPickerSize = UDim2.fromOffset(0, 0)
 local startLogSize = UDim2.fromOffset(0, 0)
+local startPSSize = UDim2.fromOffset(0, 0)
 local startMousePos = UDim2.fromOffset(0, 0)
 local startLogsPos = UDim2.fromOffset(0, 0)
-local startExecutorPos = UDim2.fromOffset(0, 0)
+local startPSPos = UDim2.fromOffset(0, 0)
 local dragConn = nil
 local explorerUsing = false
 local countdowns = {}
@@ -1026,6 +1029,7 @@ local function AddLog(text, sourse, type)
 		PaddingLeft = UDim.new(0, 5)
 	})
 	local timeNow = os.date("%H:%M:%S")
+	
 	local ok, textResult = pcall(function()
 		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
@@ -1353,6 +1357,7 @@ local modules = {
 			DefaultKey = Enum.KeyCode.G,
 
 			UpdateFlying = function(enabled, flyspeed)
+				
 				if enabled then
 					_createForces(humanoidRootPart)
 					humanoid.PlatformStand = true
@@ -1366,6 +1371,7 @@ local modules = {
 			end,
 
 			UpdateMoveDirection = function()
+				
 				local direction = Vector3.new()
 				if UserInputService:IsKeyDown(Enum.KeyCode.W) then
 					direction += Vector3.new(0, 0, -1)
@@ -1508,6 +1514,7 @@ local modules = {
 				newTemplate.TextLabel.Text = text
 			end,
 			UpdateText = function(name, newText)
+				
 				local template = infoList:FindFirstChild(name)
 				if template then
 					template.copyableinfo.Text = newText
@@ -1734,6 +1741,7 @@ local modules = {
 							"Angles",
 							"create",
 							"fromIsoDate",
+							
 							"charpattern",
 							"math",
 							"fmod",
@@ -1753,6 +1761,7 @@ local modules = {
 							"gmatch",
 							"resetmemorycategory",
 							"DateTime",
+							
 							"tick",
 							"clock",
 							"format",
@@ -1811,6 +1820,7 @@ local modules = {
 							"xpcall",
 							"FromNormalId",
 							"date",
+							
 							"fromOffset",
 							"yAxis",
 							"fromRGB",
@@ -1929,8 +1939,8 @@ local modules = {
 
 						table.insert(tokens, colored or word)
 						pos = pos + #word
-					elseif code:match("^function%s+[%w_]+%s*%b()", pos) then
-						local full = code:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)", pos)
+					elseif code:match("^function%s+[%w_]+%s*%b()") then
+						local full = code:match("^(function%s+[%w_]+%s*%b()[:%s%w_]*)")
 						local funcName, args, returnType = full:match("^function%s+([%w_]+)%s*%((.*)%)%s*:?%s*([%w_]*)")
 
 						local highlightedArgs = args:gsub("([%w_]+)%s*:%s*([%w_]+)", function(argName, argType)
@@ -1959,8 +1969,8 @@ local modules = {
 						end
 						table.insert(tokens, result)
 						pos = pos + #full
-					elseif code:match("^Enum%.[%w_]+%.[%w_]+", pos) then
-						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)", pos)
+					elseif code:match("^Enum%.[%w_]+%.[%w_]+") then
+						local enum, category, value = code:match("^(Enum)%.([%w_]+)%.([%w_]+)")
 						if enum and category and value then
 							local result = string.format(
 								"<font color='%s'>%s</font>.<font color='%s'>%s</font>.<font color='%s'>%s</font>",
@@ -1998,6 +2008,7 @@ local modules = {
 				writefile(fileName, source)
 			end,
 			Update = function(code, label, linesGui)
+				
 				local lines = getLineAmount(code)
 				local padding = 15
 				local size = linesGui.TextBounds.X + padding
@@ -2036,6 +2047,7 @@ local modules = {
 coreModules.Lib = {}
 coreModules.Lib.Settings = {}
 coreModules.Lib.AdvancedFormat = game:HttpGet("https://raw.githubusercontent.com/topalyh/AdvancedFormat-Module/refs/heads/main/Sourse%20code.lua")
+
 coreModules.Lib.Window = {}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
@@ -2043,8 +2055,10 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if input.KeyCode == modules.other.fly.DefaultKey then
 		Enabled = not Enabled
 		modules.other.fly.UpdateFlying(Enabled)
+		
 	end
 	modules.other.fly.UpdateMoveDirection(processed)
+	
 end)
 function coreModules.Lib:FetchRMD()
 	local parsed = HttpService:JSONDecode(readfile("DeepScopeCore/Explorer/RMD.dat"))
@@ -2270,6 +2284,7 @@ end
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
 		modules.other.fly.UpdateMoveDirection(processed)
+		
 	end
 end)
 RunService.RenderStepped:Connect(function(dt)
@@ -2403,9 +2418,11 @@ local function createGui()
 	local gui14 = createInstance("TextButton", {
 		Parent = gui2,
 		Name = "unitformat",
+		
 		Size = UDim2.new(0.138, 0, 0.252, 0),
 		Position = UDim2.new(0.003, 0, 1.326, 0),
 		Text = "format: M",
+		
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
@@ -3662,7 +3679,7 @@ local function createGui()
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(0.747, 0, 2.657, 0),
 		Size = UDim2.fromOffset(53, 43),
-		Text = "fun utils",
+		Text = "mini apps",
 		TextScaled = true,
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
@@ -3694,11 +3711,11 @@ local function createGui()
 	})
 	local utilsGui3 = createInstance("TextButton", {
 		Parent = utilsGui2,
-		Name = "calculator",
+		Name = "privateservers",
 		BackgroundColor3 = Color3.new(),
 		Size = UDim2.fromOffset(60, 0),
 		FontFace = Font.new(fonts.FiraSans),
-		Text = "calculator",
+		Text = "your P.S.",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 14,
 		BorderColor3 = Color3.new(0, 0, 0),
@@ -4004,8 +4021,212 @@ local function createGui()
 		Size = UDim2.fromScale(1, 1),
 		Image = "rbxassetid://74120900238837",
 	})
+	local ps1 = createInstance("Frame", {
+		Parent = gui1,
+		Name = "privateservers",
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		Position = UDim2.fromOffset(0, 88),
+		Size = UDim2.fromOffset(300, 300),
+		Visible = false,
+		BorderSizePixel = 0
+	})
+	local ps2 = createInstance("ScrollingFrame", {
+		Parent = ps1,
+		Name = "list",
+		BackgorundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		CanvasSize = UDim2.new(0, 0, 0, 0),
+		ScrollBarThickness = 0
+	})
+	local ps3 = createInstance("UIListLayout", {Parent = ps2})
+	local ps4 = createInstance("Frame", {
+		Parent = ps1,
+		Name = "detailedinfo",
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		Size = UDim2.fromScale(1, 1),
+		Visible = false
+	})
+	local ps5 = createInstance("UIListLayout",{Parent = ps4})
+	local ps6 = createInstance("ImageLabel", {
+		Parent = ps4,
+		Name = "icon",
+		BackgroundColor3 = Color3.fromRGB(53, 53, 54),
+		Size = UDim2.fromScale(1, 0.3),
+		ScaleType = Enum.ScaleType.Fit,
+		BorderSizePixel = 0
+	})
+	local ps7 = createInstance("TextLabel", {
+		Parent = ps4,
+		Name = "privateservername",
+		BackgroundTransparency = 1,
+		LayoutOrder = 1,
+		Size = UDim2.fromScale(1, 0.1),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "P.S. name: null",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 17,
+		TextTruncate = Enum.TextTruncate.AtEnd
+	})
+	createInstance("UIStroke", {
+		Parent = ps7,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+		Color = Color3.new(1, 1, 1),
+		Thickness = 2
+	})
+	local ps8 = createInstance("TextLabel", {
+		Parent = ps4,
+		Name = "gamename",
+		BackgroundTransparency = 1,
+		LayoutOrder = 2,
+		Size = UDim2.fromScale(1, 0.1),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "game name: null",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 17,
+		TextTruncate = Enum.TextTruncate.AtEnd
+	})
+	createInstance("UIStroke", {
+		Parent = ps8,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+		Color = Color3.new(1, 1, 1),
+		Thickness = 2
+	})
+	local ps9 = createInstance("TextLabel", {
+		Parent = ps4,
+		Name = "owner",
+		BackgroundTransparency = 1,
+		LayoutOrder = 3,
+		Size = UDim2.fromScale(1, 0.1),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "owner: null",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 17,
+		TextTruncate = Enum.TextTruncate.AtEnd
+	})
+	createInstance("UIStroke", {
+		Parent = ps9,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+		Color = Color3.new(1, 1, 1),
+		Thickness = 2
+	})
+	local ps10 = createInstance("TextLabel", {
+		Parent = ps4,
+		Name = "price",
+		BackgroundTransparency = 1,
+		LayoutOrder = 4,
+		Size = UDim2.fromScale(1, 0.1),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "cost: null"..utf8.char(57346),
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 17,
+		TextTruncate = Enum.TextTruncate.AtEnd
+	})
+	createInstance("UIStroke", {
+		Parent = ps10,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+		Color = Color3.new(1, 1, 1),
+		Thickness = 2
+	})
+	local ps11 = createInstance("TextLabel", {
+		Parent = ps4,
+		Name = "expdate",
+		
+		BackgroundTransparency = 1,
+		LayoutOrder = 5,
+		Size = UDim2.fromScale(1, 0.1),
+		FontFace = Font.new(fonts.FiraSans),
+		Text = "expire in: Ω seconds",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextScaled = true
+	})
+	createInstance("UIStroke", {
+		Parent = ps11,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+		Color = Color3.new(1, 1, 1),
+		Thickness = 2
+	})
+	local ps12 = createInstance("TextButton", {
+		Parent = ps1,
+		Name = "dragbutton",
+		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
+		AnchorPoint = Vector2.new(0, 1),
+		Size = UDim2.new(1, 0, 0, 30),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "your private serves",
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 20,
+		FontFace = Font.new(fonts.FiraSans),
+		AutoButtonColor = false,
+		ClipsDescendants = true,
+	})
+	local ps13 = createInstance("TextButton", {
+		Parent = ps12,
+		Name = "fullclose",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -5, 0, 5),
+		Size = UDim2.fromOffset(20, 20),
+		Text = "",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	createInstance("UIStroke", {
+		Parent = ps13,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = Color3.new(1, 1, 1),
+		LineJoinMode = Enum.LineJoinMode.Miter
+	})
+	local ps14 = createInstance("ImageLabel", {
+		Parent = ps13,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = "rbxassetid://74120900238837",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local ps15 = createInstance("TextButton", {
+		Parent = ps1,
+		Name = "resizebottom",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, -2, 0, 7),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false
+	})
+	local ps16 = createInstance("TextButton", {
+		Parent = ps1,
+		Name = "resizeside",
+		BackgroundTransparency = 1,
+		Position = UDim2.new(1, 0, 0, -30),
+		Size = UDim2.new(0, 7, 1, 28),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false
+	})
+	local ps17 = createInstance("TextButton", {
+		Parent = ps1,
+		Name = "resizeboth",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromScale(1, 1),
+		Size = UDim2.fromOffset(7, 7),
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false
+	})
 	executorGui3_2.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
+	
 	infoList = placeInfoGui4
 	logList = logGui2
 
@@ -4145,6 +4366,7 @@ local function savePlayedGames()
 			if not success then
 				jsonAttempts = jsonAttempts + 1
 				notify(nil, ("An error ocurred while saving played games data, attempt %s..."):format(jsonAttempts))
+				
 				wait(0.5)
 				savePlayedGames()
 			end
@@ -5064,6 +5286,48 @@ local function formatTime(num)
 	local seconds = num % 60
 	return formatstr:format(days, hours, minutes, seconds)
 end
+local function formatDate(sec)
+	sec = math.floor(sec)
+	local units = {
+		"Second",
+		"Minute",
+		"Hour",
+		"Day",
+		"Month",
+		"Year",
+		"Decade"
+	}
+	local pluralSymbol = "s"
+	local minutes = math.floor(sec / 60)
+	local hours = math.floor(minutes / 60)
+	local days = math.floor(hours / 24)
+	local months = math.floor(days / 30)
+	local years = math.floor(months / 12)
+	local decades = math.floor(years / 10)
+	local resultStr = ""
+	for i = 1, #units do
+		local value = 0
+		if i == 1 then
+			value = math.floor(sec % 60)
+		elseif i == 2 then
+			value = math.floor(minutes % 60)
+		elseif i == 3 then
+			value = math.floor(hours % 24)
+		elseif i == 4 then
+			value = math.floor(days % 30)
+		elseif i == 5 then
+			value = math.floor(months % 12)
+		elseif i == 6 then
+			value = math.floor(years % 10)
+		elseif i == 7 then
+			value = math.floor(years % 10)
+		end
+		if value > 0 then
+			resultStr = resultStr .. " " .. value .. " " .. units[i] .. (value > 1 and pluralSymbol or "")
+		end
+	end
+	return resultStr:sub(2)
+end
 local function format(number, useCommas, useShort, demicals)
 	demicals = demicals or 1
 	if type(number) ~= "number" then
@@ -5873,11 +6137,20 @@ function CoreSettings:CreateSeparator(name)
 	newSeparator.Parent = newgui.Parent.settings.list
 end
 local luauPole: TextBox = newgui.Parent.executor.ScrollingFrame.luau
-RunService.RenderStepped:Connect(function()
+local function update()
 	newgui.Parent.executor.ScrollingFrame.CanvasSize = UDim2.fromOffset(luauPole.TextBounds.X, luauPole.TextBounds.Y)
 	modules.other.executor.Update(luauPole.Text, luauPole, luauPole.Parent.Parent.lines.TextLabel)
-	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200K"
+	newgui.Parent.executor.codeLimit.Text = #luauPole.ContentText.."/200,000"
 	luauPole.visual.Text = modules.other.executor.highlightLuau(luauPole.Text)
+end
+luauPole:GetPropertyChangedSignal("Text"):Connect(function()
+	update()
+end)
+luauPole:GetPropertyChangedSignal("CursorPosition"):Connect(function()
+	update()
+end)
+newgui.Parent.executor.run.MouseButton1Click:Connect(function()
+	modules.other.executor.runScript(luauPole.Text)
 end)
 newgui.explorer.MouseButton1Click:Connect(function()
 	if not explorerUsing then
@@ -5954,6 +6227,11 @@ end)
 newgui.Parent.colorpicker.picker.activateregion.MouseButton1Down:Connect(function()
 	pickingColor = true
 end)
+newgui.Parent.privateservers.dragbutton.MouseButton1Down:Connect(function()
+	startMousePos = game.UserInputService:GetMouseLocation()
+	startPSPos = newgui.Parent.privateservers.Position
+	draggingPS = true
+end)
 game.UserInputService.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton2 then
 		newgui.Parent.closeregion.Interactable = false
@@ -6018,11 +6296,11 @@ newgui.placeinfo.MouseButton1Click:Connect(function()
 		{name = "Medium", limit = 6000},
 		{name = "Dangerous", limit = 9000},
 		{name = "Critical", limit = 10000},
-		{name = "...", limit = 12000}
+		{name = "Enormous", limit = 12000}
 	}
 
 	local safeLimit = 4000
-	local warnLimit = 6000
+	local warnLimit = 9000
 	local currentStatus = "Safe"
 	local preparingShutdown = false
 
@@ -6169,7 +6447,8 @@ local function registerCommand(name, callback)
 		PaddingRight = UDim.new(0, 5)
 	})
 	template.MouseButton1Click:Connect(function()
-
+		newgui.commandbar.input.Text = name
+		newgui.commandbar:CaptureFocus()
 	end)
 	commands[name] = callback
 end
@@ -6396,7 +6675,7 @@ if game.PlaceId == 537413528 then
 		cleanupBodyP()
 		cleanupVisuals()
 	end
-	CoreSettings:CreateSeparator("Addons")
+	CoreSettings:CreateSeparator(game.MarketplaceService:GetProductInfo(game.PlaceId).Name)
 	CoreSettings:CreateSetting("Auto farm", false, "Switch")
 	CoreSettings:CreateSetting("Auto Trick Or Treat", false, "Switch")
 	local uiSwitch2 = newgui.Parent.settings.list["Auto Trick Or Treat"]
@@ -6913,6 +7192,197 @@ if game.PlaceId == 537413528 then
 		end		
 	end)
 end
+function setPSMenu()
+	local psmenu = newgui.Parent.privateservers
+	local url = "https://games.roblox.com/v1/private-servers/my-private-servers"
+	local data = HttpService:JSONDecode(game:HttpGet(url))
+	local writendata = {}
+
+	psmenu.resizebottom.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			resizingPS = "Y"
+			startMousePos = getMousePos()
+			startPSSize = psmenu.Size
+		end
+	end)
+
+	psmenu.resizeside.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			resizingPS = "X"
+			startMousePos = getMousePos()
+			startPSSize = psmenu.Size
+		end
+	end)
+
+	psmenu.resizeboth.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			resizingPS = "XY"
+			startMousePos = getMousePos()
+			startPSSize = psmenu.Size
+		end
+	end)
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if resizingPS then
+			local mouse = getMousePos()
+
+			if resizingPS == "Y" then
+				local deltaY = mouse.Y - startMousePos.Y
+				local newHeight = math.clamp(startPSSize.Y.Offset + deltaY, 180, 2000)
+				psmenu.Size = UDim2.new(startPSSize.X.Scale, startPSSize.X.Offset, 0, newHeight)
+			elseif resizingPS == "X" then
+				local deltaX = mouse.X - startMousePos.X
+				local newWidth = math.clamp(startPSSize.X.Offset + deltaX, 0, 2000)
+				psmenu.Size = UDim2.new(0, newWidth, startPSSize.Y.Scale, startPSSize.Y.Offset)
+			elseif resizingPS == "XY" then
+				local deltaX = mouse.X - startMousePos.X
+				local deltaY = mouse.Y - startMousePos.Y
+				local newWidth = math.clamp(startPSSize.X.Offset + deltaX, 180, 2000)
+				local newHeight = math.clamp(startPSSize.Y.Offset + deltaY, 0, 2000)
+				psmenu.Size = UDim2.new(0, newWidth, 0, newHeight)
+			end
+		end
+		if draggingPS then
+			local newX = getMousePos().X - startMousePos.X
+			local newY = getMousePos().Y - startMousePos.Y
+			local minX = 0
+			local maxX = newgui.Parent.AbsoluteSize.X - psmenu.AbsoluteSize.X
+			local minY = game.GuiService.TopbarInset.Height + psmenu.dragbutton.AbsoluteSize.Y
+			local maxY = newgui.Parent.AbsoluteSize.Y - psmenu.AbsoluteSize.Y
+			newX = math.clamp(startPSPos.X.Offset + newX, minX, maxX)
+			newY = math.clamp(startPSPos.Y.Offset + newY, minY, maxY) 
+
+			psmenu.Position = UDim2.new(0, newX, 0, newY)
+		end
+	end)
+	psmenu.resizebottom.MouseEnter:Connect(function()
+		TweenService:Create(psmenu.resizebottom, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	psmenu.resizebottom.MouseLeave:Connect(function()
+		TweenService:Create(psmenu.resizebottom, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	psmenu.resizeside.MouseEnter:Connect(function()
+		TweenService:Create(psmenu.resizeside, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	psmenu.resizeside.MouseLeave:Connect(function()
+		TweenService:Create(psmenu.resizeside, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	psmenu.resizeboth.MouseEnter:Connect(function()
+		TweenService:Create(psmenu.resizeboth, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	psmenu.resizeboth.MouseLeave:Connect(function()
+		TweenService:Create(psmenu.resizeboth, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	psmenu.dragbutton.fullclose.MouseButton1Click:Connect(function()
+		if psmenu.dragbutton.fullclose.ImageLabel.ImageColor == Color3.new(1, 1, 1) then
+			psmenu.Visible = false
+		else
+			psmenu.list.Visible = true
+			psmenu.detailedinfo.Visible = false
+			psmenu.dragbutton.fullclose.ImageLabel.ImageColor = Color3.new(1, 1, 1)
+		end
+	end)
+	for _, v:{active:boolean,universeId:number,placeId:number,name:string,ownerId:number,ownerName:string,priceInRobux:number?,privateServerId:number,expirationDate:DateTime,willRenew:boolean,universeName:string} in data do
+		local newTemplate = function()
+			local NT1 = createInstance("Frame", {
+				Parent = psmenu.list,
+				Name = "privateserver_"..v.privateServerId,
+				BackgroundColor3 = Color3.fromRGB(84, 83, 85),
+				Size = UDim2.fromOffset(100, 100),
+				BorderSizePixel = 0
+			})
+			local NT2 = createInstance("ImageLabel", {
+				Parent = NT1,
+				Name = "gameicon",
+				AnchorPoint = Vector2.new(0.5, 0),
+				BackgroundColor3 = Color3.fromRGB(53, 53, 54),
+				Position = UDim2.fromScale(0.5, 0),
+				Size = UDim2.fromScale(1, 0.5),
+				Image = "rbxassetid://"..game.MarketplaceService:GetProductInfo(v.placeId).IconImageAssetId,
+				ScaleType = Enum.ScaleType.Fit
+			})
+			local NT3 = createInstance("TextLabel", {
+				Parent = NT1,
+				Name = "gamename",
+				BackgroundTransparency = 1,
+				Position = UDim2.fromScale(0, 0.667),
+				Size = UDim2.fromScale(1, 0.167),
+				Text = v.universeName,
+				TextColor3 = Color3.new(1, 1, 1),
+				TextSize = 12,
+				TextTruncate = Enum.TextTruncate.AtEnd
+			})
+			createInstance("UIStroke", {
+				Parent = NT3,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+				Color = Color3.new(1, 1, 1)
+			})
+			local NT4 = createInstance("TextLabel", {
+				Parent = NT1,
+				Name = "psid",
+				BackgroundTransparency = 1,
+				Position = UDim2.fromScale(0, 0.667),
+				Size = UDim2.fromScale(1, 0.167),
+				Text = v.privateServerId,
+				TextColor3 = Color3.new(1, 1, 1),
+				TextSize = 12,
+				TextTruncate = Enum.TextTruncate.AtEnd
+			})
+			createInstance("UIStroke", {
+				Parent = NT4,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+				Color = Color3.new(1, 1, 1)
+			})
+			local NT5 = createInstance("TextLabel", {
+				Parent = NT1,
+				Name = "psname",
+				BackgroundTransparency = 1,
+				Position = UDim2.fromScale(0, 0.667),
+				Size = UDim2.fromScale(1, 0.167),
+				Text = v.name,
+				TextColor3 = Color3.new(1, 1, 1),
+				TextSize = 12,
+				TextTruncate = Enum.TextTruncate.AtEnd
+			})
+			createInstance("UIStroke", {
+				Parent = NT5,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+				Color = Color3.new(1, 1, 1)
+			})
+			return NT1
+		end
+		local template = newTemplate()
+		template:GetPropertyChangedSignal("GuiState"):Connect(function()
+			if template.GuiState == Enum.GuiState.Press then
+				psmenu.list.Visible = false
+				psmenu.detailedinfo.Visible = true
+				psmenu.dragbutton.fullclose.ImageLabel.ImageColor3 = Color3.new(1, 0, 0)
+				psmenu.detailedinfo.icon.Image = "rbxassetid://"..game.MarketplaceService:GetProductInfo(v.placeId).IconImageAssetId
+				psmenu.detailedinfo.gamename.Text = "game name: "..v.universeName
+				psmenu.detailedinfo.owner.Text = "owner: "..game.Players:GetPlayerByUserId(v.ownerId).DisplayName.." (@"..v.ownerName..")"
+				psmenu.detailedinfo.privateserver.name.Text = "P.S. name: "..v.name
+				if v.priceInRobux ~= nil then
+					psmenu.detailedinfo.price.Text = "cost: "..v.priceInRobux..""
+					psmenu.detailedinfo.expdate.Text = "expire in: "..formatDate(DateTime.fromIsoDate(v.expirationDate).UnixTimestamp-tick())
+				end
+			end
+		end)
+	end
+end
 local conn = nil
 local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
@@ -7004,13 +7474,16 @@ local function updatePlayerList()
 	newgui.label.Text = "select player | total players: "..#game.Players:GetPlayers().."/"..game.Players.MaxPlayers
 end
 updatePlayerList()
+
 game.Players.ChildAdded:Connect(function(plr)
 	updatePlayerList()
+	
 	notify(nil, "Player "..plr.Name.." Joined.", 4)
 	AddLog("Player "..plr.Name.." Joined.", "Server", "info")
 end)
 game.Players.ChildRemoved:Connect(function(plr)
 	updatePlayerList()
+	
 	notify(nil, "Player "..plr.Name.." Left.", 4)
 	AddLog("Player "..plr.Name.." Left.", "Server", "info")
 	if plr.Name == selectedplr then
@@ -7523,12 +7996,14 @@ registerCommand("fly", function(args)
 	if not Enabled then
 		Enabled = true
 		modules.other.fly.UpdateFlying(Enabled, speed)
+		
 	end
 end)
 registerCommand("unfly", function()
 	if Enabled then
 		Enabled = false
 		modules.other.fly.UpdateFlying(Enabled)
+		
 	end
 end)
 registerCommand("flyspeed", function(args)
