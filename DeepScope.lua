@@ -4033,7 +4033,7 @@ local function createGui()
 	local ps2 = createInstance("ScrollingFrame", {
 		Parent = ps1,
 		Name = "list",
-		BackgorundTransparency = 1,
+		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(0, 0, 0, 0),
@@ -8445,3 +8445,4 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
