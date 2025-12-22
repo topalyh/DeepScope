@@ -1766,7 +1766,7 @@ local modules = {
 							"gmatch",
 							"resetmemorycategory",
 							"DateTime",
-
+							"utf8"
 							"tick",
 							"clock",
 							"format",
@@ -1825,7 +1825,6 @@ local modules = {
 							"xpcall",
 							"FromNormalId",
 							"date",
-
 							"fromOffset",
 							"yAxis",
 							"fromRGB",
@@ -6251,6 +6250,8 @@ game.UserInputService.InputEnded:Connect(function(input)
 		resizingColorPicker = false
 		resizingExecutor = false
 		draggingExecutor = false
+		draggingPS = false
+		resizingPS = false
 		usingSlider = {
 			enabled = false,
 			slider = nil
@@ -7588,6 +7589,12 @@ newgui.utils.utils.executor.MouseButton1Click:Connect(function()
 		setExecutor()
 	end
 end)
+newgui.utils.utils.privateservers.MouseButton1Click:Connect(function()
+	if not newgui.Parent.privateservers.Visible then
+		newgui.Parent.privateservers.Visible = true
+		setPS()
+	end
+end)
 local textBox: TextBox = newgui.Parent.commandbar.input
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
@@ -8450,5 +8457,6 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
 
