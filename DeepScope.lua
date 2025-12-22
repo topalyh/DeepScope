@@ -7299,81 +7299,77 @@ function setPSMenu()
 			psmenu.dragbutton.fullclose.ImageLabel.ImageColor = Color3.new(1, 1, 1)
 		end
 	end)
-	for _, v:{active:boolean,universeId:number,placeId:number,name:string,ownerId:number,ownerName:string,priceInRobux:number?,privateServerId:number,expirationDate:DateTime,willRenew:boolean,universeName:string} in data do
-		local newTemplate = function()
-			local NT1 = createInstance("Frame", {
-				Parent = psmenu.list,
-				Name = "privateserver_"..v.privateServerId,
-				BackgroundColor3 = Color3.fromRGB(84, 83, 85),
-				Size = UDim2.fromOffset(100, 100),
-				BorderSizePixel = 0
-			})
-			local NT2 = createInstance("ImageLabel", {
-				Parent = NT1,
-				Name = "gameicon",
-				AnchorPoint = Vector2.new(0.5, 0),
-				BackgroundColor3 = Color3.fromRGB(53, 53, 54),
-				Position = UDim2.fromScale(0.5, 0),
-				Size = UDim2.fromScale(1, 0.5),
-				Image = "rbxassetid://"..game.MarketplaceService:GetProductInfo(v.placeId).IconImageAssetId,
-				ScaleType = Enum.ScaleType.Fit
-			})
-			local NT3 = createInstance("TextLabel", {
-				Parent = NT1,
-				Name = "gamename",
-				BackgroundTransparency = 1,
-				Position = UDim2.fromScale(0, 0.667),
-				Size = UDim2.fromScale(1, 0.167),
-				Text = v.universeName,
-				TextColor3 = Color3.new(1, 1, 1),
-				TextSize = 12,
-				TextTruncate = Enum.TextTruncate.AtEnd
-			})
-			createInstance("UIStroke", {
-				Parent = NT3,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-				Color = Color3.new(1, 1, 1)
-			})
-			local NT4 = createInstance("TextLabel", {
-				Parent = NT1,
-				Name = "psid",
-				BackgroundTransparency = 1,
-				Position = UDim2.fromScale(0, 0.667),
-				Size = UDim2.fromScale(1, 0.167),
-				Text = v.privateServerId,
-				TextColor3 = Color3.new(1, 1, 1),
-				TextSize = 12,
-				TextTruncate = Enum.TextTruncate.AtEnd
-			})
-			createInstance("UIStroke", {
-				Parent = NT4,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-				Color = Color3.new(1, 1, 1)
-			})
-			local NT5 = createInstance("TextLabel", {
-				Parent = NT1,
-				Name = "psname",
-				BackgroundTransparency = 1,
-				Position = UDim2.fromScale(0, 0.667),
-				Size = UDim2.fromScale(1, 0.167),
-				Text = v.name,
-				TextColor3 = Color3.new(1, 1, 1),
-				TextSize = 12,
-				TextTruncate = Enum.TextTruncate.AtEnd
-			})
-			createInstance("UIStroke", {
-				Parent = NT5,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-				Color = Color3.new(1, 1, 1)
-			})
-			return NT1
-		end
-		local template = newTemplate()
-		template:GetPropertyChangedSignal("GuiState"):Connect(function()
-			if template.GuiState == Enum.GuiState.Press then
+	for _, v in data.data do
+		local NT1 = createInstance("Frame", {
+			Parent = psmenu.list,
+			Name = "privateserver_"..v.privateServerId,
+			BackgroundColor3 = Color3.fromRGB(84, 83, 85),
+			Size = UDim2.fromOffset(100, 100),
+			BorderSizePixel = 0
+		})
+		local NT2 = createInstance("ImageLabel", {
+			Parent = NT1,
+			Name = "gameicon",
+			AnchorPoint = Vector2.new(0.5, 0),
+			BackgroundColor3 = Color3.fromRGB(53, 53, 54),
+			Position = UDim2.fromScale(0.5, 0),
+			Size = UDim2.fromScale(1, 0.5),
+			Image = "rbxassetid://"..game.MarketplaceService:GetProductInfo(v.placeId).IconImageAssetId,
+			ScaleType = Enum.ScaleType.Fit
+		})
+		local NT3 = createInstance("TextLabel", {
+			Parent = NT1,
+			Name = "gamename",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(0, 0.667),
+			Size = UDim2.fromScale(1, 0.167),
+			Text = v.universeName,
+			TextColor3 = Color3.new(1, 1, 1),
+			TextSize = 12,
+			TextTruncate = Enum.TextTruncate.AtEnd
+		})
+		createInstance("UIStroke", {
+			Parent = NT3,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+			Color = Color3.new(1, 1, 1)
+		})
+		local NT4 = createInstance("TextLabel", {
+			Parent = NT1,
+			Name = "psid",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(0, 0.667),
+			Size = UDim2.fromScale(1, 0.167),
+			Text = v.privateServerId,
+			TextColor3 = Color3.new(1, 1, 1),
+			TextSize = 12,
+			TextTruncate = Enum.TextTruncate.AtEnd
+		})
+		createInstance("UIStroke", {
+			Parent = NT4,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+			Color = Color3.new(1, 1, 1)
+		})
+		local NT5 = createInstance("TextLabel", {
+			Parent = NT1,
+			Name = "psname",
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(0, 0.667),
+			Size = UDim2.fromScale(1, 0.167),
+			Text = v.name,
+			TextColor3 = Color3.new(1, 1, 1),
+			TextSize = 12,
+			TextTruncate = Enum.TextTruncate.AtEnd
+		})
+		createInstance("UIStroke", {
+			Parent = NT5,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			BorderStrokePosition = Enum.BorderStrokePosition.Inner,
+			Color = Color3.new(1, 1, 1)
+		})
+		NT1:GetPropertyChangedSignal("GuiState"):Connect(function()
+			if NT1.GuiState == Enum.GuiState.Press then
 				psmenu.list.Visible = false
 				psmenu.detailedinfo.Visible = true
 				psmenu.dragbutton.fullclose.ImageLabel.ImageColor3 = Color3.new(1, 0, 0)
@@ -7592,7 +7588,7 @@ end)
 newgui.utils.utils.privateservers.MouseButton1Click:Connect(function()
 	if not newgui.Parent.privateservers.Visible then
 		newgui.Parent.privateservers.Visible = true
-		setPS()
+		setPSMenu()
 	end
 end)
 local textBox: TextBox = newgui.Parent.commandbar.input
