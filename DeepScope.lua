@@ -1766,7 +1766,7 @@ local modules = {
 							"gmatch",
 							"resetmemorycategory",
 							"DateTime",
-							"utf8"
+							"utf8",
 							"tick",
 							"clock",
 							"format",
@@ -8457,6 +8457,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
-
 
 
