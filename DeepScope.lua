@@ -5,7 +5,12 @@ pcall(function() getgenv().DS_LOADED = true end)
 local function createInstance(name, tbl)
 	local any = Instance.new(name)
 	for i, v in tbl do
-		any[i] = v
+		local success, err = pcall(function()
+			any[i] = v
+		end)
+		if not success and err then
+			warn("An error occurred while setting property "..i.." of "..any:GetFullName().." ("..tostring(any).."): "..err)
+		end
 	end
 	return any
 end
@@ -1029,7 +1034,7 @@ local function AddLog(text, sourse, type)
 		PaddingLeft = UDim.new(0, 5)
 	})
 	local timeNow = os.date("%H:%M:%S")
-	
+
 	local ok, textResult = pcall(function()
 		return logConfig.stringFormat:format(timeNow, ("<font color=\"rgb(%d,%d,%d)\">%s</font>"):format(logConfig.colors[type][1], logConfig.colors[type][2], logConfig.colors[type][3], text), sourse or "DeepScope")
 	end)
@@ -1357,7 +1362,7 @@ local modules = {
 			DefaultKey = Enum.KeyCode.G,
 
 			UpdateFlying = function(enabled, flyspeed)
-				
+
 				if enabled then
 					_createForces(humanoidRootPart)
 					humanoid.PlatformStand = true
@@ -1371,7 +1376,7 @@ local modules = {
 			end,
 
 			UpdateMoveDirection = function()
-				
+
 				local direction = Vector3.new()
 				if UserInputService:IsKeyDown(Enum.KeyCode.W) then
 					direction += Vector3.new(0, 0, -1)
@@ -1514,7 +1519,7 @@ local modules = {
 				newTemplate.TextLabel.Text = text
 			end,
 			UpdateText = function(name, newText)
-				
+
 				local template = infoList:FindFirstChild(name)
 				if template then
 					template.copyableinfo.Text = newText
@@ -1741,7 +1746,7 @@ local modules = {
 							"Angles",
 							"create",
 							"fromIsoDate",
-							
+
 							"charpattern",
 							"math",
 							"fmod",
@@ -1761,7 +1766,7 @@ local modules = {
 							"gmatch",
 							"resetmemorycategory",
 							"DateTime",
-							
+
 							"tick",
 							"clock",
 							"format",
@@ -1820,7 +1825,7 @@ local modules = {
 							"xpcall",
 							"FromNormalId",
 							"date",
-							
+
 							"fromOffset",
 							"yAxis",
 							"fromRGB",
@@ -2008,7 +2013,7 @@ local modules = {
 				writefile(fileName, source)
 			end,
 			Update = function(code, label, linesGui)
-				
+
 				local lines = getLineAmount(code)
 				local padding = 15
 				local size = linesGui.TextBounds.X + padding
@@ -2055,10 +2060,10 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if input.KeyCode == modules.other.fly.DefaultKey then
 		Enabled = not Enabled
 		modules.other.fly.UpdateFlying(Enabled)
-		
+
 	end
 	modules.other.fly.UpdateMoveDirection(processed)
-	
+
 end)
 function coreModules.Lib:FetchRMD()
 	local parsed = HttpService:JSONDecode(readfile("DeepScopeCore/Explorer/RMD.dat"))
@@ -2284,7 +2289,7 @@ end
 UserInputService.InputEnded:Connect(function(processed)
 	if not isDied then
 		modules.other.fly.UpdateMoveDirection(processed)
-		
+
 	end
 end)
 RunService.RenderStepped:Connect(function(dt)
@@ -2418,11 +2423,11 @@ local function createGui()
 	local gui14 = createInstance("TextButton", {
 		Parent = gui2,
 		Name = "unitformat",
-		
+
 		Size = UDim2.new(0.138, 0, 0.252, 0),
 		Position = UDim2.new(0.003, 0, 1.326, 0),
 		Text = "format: M",
-		
+
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
@@ -4135,7 +4140,7 @@ local function createGui()
 	local ps11 = createInstance("TextLabel", {
 		Parent = ps4,
 		Name = "expdate",
-		
+
 		BackgroundTransparency = 1,
 		LayoutOrder = 5,
 		Size = UDim2.fromScale(1, 0.1),
@@ -4226,7 +4231,7 @@ local function createGui()
 	})
 	executorGui3_2.Text = modules.other.executor.highlightLuau(executorGui3_2.ContentText)
 	modules.other.executor.Update(executorGui3.Text, executorGui3, executorGui5)
-	
+
 	infoList = placeInfoGui4
 	logList = logGui2
 
@@ -4366,7 +4371,7 @@ local function savePlayedGames()
 			if not success then
 				jsonAttempts = jsonAttempts + 1
 				notify(nil, ("An error ocurred while saving played games data, attempt %s..."):format(jsonAttempts))
-				
+
 				wait(0.5)
 				savePlayedGames()
 			end
@@ -7477,13 +7482,13 @@ updatePlayerList()
 
 game.Players.ChildAdded:Connect(function(plr)
 	updatePlayerList()
-	
+
 	notify(nil, "Player "..plr.Name.." Joined.", 4)
 	AddLog("Player "..plr.Name.." Joined.", "Server", "info")
 end)
 game.Players.ChildRemoved:Connect(function(plr)
 	updatePlayerList()
-	
+
 	notify(nil, "Player "..plr.Name.." Left.", 4)
 	AddLog("Player "..plr.Name.." Left.", "Server", "info")
 	if plr.Name == selectedplr then
@@ -7996,14 +8001,14 @@ registerCommand("fly", function(args)
 	if not Enabled then
 		Enabled = true
 		modules.other.fly.UpdateFlying(Enabled, speed)
-		
+
 	end
 end)
 registerCommand("unfly", function()
 	if Enabled then
 		Enabled = false
 		modules.other.fly.UpdateFlying(Enabled)
-		
+
 	end
 end)
 registerCommand("flyspeed", function(args)
@@ -8445,4 +8450,5 @@ while true do
 		newgui.spawndistance.Text = "distance from spawn: unknown | unknown"
 	end
 end
+
 
