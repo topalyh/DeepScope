@@ -943,22 +943,22 @@ local explorerOpened = true
 local draggingExplorer = false
 local draggingExecutor = false
 local draggingColorPicker = false
-local draggingPS = false
+local draggingSC = false
 local resizingExplorer = false
 local resizingLogMenu = false
 local resizingColorPicker = false
 local resizingExecutor = false
-local resizingPS = false
+local resizingSC = false
 local startExplorerSize = UDim2.fromOffset(0, 0)
 local startExplorerPos = UDim2.fromOffset(0, 0)
 local startExecutorPos = UDim2.fromOffset(0, 0)
 local startExecutorSize = UDim2.fromOffset(0, 0)
 local startPickerSize = UDim2.fromOffset(0, 0)
 local startLogSize = UDim2.fromOffset(0, 0)
-local startPSSize = UDim2.fromOffset(0, 0)
+local startSCSize = UDim2.fromOffset(0, 0)
 local startMousePos = UDim2.fromOffset(0, 0)
 local startLogsPos = UDim2.fromOffset(0, 0)
-local startPSPos = UDim2.fromOffset(0, 0)
+local startSCPos = UDim2.fromOffset(0, 0)
 local dragConn = nil
 local explorerUsing = false
 local countdowns = {}
@@ -1057,16 +1057,12 @@ local function initFileSystem()
 		local success, err = pcall(function()
 			local folders = {
 				"DeepScopeCore",
-				"DeepScopeCore/Explorer",
-				"DeepScopeCore/Properties",
-				"DeepScopeCore/Executor",
+				"DeepScopeCore/Explorer"
 			}
 			local files = {
 				"DeepScopeCore/Saves.json",
 				"DeepScopeCore/Waypoints.json",
 				"DeepScopeCore/Logs.txt",
-				"DeepScopeCore/Properties/Instances.dsf",
-				"DeepScopeCore/Executor/SavedScripts.dsf",
 				"DeepScopeCore/Explorer/RMD.dat",
 				"DeepScopeCore/Explorer/API.dat",
 				"DeepScopeCore/Explorer/StudioIcons.png",
@@ -1210,69 +1206,6 @@ end
 local function eraseFormatTags(str)
 	return str:gsub("<.->", "")
 end
-local function saveData(dataToSave)
-	local data = dataToSave or {}
-	data.UIColor =  {currentUIColor.R, currentUIColor.G, currentUIColor.B}
-	data.BuildMode = {
-		Saves = {}
-	}
-	data.Executor = {
-		SavedCodes = {}
-	}
-	data.ExecutorConfig = {
-		Colors = {
-			Text = toJSONRGB(executorConfig.textColor),
-			Background = toJSONRGB(executorConfig.backgroundColor),
-			Operator = toJSONRGB(executorConfig.operatorColor),
-			String = toJSONRGB(executorConfig.stringColor),
-			Number = toJSONRGB(executorConfig.numberColor),
-			Function = toJSONRGB(executorConfig.funcColor),
-			Keywords = toJSONRGB(executorConfig.keywordColor),
-			Bools = toJSONRGB(executorConfig.boolsColor),
-			Comment = toJSONRGB(executorConfig.commentColor),
-			BuildIn = toJSONRGB(executorConfig.libColor)
-		},
-		TextSize = executorConfig.TextSize,
-		Font = toJSONFont(executorConfig.font)
-	}
-	local encoded = HttpService:JSONEncode(data)
-	local filePath = "DeepScopeCore/Saves.json"
-	writefile(filePath, encoded)
-end
-local function readData()
-	local data = {}
-	local result = {
-		UIColor = {},
-		BuildMode = {
-			Saves = {}
-		},
-		Executor = {
-			SavedCodes = {}
-		},
-		ExecutorConfig = {
-			Colors = {},
-			TextSize = 15,
-			Font = ""
-		}
-	}
-	local success, err = pcall(function()
-		data = HttpService:JSONDecode(readfile("DeepScopeCore/Saves.json"))
-	end)
-	if not success then
-		data = {}
-	end
-	for i, v in data.ExecutorConfig.Colors do
-		local value = fromJSONRGB(v)
-		if value then
-			result.ExecutorConfig.Colors[i] = value
-		end
-	end
-	for _, v in data.UIColor do
-		table.insert(result.UIColor, v)
-	end
-
-	return result
-end
 local modules = {
 	circle = {
 		GetColor = function(mousePos)
@@ -1307,17 +1240,9 @@ local modules = {
 			x = math.clamp(x,0.5 - (y / 2),0.5 + (y / 2))
 
 			local tri1,tri2,tri3 = trianglePoints[1],trianglePoints[2],trianglePoints[3]
-
-			local l1 = ((tri2.Y - tri3.Y) * (x - tri3.X) + (tri3.X - tri2.X) * (y - tri3.Y))
-				/ ((tri2.Y - tri3.Y) * (tri1.X - tri3.X) + (tri3.X - tri2.X) * (tri1.Y - tri3.Y))
-
-			local l2 = ((tri3.Y - tri1.Y) * (x - tri3.X) + (tri1.X - tri3.X) * (y - tri3.Y))
-				/ ((tri2.Y - tri3.Y) * (tri1.X - tri3.X) + (tri3.X - tri2.X) * (tri1.Y - tri3.Y))
-
-			local l3 = 1 - l1 - l2
-
-			l1,l2,l3 = math.clamp(l1,0,1),math.clamp(l2,0,1),math.clamp(l3,0,1)
-
+			local l1 = math.clamp(((tri2.Y - tri3.Y) * (x - tri3.X) + (tri3.X - tri2.X) * (y - tri3.Y)) / ((tri2.Y - tri3.Y) * (tri1.X - tri3.X) + (tri3.X - tri2.X) * (tri1.Y - tri3.Y)), 0, 1)
+			local l2 = math.clamp(((tri3.Y - tri1.Y) * (x - tri3.X) + (tri1.X - tri3.X) * (y - tri3.Y)) / ((tri2.Y - tri3.Y) * (tri1.X - tri3.X) + (tri3.X - tri2.X) * (tri1.Y - tri3.Y)), 0, 1)
+			local l3 = math.clamp(1 - l1 - l2, 0, 1)
 			local hue = Color3.fromHSV(colors.h,1,1)
 			local color = Color3.new(
 				l1 * hue.R + l2 * 0 + l3 * 1,
@@ -1746,7 +1671,6 @@ local modules = {
 							"Angles",
 							"create",
 							"fromIsoDate",
-
 							"charpattern",
 							"math",
 							"fmod",
@@ -2012,7 +1936,6 @@ local modules = {
 				writefile(fileName, source)
 			end,
 			Update = function(code, label, linesGui)
-
 				local lines = getLineAmount(code)
 				local padding = 15
 				local size = linesGui.TextBounds.X + padding
@@ -2051,7 +1974,6 @@ local modules = {
 coreModules.Lib = {}
 coreModules.Lib.Settings = {}
 coreModules.Lib.AdvancedFormat = game:HttpGet("https://raw.githubusercontent.com/topalyh/AdvancedFormat-Module/refs/heads/main/Sourse%20code.lua")
-
 coreModules.Lib.Window = {}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
@@ -2062,7 +1984,6 @@ UserInputService.InputBegan:Connect(function(input, processed)
 
 	end
 	modules.other.fly.UpdateMoveDirection(processed)
-
 end)
 function coreModules.Lib:FetchRMD()
 	local parsed = HttpService:JSONDecode(readfile("DeepScopeCore/Explorer/RMD.dat"))
@@ -2422,11 +2343,9 @@ local function createGui()
 	local gui14 = createInstance("TextButton", {
 		Parent = gui2,
 		Name = "unitformat",
-
 		Size = UDim2.new(0.138, 0, 0.252, 0),
 		Position = UDim2.new(0.003, 0, 1.326, 0),
 		Text = "format: M",
-
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 		TextScaled = true
@@ -3698,28 +3617,26 @@ local function createGui()
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	utilsGui2:SetAttribute("Size", UDim2.fromOffset(70, 150))
+	utilsGui2:SetAttribute("Size", UDim2.fromOffset(140, 150))
 	createInstance("UIListLayout", {
 		Parent = utilsGui2,
 		Padding = UDim.new(0, 5),
 		Wraps = true,
-		HorizontalAlignment = Enum.HorizontalAlignment.Right,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
-		VerticalFlex = Enum.UIFlexAlignment.Fill
 	})
 	createInstance("UIPadding", {
 		Parent = utilsGui2,
 		PaddingBottom = UDim.new(0, 4),
-		PaddingRight = UDim.new(0, 5),
 		PaddingTop = UDim.new(0, 5)
 	})
 	local utilsGui3 = createInstance("TextButton", {
 		Parent = utilsGui2,
-		Name = "privateservers",
+		Name = "studcalc",
 		BackgroundColor3 = Color3.new(),
 		Size = UDim2.fromOffset(60, 0),
 		FontFace = Font.new(fonts.FiraSans),
-		Text = "your P.S.",
+		Text = "stud calculator",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 14,
 		BorderColor3 = Color3.new(0, 0, 0),
@@ -4025,153 +3942,102 @@ local function createGui()
 		Size = UDim2.fromScale(1, 1),
 		Image = "rbxassetid://74120900238837",
 	})
-	local ps1 = createInstance("Frame", {
+	local sc1 = createInstance("Frame", {
 		Parent = gui1,
-		Name = "privateservers",
+		Name = "studcalc",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		Position = UDim2.fromOffset(0, 88),
-		Size = UDim2.fromOffset(300, 300),
+		Size = UDim2.fromOffset(400, 200),
 		Visible = false,
 		BorderSizePixel = 0
 	})
-	local ps2 = createInstance("ScrollingFrame", {
-		Parent = ps1,
-		Name = "list",
+	local sc2 = createInstance("Frame", {
+		Parent = sc1,
+		Name = "units",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		CanvasSize = UDim2.new(0, 0, 0, 0),
-		ScrollBarThickness = 0
+		Position = UDim2.new(1, -100, 0, 0),
+		Size = UDim2.new(0, 100, 1, 0),
 	})
-	local ps3 = createInstance("UIListLayout", {Parent = ps2})
-	local ps4 = createInstance("Frame", {
-		Parent = ps1,
-		Name = "detailedinfo",
-		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
-		Size = UDim2.fromScale(1, 1),
-		Visible = false
+	createInstance("UIListLayout", {
+		Parent = sc2,
+		Padding = UDim.new(0, 5),
+		HorizontalAlignment = Enum.HorizontalAlignment.Center
 	})
-	local ps5 = createInstance("UIListLayout",{Parent = ps4})
-	local ps6 = createInstance("ImageLabel", {
-		Parent = ps4,
-		Name = "icon",
-		BackgroundColor3 = Color3.fromRGB(53, 53, 54),
-		Size = UDim2.fromScale(1, 0.3),
-		ScaleType = Enum.ScaleType.Fit,
-		BorderSizePixel = 0
-	})
-	local ps7 = createInstance("TextLabel", {
-		Parent = ps4,
-		Name = "privateservername",
+	local unitstbl = {
+		["meter"] = "meter",
+		["inch"] = "inch",
+		["foot"] = "foot"
+	}
+	for _, v in unitstbl do
+		createInstance("TextButton", {
+			Parent = sc2,
+			Name = v,
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			Size = UDim2.fromOffset(80, 20),
+			FontFace = Font.new(fonts.FiraSans),
+			Text = v,
+			TextColor3 = Color3.new(0, 0, 0),
+			TextSize = 14,
+			BorderSizePixel = 0
+		})
+	end
+	local sc3 = createInstance("Frame", {
+		Parent = sc1,
+		Name = "mainframe",
 		BackgroundTransparency = 1,
-		LayoutOrder = 1,
-		Size = UDim2.fromScale(1, 0.1),
+		Size = UDim2.new(1, -100, 1, 0),
+	})
+	local sc4 = createInstance("TextBox", {
+		Parent = sc3,
+		Name = "pole",
+		BackgroundTransparency = 1,
+		ClearTextOnFocus = false,
+		Size = UDim2.new(1, 0, 0.5, -5),
 		FontFace = Font.new(fonts.FiraSans),
-		Text = "P.S. name: null",
+		PlaceholderText = "foot/meter/inch",
+		Text = "1",
 		TextColor3 = Color3.new(1, 1, 1),
-		TextSize = 17,
-		TextTruncate = Enum.TextTruncate.AtEnd
+		TextSize = 20,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top
 	})
-	createInstance("UIStroke", {
-		Parent = ps7,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-		Color = Color3.new(1, 1, 1),
-		Thickness = 2
-	})
-	local ps8 = createInstance("TextLabel", {
-		Parent = ps4,
-		Name = "gamename",
+	createInstance("UIPadding", {Parent = sc4, PaddingBottom = UDim.new(0, 10), PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 10)})
+	createInstance("UIStroke", {Parent = sc4, BorderStrokePosition = Enum.BorderStrokePosition.Inner, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Thickness = 2})
+	local sc5 = createInstance("TextBox", {
+		Parent = sc3,
+		Name = "result",
 		BackgroundTransparency = 1,
-		LayoutOrder = 2,
-		Size = UDim2.fromScale(1, 0.1),
+		ClearTextOnFocus = false,
+		Size = UDim2.new(1, 0, 0.5, -5),
+		TextEditable = false,
 		FontFace = Font.new(fonts.FiraSans),
-		Text = "game name: null",
+		Text = "0.28",
 		TextColor3 = Color3.new(1, 1, 1),
-		TextSize = 17,
-		TextTruncate = Enum.TextTruncate.AtEnd
+		TextSize = 20,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top
 	})
-	createInstance("UIStroke", {
-		Parent = ps8,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-		Color = Color3.new(1, 1, 1),
-		Thickness = 2
-	})
-	local ps9 = createInstance("TextLabel", {
-		Parent = ps4,
-		Name = "owner",
-		BackgroundTransparency = 1,
-		LayoutOrder = 3,
-		Size = UDim2.fromScale(1, 0.1),
-		FontFace = Font.new(fonts.FiraSans),
-		Text = "owner: null",
-		TextColor3 = Color3.new(1, 1, 1),
-		TextSize = 17,
-		TextTruncate = Enum.TextTruncate.AtEnd
-	})
-	createInstance("UIStroke", {
-		Parent = ps9,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-		Color = Color3.new(1, 1, 1),
-		Thickness = 2
-	})
-	local ps10 = createInstance("TextLabel", {
-		Parent = ps4,
-		Name = "price",
-		BackgroundTransparency = 1,
-		LayoutOrder = 4,
-		Size = UDim2.fromScale(1, 0.1),
-		FontFace = Font.new(fonts.FiraSans),
-		Text = "cost: null"..utf8.char(57346),
-		TextColor3 = Color3.new(1, 1, 1),
-		TextSize = 17,
-		TextTruncate = Enum.TextTruncate.AtEnd
-	})
-	createInstance("UIStroke", {
-		Parent = ps10,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-		Color = Color3.new(1, 1, 1),
-		Thickness = 2
-	})
-	local ps11 = createInstance("TextLabel", {
-		Parent = ps4,
-		Name = "expdate",
-
-		BackgroundTransparency = 1,
-		LayoutOrder = 5,
-		Size = UDim2.fromScale(1, 0.1),
-		FontFace = Font.new(fonts.FiraSans),
-		Text = "expire in: Ω seconds",
-		TextColor3 = Color3.new(1, 1, 1),
-		TextScaled = true
-	})
-	createInstance("UIStroke", {
-		Parent = ps11,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-		Color = Color3.new(1, 1, 1),
-		Thickness = 2
-	})
-	local ps12 = createInstance("TextButton", {
-		Parent = ps1,
+	createInstance("UIPadding", {Parent = sc5, PaddingBottom = UDim.new(0, 10), PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 10)})
+	createInstance("UIStroke", {Parent = sc5, BorderStrokePosition = Enum.BorderStrokePosition.Inner, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.new(1, 1, 1), Thickness = 2})
+	local sc6 = createInstance("TextButton", {
+		Parent = sc1,
 		Name = "dragbutton",
 		BackgroundColor3 = Color3.fromRGB(102, 101, 103),
 		AnchorPoint = Vector2.new(0, 1),
 		Size = UDim2.new(1, 0, 0, 30),
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
-		Text = "your private serves",
+		Text = "executor",
 		TextColor3 = Color3.new(1, 1, 1),
 		TextSize = 20,
 		FontFace = Font.new(fonts.FiraSans),
 		AutoButtonColor = false,
 		ClipsDescendants = true,
 	})
-	local ps13 = createInstance("TextButton", {
-		Parent = ps12,
+	local sc7 = createInstance("TextButton", {
+		Parent = sc6,
 		Name = "fullclose",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
@@ -4182,21 +4048,46 @@ local function createGui()
 		BorderSizePixel = 0,
 	})
 	createInstance("UIStroke", {
-		Parent = ps13,
+		Parent = sc7,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.new(1, 1, 1),
 		LineJoinMode = Enum.LineJoinMode.Miter
 	})
-	local ps14 = createInstance("ImageLabel", {
-		Parent = ps13,
+	local sc8 = createInstance("ImageLabel", {
+		Parent = sc7,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		Image = "rbxassetid://74120900238837",
 		BorderColor3 = Color3.new(0, 0, 0),
 		BorderSizePixel = 0,
 	})
-	local ps15 = createInstance("TextButton", {
-		Parent = ps1,
+	local sc9 = createInstance("TextButton", {
+		Parent = sc6,
+		Name = "close",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -30, 0, 5),
+		Size = UDim2.fromOffset(20, 20),
+		Text = "",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	createInstance("UIStroke", {
+		Parent = sc9,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = Color3.new(1, 1, 1),
+		LineJoinMode = Enum.LineJoinMode.Miter
+	})
+	local sc10 = createInstance("ImageLabel", {
+		Parent = sc9,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Image = "rbxassetid://15396333997",
+		BorderColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+	})
+	local sc12 = createInstance("TextButton", {
+		Parent = sc1,
 		Name = "resizebottom",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(0, 1),
@@ -4206,8 +4097,8 @@ local function createGui()
 		Text = "",
 		AutoButtonColor = false
 	})
-	local ps16 = createInstance("TextButton", {
-		Parent = ps1,
+	local sc13 = createInstance("TextButton", {
+		Parent = sc1,
 		Name = "resizeside",
 		BackgroundTransparency = 1,
 		Position = UDim2.new(1, 0, 0, -30),
@@ -4217,8 +4108,8 @@ local function createGui()
 		Text = "",
 		AutoButtonColor = false
 	})
-	local ps17 = createInstance("TextButton", {
-		Parent = ps1,
+	local sc14 = createInstance("TextButton", {
+		Parent = sc1,
 		Name = "resizeboth",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromScale(1, 1),
@@ -4348,38 +4239,6 @@ local function notify(icon, text, countdown)
 	end)
 end
 local jsonAttempts = 0
-local function savePlayedGames()
-	local readSuccess, data = readfile("DeepScopeCore/PlayedGames.dat", true)
-	if readSuccess then
-		if data ~= nil and tostring(data):gsub("%s", "") ~= "" then
-			local success, response = pcall(function()
-				local gameId = game.PlaceId
-				local gameInfo = game:GetService("MarketplaceService"):GetProductInfo(gameId)
-				data = HttpService:JSONDecode(data)
-				if not data[gameId] then
-					data[gameId] = {
-						Id = gameId,
-						MaxPlayers = game.Players.MaxPlayers,
-						OwnerData = {
-							UserId = game.CreatorId,
-							Verified = gameInfo.Creator.HasVerifiedBadge
-						}
-					}
-				end
-			end)
-			if not success then
-				jsonAttempts = jsonAttempts + 1
-				notify(nil, ("An error ocurred while saving played games data, attempt %s..."):format(jsonAttempts))
-
-				wait(0.5)
-				savePlayedGames()
-			end
-			if jsonAttempts > 50 then
-				notify(nil, "Failed to save data, but don't worry. We writen save file in Cloud.")
-			end
-		end
-	end
-end
 local function makeFakeScripts()
 	local folder = createInstance("Folder", {
 		Parent = game.ReplicatedStorage,
@@ -5757,6 +5616,146 @@ function setExecutor()
 		executor.Visible = false
 	end)
 end
+local function setSC()
+	local currentUnit = "meter"
+	local gui = newgui.Parent.studcalc
+	local unitsTable = {
+		["meter"] = {
+			["Name"] = "meter",
+			["Value"] = 0.28,
+			["Operator"] = "/"
+		},
+		["foot"] = {
+			["Name"] = "foot",
+			["Value"] = 0.9186351706,
+			["Operator"] = "/"
+		},
+		["inch"] = {
+			["Name"] = "inch",
+			["Value"] = 11.0236220472,
+			["Operator"] = "*"
+		},
+	}
+	gui.resizebottom.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if explorerOpened then
+				if not countdowns["logMenu"] then
+					resizingSC = "Y"
+					startMousePos = getMousePos()
+					startSCSize = gui.Size
+				end
+			end
+		end
+	end)
+
+	gui.resizeside.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if not countdowns["logMenu"] then
+				resizingSC = "X"
+				startMousePos = getMousePos()
+				startSCSize = gui.Size
+			end
+		end
+	end)
+
+	gui.resizeboth.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if not countdowns["logMenu"] then
+				resizingSC = "XY"
+				startMousePos = getMousePos()
+				startSCSize = gui.Size
+			end
+		end
+	end)
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if resizingSC then
+			local mouse = getMousePos()
+
+			if resizingSC == "Y" then
+				local deltaY = mouse.Y - startMousePos.Y
+				local newHeight = math.clamp(startSCSize.Y.Offset + deltaY, 180, 2000)
+				gui.Size = UDim2.new(startSCSize.X.Scale, startSCSize.X.Offset, 0, newHeight)
+			elseif resizingSC == "X" then
+				local deltaX = mouse.X - startMousePos.X
+				local newWidth = math.clamp(startSCSize.X.Offset + deltaX, 0, 2000)
+				gui.Size = UDim2.new(0, newWidth, startSCSize.Y.Scale, startSCSize.Y.Offset)
+			elseif resizingSC == "XY" then
+				local deltaX = mouse.X - startMousePos.X
+				local deltaY = mouse.Y - startMousePos.Y
+				local newWidth = math.clamp(startSCSize.X.Offset + deltaX, 180, 2000)
+				local newHeight = math.clamp(startSCSize.Y.Offset + deltaY, 0, 2000)
+				gui.Size = UDim2.new(0, newWidth, 0, newHeight)
+			end
+		end
+		if draggingSC then
+			local newX = getMousePos().X - startMousePos.X
+			local newY = getMousePos().Y - startMousePos.Y
+			local minX = 0
+			local maxX = newgui.Parent.AbsoluteSize.X - gui.AbsoluteSize.X
+			local minY = game.GuiService.TopbarInset.Height + gui.dragbutton.AbsoluteSize.Y
+			local maxY = newgui.Parent.AbsoluteSize.Y - gui.AbsoluteSize.Y
+			newX = math.clamp(startSCPos.X.Offset + newX, minX, maxX)
+			newY = math.clamp(startSCPos.Y.Offset + newY, minY, maxY) 
+
+			gui.Position = UDim2.new(0, newX, 0, newY)
+		end
+	end)
+	local function updateText()
+		local value = gui.mainframe.pole.Text:match("%d+")
+		local data = unitsTable[currentUnit]
+		local result = ""
+		if data.Operator == "/" then
+			result = tostring(tonumber(value) / data.Value)
+		elseif data.Operator == "*" then
+			result = tostring(tonumber(value) * data.Value)
+		end
+		gui.mainframe.result.Text = result
+	end
+	gui.mainframe.pole:GetPropertyChangedSignal("Text"):Connect(function()
+		updateText()
+	end)
+	for _, v in gui.units:GetChildren() do
+		if v:IsA("TextButton") then
+			v.MouseButton1Click:Connect(function()
+				currentUnit = v.Name
+				updateText()
+			end)
+		end
+	end
+	gui.resizebottom.MouseEnter:Connect(function()
+		TweenService:Create(gui.resizebottom, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	gui.resizebottom.MouseLeave:Connect(function()
+		TweenService:Create(gui.resizebottom, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	gui.resizeside.MouseEnter:Connect(function()
+		TweenService:Create(gui.resizeside, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	gui.resizeside.MouseLeave:Connect(function()
+		TweenService:Create(gui.resizeside, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	gui.resizeboth.MouseEnter:Connect(function()
+		TweenService:Create(gui.resizeboth, TweenInfo.new(0.2), {
+			BackgroundTransparency = 0.5
+		}):Play()
+	end)
+	gui.resizeboth.MouseLeave:Connect(function()
+		TweenService:Create(gui.resizeboth, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1
+		}):Play()
+	end)
+	gui.dragbutton.fullclose.MouseButton1Click:Connect(function()
+		gui.Visible = false
+	end)
+end
 local CoreSettings = coreModules.Lib.Settings
 CoreSettings.LoopConn = nil
 
@@ -6231,10 +6230,10 @@ end)
 newgui.Parent.colorpicker.picker.activateregion.MouseButton1Down:Connect(function()
 	pickingColor = true
 end)
-newgui.Parent.privateservers.dragbutton.MouseButton1Down:Connect(function()
+newgui.Parent.studcalc.dragbutton.MouseButton1Down:Connect(function()
 	startMousePos = game.UserInputService:GetMouseLocation()
-	startPSPos = newgui.Parent.privateservers.Position
-	draggingPS = true
+	startSCPos = newgui.Parent.privateservers.Position
+	draggingSC = true
 end)
 game.UserInputService.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton2 then
@@ -6250,8 +6249,8 @@ game.UserInputService.InputEnded:Connect(function(input)
 		resizingColorPicker = false
 		resizingExecutor = false
 		draggingExecutor = false
-		draggingPS = false
-		resizingPS = false
+		draggingSC = false
+		resizingSC = false
 		usingSlider = {
 			enabled = false,
 			slider = nil
@@ -7198,193 +7197,6 @@ if game.PlaceId == 537413528 then
 		end		
 	end)
 end
-function setPSMenu()
-	local psmenu = newgui.Parent.privateservers
-	local url = "https://games.roblox.com/v1/private-servers/my-private-servers"
-	local data = HttpService:JSONDecode(game:HttpGet(url))
-	local writendata = {}
-
-	psmenu.resizebottom.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			resizingPS = "Y"
-			startMousePos = getMousePos()
-			startPSSize = psmenu.Size
-		end
-	end)
-
-	psmenu.resizeside.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			resizingPS = "X"
-			startMousePos = getMousePos()
-			startPSSize = psmenu.Size
-		end
-	end)
-
-	psmenu.resizeboth.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			resizingPS = "XY"
-			startMousePos = getMousePos()
-			startPSSize = psmenu.Size
-		end
-	end)
-	game:GetService("RunService").RenderStepped:Connect(function()
-		if resizingPS then
-			local mouse = getMousePos()
-
-			if resizingPS == "Y" then
-				local deltaY = mouse.Y - startMousePos.Y
-				local newHeight = math.clamp(startPSSize.Y.Offset + deltaY, 180, 2000)
-				psmenu.Size = UDim2.new(startPSSize.X.Scale, startPSSize.X.Offset, 0, newHeight)
-			elseif resizingPS == "X" then
-				local deltaX = mouse.X - startMousePos.X
-				local newWidth = math.clamp(startPSSize.X.Offset + deltaX, 0, 2000)
-				psmenu.Size = UDim2.new(0, newWidth, startPSSize.Y.Scale, startPSSize.Y.Offset)
-			elseif resizingPS == "XY" then
-				local deltaX = mouse.X - startMousePos.X
-				local deltaY = mouse.Y - startMousePos.Y
-				local newWidth = math.clamp(startPSSize.X.Offset + deltaX, 180, 2000)
-				local newHeight = math.clamp(startPSSize.Y.Offset + deltaY, 0, 2000)
-				psmenu.Size = UDim2.new(0, newWidth, 0, newHeight)
-			end
-		end
-		if draggingPS then
-			local newX = getMousePos().X - startMousePos.X
-			local newY = getMousePos().Y - startMousePos.Y
-			local minX = 0
-			local maxX = newgui.Parent.AbsoluteSize.X - psmenu.AbsoluteSize.X
-			local minY = game.GuiService.TopbarInset.Height + psmenu.dragbutton.AbsoluteSize.Y
-			local maxY = newgui.Parent.AbsoluteSize.Y - psmenu.AbsoluteSize.Y
-			newX = math.clamp(startPSPos.X.Offset + newX, minX, maxX)
-			newY = math.clamp(startPSPos.Y.Offset + newY, minY, maxY) 
-
-			psmenu.Position = UDim2.new(0, newX, 0, newY)
-		end
-	end)
-	psmenu.resizebottom.MouseEnter:Connect(function()
-		TweenService:Create(psmenu.resizebottom, TweenInfo.new(0.2), {
-			BackgroundTransparency = 0.5
-		}):Play()
-	end)
-	psmenu.resizebottom.MouseLeave:Connect(function()
-		TweenService:Create(psmenu.resizebottom, TweenInfo.new(0.2), {
-			BackgroundTransparency = 1
-		}):Play()
-	end)
-	psmenu.resizeside.MouseEnter:Connect(function()
-		TweenService:Create(psmenu.resizeside, TweenInfo.new(0.2), {
-			BackgroundTransparency = 0.5
-		}):Play()
-	end)
-	psmenu.resizeside.MouseLeave:Connect(function()
-		TweenService:Create(psmenu.resizeside, TweenInfo.new(0.2), {
-			BackgroundTransparency = 1
-		}):Play()
-	end)
-	psmenu.resizeboth.MouseEnter:Connect(function()
-		TweenService:Create(psmenu.resizeboth, TweenInfo.new(0.2), {
-			BackgroundTransparency = 0.5
-		}):Play()
-	end)
-	psmenu.resizeboth.MouseLeave:Connect(function()
-		TweenService:Create(psmenu.resizeboth, TweenInfo.new(0.2), {
-			BackgroundTransparency = 1
-		}):Play()
-	end)
-	psmenu.dragbutton.fullclose.MouseButton1Click:Connect(function()
-		if psmenu.dragbutton.fullclose.ImageLabel.ImageColor == Color3.new(1, 1, 1) then
-			psmenu.Visible = false
-		else
-			psmenu.list.Visible = true
-			psmenu.detailedinfo.Visible = false
-			psmenu.dragbutton.fullclose.ImageLabel.ImageColor = Color3.new(1, 1, 1)
-		end
-	end)
-	for _, v in data.data do
-		local NT1 = createInstance("Frame", {
-			Parent = psmenu.list,
-			Name = "privateserver_"..v.privateServerId,
-			BackgroundColor3 = Color3.fromRGB(84, 83, 85),
-			Size = UDim2.fromOffset(100, 100),
-			BorderSizePixel = 0
-		})
-		local NT2 = createInstance("ImageLabel", {
-			Parent = NT1,
-			Name = "gameicon",
-			AnchorPoint = Vector2.new(0.5, 0),
-			BackgroundColor3 = Color3.fromRGB(53, 53, 54),
-			Position = UDim2.fromScale(0.5, 0),
-			Size = UDim2.fromScale(1, 0.5),
-			Image = "rbxassetid://"..game.MarketplaceService:GetProductInfo(v.placeId).IconImageAssetId,
-			ScaleType = Enum.ScaleType.Fit
-		})
-		local NT3 = createInstance("TextLabel", {
-			Parent = NT1,
-			Name = "gamename",
-			BackgroundTransparency = 1,
-			Position = UDim2.fromScale(0, 0.667),
-			Size = UDim2.fromScale(1, 0.167),
-			Text = v.universeName,
-			TextColor3 = Color3.new(1, 1, 1),
-			TextSize = 12,
-			TextTruncate = Enum.TextTruncate.AtEnd
-		})
-		createInstance("UIStroke", {
-			Parent = NT3,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-			Color = Color3.new(1, 1, 1)
-		})
-		local NT4 = createInstance("TextLabel", {
-			Parent = NT1,
-			Name = "psid",
-			BackgroundTransparency = 1,
-			Position = UDim2.fromScale(0, 0.667),
-			Size = UDim2.fromScale(1, 0.167),
-			Text = v.privateServerId,
-			TextColor3 = Color3.new(1, 1, 1),
-			TextSize = 12,
-			TextTruncate = Enum.TextTruncate.AtEnd
-		})
-		createInstance("UIStroke", {
-			Parent = NT4,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-			Color = Color3.new(1, 1, 1)
-		})
-		local NT5 = createInstance("TextLabel", {
-			Parent = NT1,
-			Name = "psname",
-			BackgroundTransparency = 1,
-			Position = UDim2.fromScale(0, 0.667),
-			Size = UDim2.fromScale(1, 0.167),
-			Text = v.name,
-			TextColor3 = Color3.new(1, 1, 1),
-			TextSize = 12,
-			TextTruncate = Enum.TextTruncate.AtEnd
-		})
-		createInstance("UIStroke", {
-			Parent = NT5,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-			Color = Color3.new(1, 1, 1)
-		})
-		NT1:GetPropertyChangedSignal("GuiState"):Connect(function()
-			if NT1.GuiState == Enum.GuiState.Press then
-				psmenu.list.Visible = false
-				psmenu.detailedinfo.Visible = true
-				psmenu.dragbutton.fullclose.ImageLabel.ImageColor3 = Color3.new(1, 0, 0)
-				psmenu.detailedinfo.icon.Image = "rbxassetid://"..game.MarketplaceService:GetProductInfo(v.placeId).IconImageAssetId
-				psmenu.detailedinfo.gamename.Text = "game name: "..v.universeName
-				psmenu.detailedinfo.owner.Text = "owner: "..game.Players:GetPlayerByUserId(v.ownerId).DisplayName.." (@"..v.ownerName..")"
-				psmenu.detailedinfo.privateserver.name.Text = "P.S. name: "..v.name
-				if v.priceInRobux ~= nil then
-					psmenu.detailedinfo.price.Text = "cost: "..v.priceInRobux..""
-					psmenu.detailedinfo.expdate.Text = "expire in: "..formatDate(DateTime.fromIsoDate(v.expirationDate).UnixTimestamp-tick())
-				end
-			end
-		end)
-	end
-end
 local conn = nil
 local currentCursor = nil
 newgui.Parent.settings.list["Custom Cursor"]:GetAttributeChangedSignal("Value"):Connect(function()
@@ -7585,10 +7397,10 @@ newgui.utils.utils.executor.MouseButton1Click:Connect(function()
 		setExecutor()
 	end
 end)
-newgui.utils.utils.privateservers.MouseButton1Click:Connect(function()
-	if not newgui.Parent.privateservers.Visible then
-		newgui.Parent.privateservers.Visible = true
-		setPSMenu()
+newgui.utils.utils.studcalc.MouseButton1Click:Connect(function()
+	if not newgui.Parent.studcalc.Visible then
+		newgui.Parent.studcalc.Visible = true
+		setSC()
 	end
 end)
 local textBox: TextBox = newgui.Parent.commandbar.input
@@ -8357,7 +8169,6 @@ end)
 registerCommand('removeterrain', function(args, speaker)
 	workspace:FindFirstChildOfClass('Terrain'):Clear()
 end)
-savePlayedGames()
 while true do
 	task.wait()
 	if selectedplr ~= "nobody" then
